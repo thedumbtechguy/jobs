@@ -435,6 +435,12 @@ GEM
       activejob (>= 7.2)
       activerecord (>= 7.2)
       railties (>= 7.2)
+    solid_errors (0.7.0)
+      actionpack (>= 7.0)
+      actionview (>= 7.0)
+      activerecord (>= 7.0)
+      activesupport (>= 7.0)
+      railties (>= 7.0)
     solid_queue (1.7.0)
       activejob (>= 7.1)
       activerecord (>= 7.1)
@@ -551,6 +557,7 @@ DEPENDENCIES
   selenium-webdriver
   solid_cable
   solid_cache
+  solid_errors (~> 0.7.0)
   solid_queue
   sqlite3 (>= 2.1)
   standard (>= 1.35.1)
@@ -711,6 +718,7 @@ CHECKSUMS
   sin_lru_redux (2.5.3) sha256=d9bcc184537cb0781cccfb283a18d36c5b820cf811b2637b398b55e98f4cecbd
   solid_cable (4.1.0) sha256=828e3d509207b82b4f05f4e9c85f696994710679b52d511aa7f97ebd212d3226
   solid_cache (1.0.10) sha256=bc05a2fb3ac78a6f43cbb5946679cf9db67dd30d22939ededc385cb93e120d41
+  solid_errors (0.7.0) sha256=a1db96bd6b96cca4444bca4526ce63b1e79ebe114b4d3f4d78af38df3b9a1a9b
   solid_queue (1.7.0) sha256=6566b70b801d1c317c81bba7bcdd5677c019afac584a30374b4164002ca356d3
   sqlite3 (2.9.6-aarch64-linux-gnu) sha256=d8b1f7d23efd7abac285775a9566562fc7debfef79d594e3a20354406fb7907c
   sqlite3 (2.9.6-aarch64-linux-musl) sha256=3579e1c98cdc7ff5c3722847bb63ed4e1efb7ff675cb5e1e48ef2d4da5fb3bc9
