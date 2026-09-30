@@ -1,0 +1,15 @@
+<main class="mx-auto max-w-3xl px-4 py-24 text-center">
+  <h1 class="text-4xl font-bold tracking-tight">Dev Registry</h1>
+  <p class="mt-4 text-lg text-gray-600">
+    A catalogue of our developers, what they've built, and where they can work next.
+  </p>
+
+  <div class="mt-10 flex justify-center gap-4">
+    <% if rodauth(:user).logged_in? %>
+      <%= link_to "Go to your dashboard", "/dashboard", class: "rounded-md bg-gray-900 px-4 py-2 text-white" %>
+    <% else %>
+      <%= link_to "Join", rodauth(:user).create_account_path, class: "rounded-md bg-gray-900 px-4 py-2 text-white" %>
+      <%= link_to "Log in", rodauth(:user).login_path, class: "rounded-md border px-4 py-2" %>
+    <% end %>
+  </div>
+</main>
