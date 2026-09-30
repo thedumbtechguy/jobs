@@ -11,4 +11,7 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+  constraints ManagementConstraint do
+    mount MissionControl::Jobs::Engine, at: "/manage/jobs"
+  end
 end
