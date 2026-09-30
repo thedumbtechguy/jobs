@@ -1,6 +1,8 @@
 CompanyPortal::Engine.routes.draw do
   root to: "dashboard#index"
   register_resource ::Company, singular: true
+  register_resource ::CompanyUser
+  register_resource ::Invites::CompanyUserInvite
 
   # register resources above.
 

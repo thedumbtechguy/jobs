@@ -1,10 +1,29 @@
+# == Schema Information
+#
+# Table name: companies
+#
+#  id          :integer          not null, primary key
+#  city        :string
+#  country     :string
+#  description :text
+#  name        :string           not null
+#  slug        :string           not null
+#  website     :string
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#
+# Indexes
+#
+#  index_companies_on_name  (name) UNIQUE
+#  index_companies_on_slug  (slug) UNIQUE
+#
 class Company < ::ResourceRecord
   # add concerns above.
 
   # add constants above.
 
   # add enums above.
-  dynamic_path_parameter :name
+  dynamic_path_parameter :slug
 
   # add model configurations above.
 
@@ -23,13 +42,11 @@ class Company < ::ResourceRecord
   # add scopes above.
 
   validates :name, presence: true
-  validates :slug, presence: true
-  validates :website, presence: true
-  validates :description, presence: true
-  validates :city, presence: true
-  validates :country, presence: true
+  validates :slug, presence: true, uniqueness: true,
+    format: {with: /\A[a-z0-9]+(?:-[a-z0-9]+)*\z/, message: "may only contain lowercase letters, numbers and dashes"}
   # add validations above.
 
+  before_validation { self.slug = name.to_s.parameterize if slug.blank? }
   # add callbacks above.
 
   # add delegations above.

@@ -11,7 +11,7 @@ servers:
       - <%= ENV['DEPLOY_HOST'] %>
     cmd: bin/litestream
   web:
-    - 192.168.0.1
+    - <%= ENV['DEPLOY_HOST'] %>
   # job:
   #   hosts:
   #     - 192.168.0.1
@@ -24,9 +24,9 @@ servers:
 #
 # Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
 #
-# proxy:
-#   ssl: true
-#   host: app.example.com
+proxy:
+  ssl: true
+  host: <%= ENV['APP_HOST'] %>
 
 # Where you keep your container images.
 registry:

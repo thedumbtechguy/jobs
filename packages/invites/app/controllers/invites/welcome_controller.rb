@@ -39,7 +39,7 @@ module Invites
     end
 
     def default_redirect_path
-      "/"
+      "/dashboard"
     end
   end
 end
