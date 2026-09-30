@@ -79,7 +79,7 @@ Rails.application.configure do
   config.action_mailer.perform_deliveries = true
 
   # Fixed, non-secret Active Record encryption keys (invite tokens) for local use.
-  # Production reads them from credentials or ENV.
+  # Production reads them from ENV.
   config.active_record.encryption.primary_key = "dev-primary-key-not-secret-000000"
   config.active_record.encryption.deterministic_key = "dev-deterministic-key-not-secret-0"
   config.active_record.encryption.key_derivation_salt = "dev-key-derivation-salt-not-secret"

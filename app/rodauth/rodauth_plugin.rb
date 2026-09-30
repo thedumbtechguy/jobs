@@ -76,7 +76,7 @@ class RodauthPlugin < Rodauth::Rails::Auth
     # ==> JWT
 
     # Set JWT secret, which is used to cryptographically protect the token.
-    # jwt_secret Rails.application.credentials.secret_key_base
+    # jwt_secret Rails.application.secret_key_base
 
     # ==> Api only
 

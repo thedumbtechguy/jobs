@@ -9,7 +9,12 @@ required_env_vars = %w[
 ]
 
 if Rails.env.production?
-  required_env_vars += %w[RAILS_MASTER_KEY DATABASE_URL]
+  required_env_vars += %w[
+    SECRET_KEY_BASE
+    ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY
+    ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY
+    ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT
+  ]
 end
 
 # Add additional env vars here
