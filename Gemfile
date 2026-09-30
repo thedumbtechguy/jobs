@@ -81,3 +81,5 @@ gem "mission_control-jobs", "~> 1.3"
 gem "solid_errors", "~> 0.7.0"
 
 gem "litestream", "~> 0.14.0"
+
+gem "rails_pulse", "~> 0.4.1"

@@ -21,6 +21,12 @@ default: &default
   max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
 
+rails_pulse: &rails_pulse
+  <<: *default
+  migrations_paths: db/rails_pulse_migrate
+  database: storage/<%= Rails.env %>-rails_pulse.sqlite3
+  schema_dump: false
+
 errors: &errors
   <<: *default
   migrations_paths: db/errors_migrate
@@ -49,6 +55,7 @@ development:
   cache: *cache
   cable: *cable
   errors: *errors
+  rails_pulse: *rails_pulse
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -61,6 +68,7 @@ test:
   cache: *cache
   cable: *cable
   errors: *errors
+  rails_pulse: *rails_pulse
 
 # Store production database in the storage/ directory, which by default
 # is mounted as a persistent Docker volume in config/deploy.yml.
@@ -84,3 +92,4 @@ production:
   cache: *cache
   cable: *cable
   errors: *errors
+  rails_pulse: *rails_pulse
