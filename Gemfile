@@ -83,3 +83,11 @@ gem "solid_errors", "~> 0.7.0"
 gem "litestream", "~> 0.14.0"
 
 gem "rails_pulse", "~> 0.4.1"
+
+gem "bcrypt", "~> 3.1"
+
+gem "sequel-activerecord_connection", "~> 2.0"
+
+gem "tilt", "~> 2.9"
+
+gem "rodauth-rails", "~> 2.2"
