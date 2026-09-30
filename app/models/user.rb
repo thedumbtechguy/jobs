@@ -25,7 +25,7 @@ class User < ResourceRecord
 
   # add belongs_to associations above.
 
-  has_one :developer, dependent: :destroy
+  has_one :developer_profile, class_name: "Developers::Profile", dependent: :destroy
   # add has_one associations above.
   has_many :company_users, dependent: :destroy
   has_many :companies, through: :company_users
@@ -47,6 +47,11 @@ class User < ResourceRecord
 
   def to_label
     email
+  end
+
+  # Onboarded users have a developer profile, a company, or both.
+  def onboarded?
+    developer_profile.present? || company_users.exists?
   end
 
   # add methods above. add private methods below.

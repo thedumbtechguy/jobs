@@ -11,9 +11,10 @@ Rails.application.routes.draw do
 
   root "home#index"
 
-  # Onboarding: every user gets a Developer listing, and can optionally set up a company.
+  # Onboarding: users create a developer profile, a company, or both.
   resource :onboarding, only: %i[show create], controller: "onboarding"
   resource :company_setup, only: %i[new create], path: "setup/company"
+  resource :developer_profile_setup, only: %i[new create], path: "setup/developer"
   constraints ManagementConstraint do
     mount RailsPulse::Engine, at: "/manage/pulse"
     mount Litestream::Engine, at: "/manage/litestream"

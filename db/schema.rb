@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_155908) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_161147) do
   create_table "admin_active_session_keys", primary_key: ["admin_id", "session_id"], force: :cascade do |t|
     t.integer "admin_id"
     t.string "session_id"
@@ -124,7 +124,34 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_155908) do
     t.index ["user_id"], name: "index_company_users_on_user_id"
   end
 
-  create_table "developers", force: :cascade do |t|
+  create_table "developers_experiences", force: :cascade do |t|
+    t.integer "profile_id", null: false
+    t.integer "company_id"
+    t.string "company_name", null: false
+    t.string "title", null: false
+    t.string "location"
+    t.date "started_on", null: false
+    t.date "ended_on"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id"], name: "index_developers_experiences_on_company_id"
+    t.index ["profile_id"], name: "index_developers_experiences_on_profile_id"
+  end
+
+  create_table "developers_profile_skills", force: :cascade do |t|
+    t.integer "profile_id", null: false
+    t.integer "skill_id", null: false
+    t.integer "level"
+    t.integer "years"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["profile_id", "skill_id"], name: "index_developers_profile_skills_on_profile_id_and_skill_id", unique: true
+    t.index ["profile_id"], name: "index_developers_profile_skills_on_profile_id"
+    t.index ["skill_id"], name: "index_developers_profile_skills_on_skill_id"
+  end
+
+  create_table "developers_profiles", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "handle", null: false
     t.string "name", null: false
@@ -149,10 +176,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_155908) do
     t.boolean "listed", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["country"], name: "index_developers_on_country"
-    t.index ["handle"], name: "index_developers_on_handle", unique: true
-    t.index ["listed", "availability"], name: "index_developers_on_listed_and_availability"
-    t.index ["user_id"], name: "index_developers_on_user_id", unique: true
+    t.index ["country"], name: "index_developers_profiles_on_country"
+    t.index ["handle"], name: "index_developers_profiles_on_handle", unique: true
+    t.index ["listed", "availability"], name: "index_developers_profiles_on_listed_and_availability"
+    t.index ["user_id"], name: "index_developers_profiles_on_user_id", unique: true
+  end
+
+  create_table "skills", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_skills_on_name", unique: true
+    t.index ["slug"], name: "index_skills_on_slug", unique: true
   end
 
   create_table "user_login_change_keys", force: :cascade do |t|
@@ -198,7 +234,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_155908) do
   add_foreign_key "company_user_invites", "users"
   add_foreign_key "company_users", "companies"
   add_foreign_key "company_users", "users"
-  add_foreign_key "developers", "users"
+  add_foreign_key "developers_experiences", "companies"
+  add_foreign_key "developers_experiences", "developers_profiles", column: "profile_id"
+  add_foreign_key "developers_profile_skills", "developers_profiles", column: "profile_id"
+  add_foreign_key "developers_profile_skills", "skills"
+  add_foreign_key "developers_profiles", "users"
   add_foreign_key "user_login_change_keys", "users", column: "id"
   add_foreign_key "user_password_reset_keys", "users", column: "id"
   add_foreign_key "user_remember_keys", "users", column: "id"

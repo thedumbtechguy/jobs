@@ -1,0 +1,26 @@
+<div>
+  <%= f.label :name, "Your name", class: label_class %>
+  <%= f.text_field :name, class: "pu-input w-full" %>
+</div>
+
+<div>
+  <%= f.label :handle, class: label_class %>
+  <%= f.text_field :handle, class: "pu-input w-full" %>
+  <p class="mt-1 text-xs text-[var(--pu-text-muted)]">Your public page will be at /@handle</p>
+</div>
+
+<div>
+  <%= f.label :headline, class: label_class %>
+  <%= f.text_field :headline, class: "pu-input w-full", placeholder: "e.g. Backend engineer, Rails and Postgres" %>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <div>
+    <%= f.label :city, class: label_class %>
+    <%= f.text_field :city, class: "pu-input w-full" %>
+  </div>
+  <div>
+    <%= f.label :country, class: label_class %>
+    <%= f.text_field :country, class: "pu-input w-full" %>
+  </div>
+</div>

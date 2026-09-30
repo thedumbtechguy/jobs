@@ -1,6 +1,6 @@
-class CreateDevelopers < ActiveRecord::Migration[8.1]
+class CreateDevelopersProfiles < ActiveRecord::Migration[8.1]
   def change
-    create_table :developers do |t|
+    create_table :developers_profiles do |t|
       t.belongs_to :user, null: false, foreign_key: true, index: {unique: true}
       t.string :handle, null: false
       t.string :name, null: false
@@ -26,8 +26,8 @@ class CreateDevelopers < ActiveRecord::Migration[8.1]
 
       t.timestamps
     end
-    add_index :developers, :handle, unique: true
-    add_index :developers, [:listed, :availability]
-    add_index :developers, :country
+    add_index :developers_profiles, :handle, unique: true
+    add_index :developers_profiles, [:listed, :availability]
+    add_index :developers_profiles, :country
   end
 end

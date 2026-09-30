@@ -11,11 +11,7 @@ class OnboardingController < ApplicationController
     @onboarding = Onboarding.new(user: current_user, **onboarding_params)
 
     if @onboarding.save
-      if @onboarding.company
-        redirect_to company_portal_path(@onboarding.company), notice: "Welcome! Your listing and #{@onboarding.company.name} are ready."
-      else
-        redirect_to dashboard_portal.root_path, notice: "Welcome! Your listing is ready."
-      end
+      redirect_to after_onboarding_path, notice: "Welcome! You're all set."
     else
       render :show, status: :unprocessable_entity
     end
@@ -24,12 +20,23 @@ class OnboardingController < ApplicationController
   private
 
   def redirect_if_onboarded
-    redirect_to dashboard_portal.root_path if current_user.developer.present?
+    redirect_to dashboard_portal.root_path if current_user.onboarded?
+  end
+
+  def after_onboarding_path
+    profile, company = @onboarding.profile, @onboarding.company
+    if profile && company
+      dashboard_portal.root_path
+    elsif company
+      company_portal_home_path(company)
+    else
+      developer_portal_home_path(profile)
+    end
   end
 
   def onboarding_params
     params.require(:onboarding)
-      .permit(:name, :handle, :headline, :city, :country, :hiring, :company_name, :company_website)
+      .permit(:developer, :name, :handle, :headline, :city, :country, :hiring, :company_name, :company_website)
       .to_h.symbolize_keys
   end
 end
