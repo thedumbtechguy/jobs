@@ -77,6 +77,13 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
+    actual_db_schema (0.9.2)
+      activerecord
+      activesupport
+      ast
+      csv
+      parser
+      prism
     addressable (2.9.0)
       public_suffix (>= 2.0.2, < 8.0)
     annotated (0.1.1)
@@ -508,6 +515,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  actual_db_schema (~> 0.9.2)
   annotated (~> 0.1.1)
   bootsnap
   brakeman
@@ -551,6 +559,7 @@ CHECKSUMS
   activerecord (8.1.4) sha256=3b4957ea7f246c9231bd7faa909312eac03a9101aaf87977b6c52733ff00b04f
   activestorage (8.1.4) sha256=f4956f3ec9ee63e5e0b332b57c877cb627f82b56f4cc902279310d2aa285c7a8
   activesupport (8.1.4) sha256=891dd3fe43c4fc8391934b237b1189bb1f661c932a84a840043db9d46a4e80df
+  actual_db_schema (0.9.2) sha256=7a5ef9b3e3f37c8d661581b3b950fa93b66305e001828fa01c8e05388a742ff6
   addressable (2.9.0) sha256=7fdf6ac3660f7f4e867a0838be3f6cf722ace541dd97767fa42bc6cfa980c7af
   annotated (0.1.1) sha256=e56d6d395783b6642063071922cf6efef272e8a2b2914881e76532f26b61bf1d
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
