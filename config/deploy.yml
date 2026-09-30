@@ -43,8 +43,19 @@ registry:
 # Inject ENV variables into containers (secrets come from .kamal/secrets).
 env:
   secret:
-    - RAILS_MASTER_KEY
+    - SECRET_KEY_BASE
+    - ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY
+    - ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY
+    - ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT
+    - SMTP_USERNAME
+    - SMTP_PASSWORD
+    - LITESTREAM_ACCESS_KEY_ID
+    - LITESTREAM_SECRET_ACCESS_KEY
   clear:
+    RAILS_DEFAULT_URL: https://<%= ENV['APP_HOST'] %>
+    SMTP_ADDRESS: <%= ENV['SMTP_ADDRESS'] %>
+    LITESTREAM_REPLICA_BUCKET: <%= ENV['LITESTREAM_REPLICA_BUCKET'] %>
+
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
     SOLID_QUEUE_IN_PUMA: true
@@ -92,7 +103,7 @@ builder:
   #   RUBY_VERSION: ruby-3.3.6
   # secrets:
   #   - GITHUB_TOKEN
-  #   - RAILS_MASTER_KEY
+  #   - SECRET_KEY_BASE
 
 # Use a different ssh user than root
 # ssh:

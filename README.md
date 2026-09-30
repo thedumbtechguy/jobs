@@ -27,6 +27,8 @@ bundle exec standardrb
 |---|---|
 | `/` | Public pages (main app) |
 | `/users/login`, `/users/create-account` | User accounts |
+| `/onboarding` | First step after signup: creates the user's listing and, optionally, a company |
+| `/setup/company/new` | Set up another company later |
 | `/dashboard` | Signed-in user's portal (`packages/dashboard_portal`) |
 | `/company/:slug` | Company portal, scoped to one company (`packages/company_portal`) |
 | `/admins/login`, `/admin` | Admin accounts (TOTP required) and admin portal (`packages/admin_portal`) |
@@ -42,16 +44,22 @@ In development, emails open in the browser through letter_opener.
 
 ## Deploy
 
-Kamal, configured in `config/deploy.yml`. Set these before deploying:
-- `DEPLOY_HOST`: the server.
-- `APP_HOST`: the public hostname, used for TLS.
-- `RAILS_MASTER_KEY`: in `.kamal/secrets`.
+Kamal, configured in `config/deploy.yml`. All configuration comes from
+environment variables; Rails credentials are not used. Export these on the
+machine that runs `kamal deploy`; `.kamal/secrets` passes the secret ones through.
 
-Create credentials with `bin/rails credentials:edit`. This writes
-`config/master.key`, which is not committed. Production credentials need:
-- `active_record_encryption` keys, from `bin/rails db:encryption:init`. Invite
-  tokens are encrypted with them.
-- `litestream` bucket credentials, for backups.
+| Variable | Required | Purpose |
+|---|---|---|
+| `DEPLOY_HOST` | yes | Server to deploy to |
+| `APP_HOST` | yes | Public hostname, for TLS and `RAILS_DEFAULT_URL` |
+| `SECRET_KEY_BASE` | yes | `bin/rails secret` |
+| `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY` | yes | From `bin/rails db:encryption:init`. Encrypts invite tokens |
+| `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY` | yes | As above |
+| `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` | yes | As above |
+| `SMTP_ADDRESS`, `SMTP_USERNAME`, `SMTP_PASSWORD` | for email | Outgoing mail (`SMTP_PORT` defaults to 587) |
+| `LITESTREAM_REPLICA_BUCKET`, `LITESTREAM_ACCESS_KEY_ID`, `LITESTREAM_SECRET_ACCESS_KEY` | for backups | Litestream S3 replica |
+
+The app refuses to boot in production if a required variable is missing.
 
 ## Working with Claude
 
