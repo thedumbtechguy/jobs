@@ -6,6 +6,7 @@ module CompanyPortal
       extend ActiveSupport::Concern
       include Plutonium::Portal::Controller
       include Plutonium::Auth::Rodauth(:user)
+      include RequiresOnboarding
 
       # add concerns above.
 

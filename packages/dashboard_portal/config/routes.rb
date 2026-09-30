@@ -1,5 +1,6 @@
 DashboardPortal::Engine.routes.draw do
   root to: "dashboard#index"
+  register_resource ::Developer, singular: true
 
   # register resources above.
 

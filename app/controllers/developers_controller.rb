@@ -1,0 +1,2 @@
+class DevelopersController < ::ResourceController
+end

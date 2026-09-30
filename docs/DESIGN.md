@@ -31,6 +31,7 @@ no data to migrate; we carry over its ideas, not its tables.
 | UI | Phlex, Tailwind, Stimulus, Turbo (Plutonium defaults) |
 | Search | Behind a `Searchable` concern. `LIKE` for now; swapped for the in-house SQLite search when it lands |
 | Deploy | Kamal on our own hosts, with SQLite files on a mounted volume |
+| Config | Environment variables only; no Rails credentials |
 
 ## Layout
 
@@ -53,9 +54,28 @@ packages/
 
 `User`, `Company`, `CompanyUser` and the company portal come from
 `pu:saas:setup`, run **without** its welcome flow: that flow makes every user
-pick or create a company, but most of our users are just developers. After
-login, users go to `/welcome`, which only checks for a pending company invite,
-and then on to `/dashboard`.
+pick or create a company, but here a company is optional.
+
+### Accounts and onboarding
+
+**Every user gets a personal account.** There are no company-only accounts.
+
+1. A person signs up as a `User`. After login, `/welcome` checks for a
+   pending company invite, then sends them to `/dashboard`.
+2. Anyone without a `Developer` listing is sent to `/onboarding` first, from
+   any portal (`RequiresOnboarding`).
+3. Onboarding asks for name, handle, headline and location, plus
+   **"I'm hiring for a company"**. Ticking it asks for a company name and
+   website.
+4. Submitting creates the listing and, when hiring, the `Company` with the
+   user as its `owner`. It all happens in one transaction
+   (`app/forms/onboarding.rb`).
+5. Users can set up more companies later from the dashboard
+   (`/setup/company/new`). Recruiters join a company through email invites.
+   Either way they keep their personal listing.
+
+People who only hire can set their listing to `listed: false` to stay out of
+the directory.
 
 ```
 ```
@@ -179,11 +199,7 @@ Ported from the old app, with its rough edges removed.
 | `company_portal` | Company members | Job posts and their lifecycle actions, applicants, members |
 | `admin_portal` | Admin account | Every resource, skills taxonomy, hiding/unlisting developers, projects or jobs |
 
-- **Signup:** creating a `user` account runs a short onboarding step that
-  creates the `Developer` (handle and name are required). After that the user
-  lands on `/dashboard`.
-- **Unlisted developers:** someone who only hires can keep `listed: false`
-  and still run a company.
+- **Signup and onboarding:** see *Accounts and onboarding* above.
 
 ## Search
 
@@ -213,8 +229,8 @@ end
 1. **Skeleton** ✅: Plutonium + SQLite stack, `user` and `admin` Rodauth
    accounts, companies and invites, portals mounted, CI (tests plus
    standardrb), Kamal config.
-2. **Catalogue:** `Developer`, `Experience`, `Skill`, `DeveloperSkill`,
-   onboarding, the dashboard listing, the public directory and `/@handle`.
+2. **Catalogue:** `Developer` ✅, onboarding ✅, dashboard listing ✅, then
+   `Experience`, `Skill`, `DeveloperSkill`, the public directory and `/@handle`.
 3. **Showcase:** projects and the contributor confirm flow.
 4. **Hiring:** companies, the company portal, jobs, lifecycle interactions,
    applications, and the expiry jobs and mailers.

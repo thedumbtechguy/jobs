@@ -10,6 +10,10 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   root "home#index"
+
+  # Onboarding: every user gets a Developer listing, and can optionally set up a company.
+  resource :onboarding, only: %i[show create], controller: "onboarding"
+  resource :company_setup, only: %i[new create], path: "setup/company"
   constraints ManagementConstraint do
     mount RailsPulse::Engine, at: "/manage/pulse"
     mount Litestream::Engine, at: "/manage/litestream"
