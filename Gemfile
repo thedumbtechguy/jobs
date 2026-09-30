@@ -79,3 +79,5 @@ gem "actual_db_schema", "~> 0.9.2", groups: [:development, :test]
 gem "mission_control-jobs", "~> 1.3"
 
 gem "solid_errors", "~> 0.7.0"
+
+gem "litestream", "~> 0.14.0"
