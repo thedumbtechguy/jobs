@@ -17,4 +17,21 @@ Rails.application.routes.draw do
     mount SolidErrors::Engine, at: "/manage/errors"
     mount MissionControl::Jobs::Engine, at: "/manage/jobs"
   end
+
+  # Welcome route (handled by invites package — replace with pu:saas:welcome for full onboarding)
+  get "welcome", to: "invites/welcome#index"
+
+  # Invitation welcome routes (shared across all invite flows)
+  scope module: :invites do
+    get "invitations/welcome", to: "welcome#index", as: :invites_welcome_check
+    delete "invitations/welcome", to: "welcome#skip", as: :invites_welcome_skip
+  end
+
+  # Invitation routes for CompanyUserInvite
+  scope module: :invites do
+    get "company_user_invitations/:token", to: "company_user_invitations#show", as: :company_user_invitation
+    post "company_user_invitations/:token/accept", to: "company_user_invitations#accept", as: :accept_company_user_invitation
+    get "company_user_invitations/:token/signup", to: "company_user_invitations#signup", as: :company_user_invitation_signup
+    post "company_user_invitations/:token/signup", to: "company_user_invitations#signup"
+  end
 end
