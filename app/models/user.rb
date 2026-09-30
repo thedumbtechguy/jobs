@@ -25,6 +25,7 @@ class User < ResourceRecord
 
   # add belongs_to associations above.
 
+  has_one :developer, dependent: :destroy
   # add has_one associations above.
   has_many :company_users, dependent: :destroy
   has_many :companies, through: :company_users

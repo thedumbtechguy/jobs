@@ -1,0 +1,9 @@
+<% if model.errors.any? %>
+  <div class="p-4 rounded-[var(--pu-radius-lg)] bg-[color:var(--color-danger-50)] text-[color:var(--color-danger-600)]" role="alert">
+    <ul class="list-disc list-inside text-sm">
+      <% model.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_152236) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_155908) do
   create_table "admin_active_session_keys", primary_key: ["admin_id", "session_id"], force: :cascade do |t|
     t.integer "admin_id"
     t.string "session_id"
@@ -124,6 +124,37 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_152236) do
     t.index ["user_id"], name: "index_company_users_on_user_id"
   end
 
+  create_table "developers", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "handle", null: false
+    t.string "name", null: false
+    t.string "headline"
+    t.text "bio"
+    t.string "city"
+    t.string "region"
+    t.string "country"
+    t.string "timezone"
+    t.boolean "remote_ok", default: true, null: false
+    t.boolean "open_to_relocation", default: false, null: false
+    t.string "contact_email"
+    t.string "phone"
+    t.string "website_url"
+    t.string "github_url"
+    t.string "linkedin_url"
+    t.string "x_url"
+    t.integer "availability", default: 1, null: false
+    t.integer "seniority"
+    t.integer "years_experience"
+    t.integer "contact_visibility", default: 1, null: false
+    t.boolean "listed", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["country"], name: "index_developers_on_country"
+    t.index ["handle"], name: "index_developers_on_handle", unique: true
+    t.index ["listed", "availability"], name: "index_developers_on_listed_and_availability"
+    t.index ["user_id"], name: "index_developers_on_user_id", unique: true
+  end
+
   create_table "user_login_change_keys", force: :cascade do |t|
     t.string "key", null: false
     t.string "login", null: false
@@ -167,6 +198,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_152236) do
   add_foreign_key "company_user_invites", "users"
   add_foreign_key "company_users", "companies"
   add_foreign_key "company_users", "users"
+  add_foreign_key "developers", "users"
   add_foreign_key "user_login_change_keys", "users", column: "id"
   add_foreign_key "user_password_reset_keys", "users", column: "id"
   add_foreign_key "user_remember_keys", "users", column: "id"
