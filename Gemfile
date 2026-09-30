@@ -77,3 +77,5 @@ gem "letter_opener", "~> 1.10", group: :development
 gem "actual_db_schema", "~> 0.9.2", groups: [:development, :test]
 
 gem "mission_control-jobs", "~> 1.3"
+
+gem "solid_errors", "~> 0.7.0"
