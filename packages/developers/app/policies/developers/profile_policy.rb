@@ -1,13 +1,8 @@
-module DashboardPortal
-  # In the dashboard a user only ever sees and edits their own listing.
-  # Listings are created during onboarding, so there is no create here.
-  class DeveloperPolicy < ::DeveloperPolicy
-    include DashboardPortal::ResourcePolicy
-
-    relation_scope do |relation|
-      default_relation_scope(relation).where(user: user)
-    end
-
+module Developers
+  # Profiles are created during onboarding or from the dashboard, never inside
+  # a portal. In the developer portal the entity is resolved through
+  # `belongs_to :user`, so the only reachable profile is the viewer's own.
+  class ProfilePolicy < Developers::ResourcePolicy
     def create? = false
 
     def read? = true
@@ -28,6 +23,10 @@ module DashboardPortal
         website_url github_url linkedin_url x_url
         availability seniority years_experience listed
       ]
+    end
+
+    def permitted_associations
+      %i[experiences profile_skills]
     end
   end
 end

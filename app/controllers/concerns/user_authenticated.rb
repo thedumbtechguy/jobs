@@ -4,14 +4,10 @@ module UserAuthenticated
 
   included do
     include Plutonium::Auth::Rodauth(:user)
+    include PortalPathsHelper
 
+    helper PortalPathsHelper
     before_action { rodauth(:user).require_account }
     layout "onboarding"
-  end
-
-  private
-
-  def company_portal_path(company)
-    company_portal.company_scoped_root_path(company_scoped: company)
   end
 end

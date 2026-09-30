@@ -8,16 +8,11 @@ class OnboardingTest < ActionDispatch::IntegrationTest
     @user = create_user!(email: "grace.hopper@example.com")
   end
 
-  test "users without a listing are sent to onboarding from any portal" do
+  test "users with neither a profile nor a company are sent to onboarding" do
     login_user(@user)
     assert_equal "/onboarding", path
 
     get "/dashboard"
-    assert_redirected_to "/onboarding"
-
-    company = Company.create!(name: "Acme Labs")
-    company.company_users.create!(user: @user, role: :recruiter)
-    get "/company/#{company.to_param}"
     assert_redirected_to "/onboarding"
   end
 
@@ -26,36 +21,59 @@ class OnboardingTest < ActionDispatch::IntegrationTest
     assert_select "input[name='onboarding[handle]'][value='grace-hopper']"
   end
 
-  test "creates a personal listing" do
+  test "creates just a developer profile" do
     login_user(@user)
 
-    assert_difference -> { Developer.count }, 1 do
+    assert_difference -> { Developers::Profile.count }, 1 do
       assert_no_difference -> { Company.count } do
-        post "/onboarding", params: {onboarding: {name: "Grace Hopper", handle: "grace", city: "Arlington", hiring: "0", company_name: "Ignored"}}
+        post "/onboarding", params: {onboarding: {developer: "1", name: "Grace Hopper", handle: "grace", hiring: "0", company_name: "Ignored"}}
       end
     end
 
-    assert_redirected_to "/dashboard/"
-    assert_equal "grace", @user.reload.developer.handle
+    assert_redirected_to "/developer/grace"
   end
 
-  test "creates a personal listing and a company for users who are hiring" do
+  test "creates just a company" do
     login_user(@user)
 
-    post "/onboarding", params: {onboarding: {name: "Grace Hopper", handle: "grace", hiring: "1", company_name: "Acme Labs", company_website: "https://acme.test"}}
+    assert_no_difference -> { Developers::Profile.count } do
+      post "/onboarding", params: {onboarding: {developer: "0", name: "", handle: "", hiring: "1", company_name: "Acme Labs"}}
+    end
 
     company = Company.find_by!(name: "Acme Labs")
-    assert_redirected_to "/company/#{company.to_param}"
-    assert @user.reload.developer.present?
-    assert_equal "owner", company.company_users.find_by!(user: @user).role
+    assert_redirected_to "/company/acme-labs"
+    assert company.company_users.exists?(user: @user, role: :owner)
+
+    get "/dashboard"
+    assert_response :success
+    assert_select "a", "Create developer profile"
+  end
+
+  test "creates both" do
+    login_user(@user)
+
+    post "/onboarding", params: {onboarding: {developer: "1", name: "Grace Hopper", handle: "grace", hiring: "1", company_name: "Acme Labs"}}
+
+    assert_redirected_to "/dashboard/"
+    assert @user.reload.developer_profile.present?
+    assert @user.companies.exists?(name: "Acme Labs")
+  end
+
+  test "requires at least one" do
+    login_user(@user)
+
+    post "/onboarding", params: {onboarding: {developer: "0", hiring: "0"}}
+
+    assert_response :unprocessable_entity
+    assert_includes response.body, "Choose a developer profile, a company, or both"
   end
 
   test "creates nothing when either record is invalid" do
-    create_developer!(handle: "grace")
+    create_profile!(handle: "grace")
     login_user(@user)
 
-    assert_no_difference ["Developer.count", "Company.count"] do
-      post "/onboarding", params: {onboarding: {name: "Grace Hopper", handle: "grace", hiring: "1", company_name: ""}}
+    assert_no_difference ["Developers::Profile.count", "Company.count"] do
+      post "/onboarding", params: {onboarding: {developer: "1", name: "Grace Hopper", handle: "grace", hiring: "1", company_name: ""}}
     end
 
     assert_response :unprocessable_entity
@@ -64,24 +82,34 @@ class OnboardingTest < ActionDispatch::IntegrationTest
   end
 
   test "onboarded users are sent back to the dashboard" do
-    create_developer!(user: @user)
+    create_profile!(user: @user)
     login_user(@user)
 
     get "/onboarding"
     assert_redirected_to "/dashboard/"
   end
 
-  test "onboarded users can set up a company later" do
-    create_developer!(user: @user)
+  test "users can set up a company later" do
+    create_profile!(user: @user)
     login_user(@user)
 
-    get "/setup/company/new"
+    post "/setup/company", params: {company: {name: "Later Co"}}
+    assert_redirected_to "/company/later-co"
+    assert @user.companies.exists?(name: "Later Co")
+  end
+
+  test "company-only users can create a developer profile later" do
+    create_company!(owner: @user)
+    login_user(@user)
+
+    get "/setup/developer/new"
     assert_response :success
 
-    post "/setup/company", params: {company: {name: "Later Co", website: "https://later.test"}}
-    company = Company.find_by!(name: "Later Co")
-    assert_redirected_to "/company/#{company.to_param}"
-    assert company.company_users.exists?(user: @user, role: :owner)
+    post "/setup/developer", params: {developers_profile: {name: "Grace Hopper", handle: "grace"}}
+    assert_redirected_to "/developer/grace"
+
+    get "/setup/developer/new"
+    assert_redirected_to "/developer/grace"
   end
 
   test "guests cannot onboard" do

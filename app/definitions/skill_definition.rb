@@ -1,0 +1,2 @@
+class SkillDefinition < ::ResourceDefinition
+end

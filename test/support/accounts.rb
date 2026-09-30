@@ -3,8 +3,14 @@ module AccountsTestHelper
     User.create!(email:, status: :verified, password_hash: BCrypt::Password.create("password123"))
   end
 
-  def create_developer!(user: create_user!, **attributes)
-    user.create_developer!(name: "Ada Lovelace", handle: "ada-#{SecureRandom.hex(3)}", **attributes)
+  def create_profile!(user: create_user!, **attributes)
+    user.create_developer_profile!(name: "Ada Lovelace", handle: "ada-#{SecureRandom.hex(3)}", **attributes)
+  end
+
+  def create_company!(owner: nil, name: "Company #{SecureRandom.hex(3)}")
+    Company.create!(name:).tap do |company|
+      company.company_users.create!(user: owner, role: :owner) if owner
+    end
   end
 
   # Logs in and follows the post-login redirects (/welcome checks for invites first).

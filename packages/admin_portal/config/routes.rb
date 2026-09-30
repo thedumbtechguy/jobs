@@ -3,7 +3,8 @@ AdminPortal::Engine.routes.draw do
   register_resource ::User
   register_resource ::Company
   register_resource ::Admin
-  register_resource ::Developer
+  register_resource ::Skill
+  register_resource ::Developers::Profile
 
   # register resources above.
 

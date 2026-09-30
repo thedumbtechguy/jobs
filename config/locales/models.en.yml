@@ -1,0 +1,12 @@
+en:
+  activerecord:
+    models:
+      developers/profile:
+        one: Developer profile
+        other: Developer profiles
+      developers/experience:
+        one: Experience
+        other: Experience
+      developers/profile_skill:
+        one: Skill
+        other: Skills

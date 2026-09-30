@@ -23,7 +23,7 @@ class Company < ::ResourceRecord
   # add constants above.
 
   # add enums above.
-  dynamic_path_parameter :slug
+  path_parameter :slug
 
   # add model configurations above.
 

@@ -27,9 +27,10 @@ bundle exec standardrb
 |---|---|
 | `/` | Public pages (main app) |
 | `/users/login`, `/users/create-account` | User accounts |
-| `/onboarding` | First step after signup: creates the user's listing and, optionally, a company |
-| `/setup/company/new` | Set up another company later |
-| `/dashboard` | Signed-in user's portal (`packages/dashboard_portal`) |
+| `/onboarding` | First step after signup: creates a developer profile, a company, or both |
+| `/setup/developer/new`, `/setup/company/new` | Create whichever was skipped, or another company |
+| `/dashboard` | Signed-in user's home (`packages/dashboard_portal`) |
+| `/developer/:handle` | Developer portal, scoped to the user's own profile (`packages/developer_portal`); models in `packages/developers` |
 | `/company/:slug` | Company portal, scoped to one company (`packages/company_portal`) |
 | `/admins/login`, `/admin` | Admin accounts (TOTP required) and admin portal (`packages/admin_portal`) |
 | `/manage/*` | Jobs, errors, Litestream and performance dashboards (admins only) |

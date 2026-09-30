@@ -1,5 +1,5 @@
-# Lets an existing user set up a company after onboarding. They become its
-# owner; their personal listing is unaffected.
+# Lets an onboarded user set up a company. They become its owner; their
+# developer profile (if any) is unaffected.
 class CompanySetupsController < ApplicationController
   include UserAuthenticated
   include RequiresOnboarding
@@ -16,7 +16,7 @@ class CompanySetupsController < ApplicationController
     end
 
     if saved
-      redirect_to company_portal_path(@company), notice: "#{@company.name} is ready."
+      redirect_to company_portal_home_path(@company), notice: "#{@company.name} is ready."
     else
       render :new, status: :unprocessable_entity
     end

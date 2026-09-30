@@ -7,6 +7,6 @@ class CompanyTest < ActiveSupport::TestCase
 
   test "uses the slug in URLs" do
     company = Company.create!(name: "Acme Labs")
-    assert_includes company.to_param, "acme-labs"
+    assert_equal "acme-labs", company.to_param
   end
 end

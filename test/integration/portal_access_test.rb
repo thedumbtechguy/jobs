@@ -5,19 +5,17 @@ class PortalAccessTest < ActionDispatch::IntegrationTest
   include AccountsTestHelper
 
   setup do
-    @developer = create_developer!
-    @user = @developer.user
-    @company = Company.create!(name: "Acme Labs")
-    @company.company_users.create!(user: @user, role: :owner)
-    @other_company = Company.create!(name: "Other Co")
+    @profile = create_profile!
+    @user = @profile.user
+    @company = create_company!(owner: @user, name: "Acme Labs")
+    @other_company = create_company!(name: "Other Co")
   end
 
   test "guests are sent to the user login" do
-    get "/dashboard"
-    assert_redirected_to "/users/login"
-
-    get "/company/#{@company.to_param}"
-    assert_redirected_to "/users/login"
+    ["/dashboard", "/company/#{@company.to_param}", "/developer/#{@profile.to_param}"].each do |path|
+      get path
+      assert_redirected_to "/users/login"
+    end
   end
 
   test "users land on the dashboard after logging in" do
@@ -25,30 +23,16 @@ class PortalAccessTest < ActionDispatch::IntegrationTest
 
     assert_equal "/dashboard", path.chomp("/")
     assert_response :success
-    assert_select "h1", /#{@developer.name}/
+    assert_select "h1", /#{@profile.name}/
+    assert_select "a[href='/developer/#{@profile.handle}']"
+    assert_select "a[href='/company/acme-labs']"
   end
 
-  test "users can see and edit only their own listing" do
-    create_developer!(name: "Someone Else")
-    login_user(@user)
-
-    get "/dashboard/developer"
-    assert_response :success
-    assert_includes response.body, @developer.handle
-
-    get "/dashboard/developer/edit"
-    assert_response :success
-  end
-
-  test "users can open companies they belong to" do
+  test "users can open companies they belong to, and no others" do
     login_user(@user)
 
     get "/company/#{@company.to_param}"
     assert_response :success
-  end
-
-  test "users cannot open companies they do not belong to" do
-    login_user(@user)
 
     get "/company/#{@other_company.to_param}"
     assert_includes [403, 404], response.status

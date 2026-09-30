@@ -2,47 +2,33 @@
 <% label_class = "block mb-2 text-sm font-medium text-[var(--pu-text)]" %>
 
 <div class="space-y-1">
-  <h1 class="text-xl font-bold text-[var(--pu-text)]">Welcome! Let's set up your listing.</h1>
-  <p class="text-sm text-[var(--pu-text-muted)]">Everyone gets a personal listing. You can fill in the rest from your dashboard.</p>
+  <h1 class="text-xl font-bold text-[var(--pu-text)]">Welcome! What brings you here?</h1>
+  <p class="text-sm text-[var(--pu-text-muted)]">Pick one or both. You can add the other later from your dashboard.</p>
 </div>
 
-<%= form_with model: @onboarding, scope: :onboarding, url: onboarding_path, class: "space-y-4",
-      data: {controller: "reveal"} do |f| %>
+<%= form_with model: @onboarding, scope: :onboarding, url: onboarding_path, class: "space-y-6" do |f| %>
   <%= render "shared/form_errors", model: @onboarding %>
 
-  <div>
-    <%= f.label :name, "Your name", class: label_class %>
-    <%= f.text_field :name, class: "pu-input w-full", required: true, autofocus: true %>
-  </div>
+  <section class="space-y-4" data-controller="reveal">
+    <label class="flex items-start gap-3">
+      <%= f.check_box :developer, class: "mt-1", data: {action: "reveal#toggle"} %>
+      <span>
+        <span class="block text-sm font-medium text-[var(--pu-text)]">I'm a developer</span>
+        <span class="block text-xs text-[var(--pu-text-muted)]">Create a profile with your skills, experience and projects.</span>
+      </span>
+    </label>
 
-  <div>
-    <%= f.label :handle, class: label_class %>
-    <%= f.text_field :handle, class: "pu-input w-full", required: true %>
-    <p class="mt-1 text-xs text-[var(--pu-text-muted)]">Your public page will be at /@handle</p>
-  </div>
-
-  <div>
-    <%= f.label :headline, class: label_class %>
-    <%= f.text_field :headline, class: "pu-input w-full", placeholder: "e.g. Backend engineer, Rails and Postgres" %>
-  </div>
-
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-    <div>
-      <%= f.label :city, class: label_class %>
-      <%= f.text_field :city, class: "pu-input w-full" %>
+    <div data-reveal-target="item" class="space-y-4 <%= "hidden" unless @onboarding.developer %>">
+      <%= render "developer_profile_setups/fields", f:, label_class: %>
     </div>
-    <div>
-      <%= f.label :country, class: label_class %>
-      <%= f.text_field :country, class: "pu-input w-full" %>
-    </div>
-  </div>
+  </section>
 
-  <div class="pt-4 border-t border-[var(--pu-border-muted)] space-y-4">
+  <section class="pt-6 border-t border-[var(--pu-border-muted)] space-y-4" data-controller="reveal">
     <label class="flex items-start gap-3">
       <%= f.check_box :hiring, class: "mt-1", data: {action: "reveal#toggle"} %>
       <span>
         <span class="block text-sm font-medium text-[var(--pu-text)]">I'm hiring for a company</span>
-        <span class="block text-xs text-[var(--pu-text-muted)]">Set up a company to post jobs. You can also do this later.</span>
+        <span class="block text-xs text-[var(--pu-text-muted)]">Set up a company to post jobs and invite recruiters.</span>
       </span>
     </label>
 
@@ -56,7 +42,7 @@
         <%= f.url_field :company_website, class: "pu-input w-full", placeholder: "https://" %>
       </div>
     </div>
-  </div>
+  </section>
 
   <%= f.submit "Get started", class: "w-full pu-btn pu-btn-md pu-btn-primary" %>
 <% end %>

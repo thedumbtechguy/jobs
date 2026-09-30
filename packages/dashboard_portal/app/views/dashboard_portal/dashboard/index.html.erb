@@ -1,24 +1,31 @@
-<% developer = current_user.developer %>
+<% profile = current_user.developer_profile %>
 <% companies = current_user.companies.order(:name) %>
 
 <div class="space-y-6">
   <div>
-    <h1 class="text-2xl font-bold text-[var(--pu-text)]">Hi, <%= developer.name %></h1>
-    <p class="text-[var(--pu-text-muted)]"><%= developer.headline.presence || "Add a headline so people know what you do." %></p>
+    <h1 class="text-2xl font-bold text-[var(--pu-text)]">Hi, <%= profile&.name || current_user.email %></h1>
+    <p class="text-[var(--pu-text-muted)]">Your developer profile and companies.</p>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="pu-card">
       <div class="pu-card-body space-y-4">
         <div>
-          <h3 class="font-semibold text-[var(--pu-text)]">Your listing</h3>
-          <p class="text-sm text-[var(--pu-text-muted)]">
-            @<%= developer.handle %> · <%= developer.listed? ? "Listed in the directory" : "Not listed" %>
-          </p>
+          <h3 class="font-semibold text-[var(--pu-text)]">Developer profile</h3>
+          <% if profile %>
+            <p class="text-sm text-[var(--pu-text-muted)]">
+              @<%= profile.handle %> · <%= profile.listed? ? "Listed in the directory" : "Not listed" %>
+            </p>
+          <% else %>
+            <p class="text-sm text-[var(--pu-text-muted)]">Show your skills, experience and projects.</p>
+          <% end %>
         </div>
         <div class="flex gap-2 pt-2 border-t border-[var(--pu-border-muted)]">
-          <a href="<%= resource_url_for(Developer, parent: nil) %>" class="pu-btn pu-btn-sm pu-btn-primary">View</a>
-          <a href="<%= resource_url_for(Developer, parent: nil, action: :edit) %>" class="pu-btn pu-btn-sm pu-btn-outline">Edit</a>
+          <% if profile %>
+            <%= link_to "Manage profile", developer_portal_home_path(profile), class: "pu-btn pu-btn-sm pu-btn-primary" %>
+          <% else %>
+            <%= link_to "Create developer profile", main_app.new_developer_profile_setup_path, class: "pu-btn pu-btn-sm pu-btn-outline" %>
+          <% end %>
         </div>
       </div>
     </div>
@@ -26,11 +33,11 @@
     <div class="pu-card">
       <div class="pu-card-body space-y-4">
         <div>
-          <h3 class="font-semibold text-[var(--pu-text)]">Your companies</h3>
+          <h3 class="font-semibold text-[var(--pu-text)]">Companies</h3>
           <% if companies.any? %>
             <ul class="mt-2 space-y-1 text-sm">
               <% companies.each do |company| %>
-                <li><%= link_to company.name, company_portal.company_scoped_root_path(company_scoped: company), class: "text-primary-600 hover:underline" %></li>
+                <li><%= link_to company.name, company_portal_home_path(company), class: "text-primary-600 hover:underline" %></li>
               <% end %>
             </ul>
           <% else %>
