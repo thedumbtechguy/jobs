@@ -23,9 +23,19 @@ class PortalAccessTest < ActionDispatch::IntegrationTest
 
     assert_equal "/dashboard", path.chomp("/")
     assert_response :success
-    assert_select "h1", /#{@profile.name}/
+    assert_select "h1", "Welcome back, Ada"
     assert_select "a[href='/developer/#{@profile.handle}']"
     assert_select "a[href='/company/acme-labs']"
+  end
+
+  test "the context switcher lists the user's profile and companies only" do
+    login_user(@user)
+    get "/developer/#{@profile.to_param}"
+
+    assert_select "details summary[aria-label='Switch context']"
+    assert_select "details a[href='/developer/#{@profile.handle}']"
+    assert_select "details a[href='/company/acme-labs']"
+    assert_select "details a[href='/company/#{@other_company.to_param}']", count: 0
   end
 
   test "users can open companies they belong to, and no others" do

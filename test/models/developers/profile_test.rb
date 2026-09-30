@@ -26,4 +26,15 @@ class Developers::ProfileTest < ActiveSupport::TestCase
     assert_not duplicate.valid?
     assert_includes duplicate.errors[:user], "already has a developer profile"
   end
+
+  test "tracks profile completeness" do
+    profile = create_profile!
+    assert_equal 0, profile.completeness_percent
+
+    profile.update!(headline: "Engineer", bio: "Hi", country: "Ghana", github_url: "https://github.com/ada")
+    %w[Ruby Rails SQLite].each { |name| profile.profile_skills.create!(skill: Skill.create!(name:)) }
+    profile.experiences.create!(title: "Dev", company_name: "Acme", started_on: Date.new(2020, 1, 1))
+
+    assert_equal 100, profile.reload.completeness_percent
+  end
 end

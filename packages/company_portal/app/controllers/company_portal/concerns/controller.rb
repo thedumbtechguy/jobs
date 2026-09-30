@@ -11,6 +11,7 @@ module CompanyPortal
       # add concerns above.
 
       included do
+        helper PortalPathsHelper
         helper_method :entity_url, :user_entities
       end
 

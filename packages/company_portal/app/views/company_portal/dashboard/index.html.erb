@@ -1,40 +1,87 @@
-<div class="space-y-6">
-  <div>
-    <h1 class="text-2xl font-bold text-[var(--pu-text)]">Dashboard</h1>
-    <p class="text-[var(--pu-text-muted)]">Manage your resources</p>
-  </div>
+<% company = current_scoped_entity %>
+<% memberships = company.company_users.includes(user: :developer_profile).order(:role, :created_at) %>
+<% pending_invites = company.company_user_invites.pending.order(created_at: :desc) %>
+<% content_for :title, company.name %>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <% registered_resources.each do |resource| %>
-      <% next unless allowed_to? :index?, resource %>
-      <div class="pu-card group hover:shadow-[var(--pu-shadow-lg)] transition-shadow">
-        <div class="pu-card-body space-y-4">
-          <div class="flex items-start justify-between">
-            <div class="flex items-center gap-3">
-              <div class="flex items-center justify-center h-10 w-10 rounded-[var(--pu-radius-md)] bg-primary-100 dark:bg-primary-900/30">
-                <svg class="h-5 w-5 text-primary-600 dark:text-primary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              </div>
-              <div>
-                <h3 class="font-semibold text-[var(--pu-text)]"><%= resource.model_name.human.titleize.pluralize %></h3>
-                <p class="text-sm text-[var(--pu-text-muted)]"><%= authorized_resource_scope(resource).count %> records</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2 pt-2 border-t border-[var(--pu-border-muted)]">
-            <a href="<%= resource_url_for(resource, parent: nil) %>" class="pu-btn pu-btn-sm pu-btn-primary">
-              View All
+<div class="mx-auto max-w-6xl space-y-6">
+  <section class="pu-card">
+    <div class="pu-card-body flex flex-col gap-4 sm:flex-row sm:items-center">
+      <%= render InitialsAvatar.new(name: company.name, seed: company.slug, size: :xl, shape: :square) %>
+      <div class="min-w-0 flex-1">
+        <h1 class="text-2xl font-bold tracking-tight text-[var(--pu-text)]"><%= company.name %></h1>
+        <div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--pu-text-muted)]">
+          <% if company.website.present? %>
+            <a href="<%= company.website %>" target="_blank" rel="noopener" class="flex items-center gap-1 text-primary-600 hover:underline dark:text-primary-400">
+              <%= render Phlex::TablerIcons::World.new(class: "h-4 w-4") %> <%= company.website.sub(%r{\Ahttps?://}, "") %>
             </a>
-            <% if allowed_to? :new?, resource %>
-              <a href="<%= resource_url_for(resource, parent: nil, action: :new) %>" class="pu-btn pu-btn-sm pu-btn-outline">
-                Add New
-              </a>
-            <% end %>
-          </div>
+          <% end %>
+          <% location = [company.city, company.country].compact_blank.join(", ") %>
+          <% if location.present? %>
+            <span class="flex items-center gap-1"><%= render Phlex::TablerIcons::MapPin.new(class: "h-4 w-4") %> <%= location %></span>
+          <% end %>
         </div>
       </div>
-    <% end %>
+      <a href="<%= resource_url_for(Company, parent: nil, action: :edit) %>" class="pu-btn pu-btn-md pu-btn-outline">
+        <%= render Phlex::TablerIcons::Pencil.new(class: "mr-1 h-4 w-4") %> Edit company
+      </a>
+    </div>
+  </section>
+
+  <div class="grid grid-cols-2 gap-4 lg:grid-cols-3">
+    <div class="pu-card"><div class="pu-card-body">
+      <p class="text-sm text-[var(--pu-text-muted)]">Members</p>
+      <p class="text-2xl font-semibold tabular-nums text-[var(--pu-text)]"><%= memberships.size %></p>
+    </div></div>
+    <div class="pu-card"><div class="pu-card-body">
+      <p class="text-sm text-[var(--pu-text-muted)]">Pending invitations</p>
+      <p class="text-2xl font-semibold tabular-nums text-[var(--pu-text)]"><%= pending_invites.size %></p>
+    </div></div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <section class="pu-card lg:col-span-2">
+      <div class="pu-card-body space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="font-semibold text-[var(--pu-text)]">Team</h2>
+          <a href="<%= resource_url_for(Invites::CompanyUserInvite, parent: nil, action: :new) %>" class="pu-btn pu-btn-sm pu-btn-outline">
+            <%= render Phlex::TablerIcons::UserPlus.new(class: "mr-1 h-4 w-4") %> Invite
+          </a>
+        </div>
+        <ul class="divide-y divide-[var(--pu-border-muted)]">
+          <% memberships.each do |membership| %>
+            <% profile = membership.user.developer_profile %>
+            <li class="flex items-center gap-3 py-3">
+              <%= render InitialsAvatar.new(name: profile&.name || membership.user.email, seed: membership.user.email, size: :sm) %>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium text-[var(--pu-text)]">
+                  <%= profile&.name || membership.user.email %><%= " (you)" if membership.user_id == current_user.id %>
+                </p>
+                <p class="truncate text-xs text-[var(--pu-text-muted)]"><%= profile ? "@#{profile.handle} · #{membership.user.email}" : "No developer profile" %></p>
+              </div>
+              <span class="pu-badge <%= membership.owner? ? "pu-badge-primary" : "pu-badge-neutral" %>"><%= membership.role.humanize %></span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </section>
+
+    <section class="pu-card">
+      <div class="pu-card-body space-y-4">
+        <h2 class="font-semibold text-[var(--pu-text)]">Pending invitations</h2>
+        <% if pending_invites.any? %>
+          <ul class="space-y-3">
+            <% pending_invites.first(5).each do |invite| %>
+              <li class="text-sm">
+                <p class="truncate font-medium text-[var(--pu-text)]"><%= invite.email %></p>
+                <p class="text-xs text-[var(--pu-text-muted)]"><%= invite.role.humanize %> · sent <%= time_ago_in_words(invite.created_at) %> ago</p>
+              </li>
+            <% end %>
+          </ul>
+          <a href="<%= resource_url_for(Invites::CompanyUserInvite, parent: nil) %>" class="text-sm text-primary-600 hover:underline dark:text-primary-400">Manage invitations</a>
+        <% else %>
+          <p class="text-sm text-[var(--pu-text-muted)]">Invite recruiters to help you hire.</p>
+        <% end %>
+      </div>
+    </section>
   </div>
 </div>

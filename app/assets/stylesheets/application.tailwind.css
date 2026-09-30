@@ -2,3 +2,12 @@
 
 @import "tailwindcss";
 @config '../../../tailwind.config.js';
+
+/* Plutonium offsets <main> for a pinned (expanded) icon rail but not the fixed
+   topbar or form footer, which then sit underneath the rail. Match them up. */
+@media (min-width: 1024px) {
+  html.pu-rail-pinned:not(.pu-no-rail) .pu-topbar,
+  html.pu-rail-pinned:not(.pu-no-rail) .pu-sticky-footer {
+    left: 14rem !important;
+  }
+}
