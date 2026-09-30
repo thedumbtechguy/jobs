@@ -1,17 +1,13 @@
 <%= render Plutonium::UI::Layout::IconRail.new(
       menu: Phlexi::Menu::Builder.new do |m|
-        m.item "Dashboard", url: root_path, icon: Phlex::TablerIcons::Home
-
-        m.item "Resources", icon: Phlex::TablerIcons::GridDots do |n|
-          registered_resources.each do |resource|
-            n.item resource_label(resource), url: resource_url_for(resource, parent: nil)
-          end
-        end
+        m.item "Overview", url: root_path, icon: Phlex::TablerIcons::LayoutDashboard
+        m.item "Profile", url: resource_url_for(Developers::Profile, parent: nil), icon: Phlex::TablerIcons::Id
+        m.item "Experience", url: resource_url_for(Developers::Experience, parent: nil), icon: Phlex::TablerIcons::Briefcase
+        m.item "Skills", url: resource_url_for(Developers::ProfileSkill, parent: nil), icon: Phlex::TablerIcons::Tools
+        m.item "Home", url: home_dashboard_path, icon: Phlex::TablerIcons::Home
       end
     ) do |rail| %>
-  <% if respond_to?(:resource_logo_tag) %>
-    <% rail.with_brand do %>
-      <%= resource_logo_tag(classname: "h-8 w-8 rounded-md") %>
-    <% end %>
+  <% rail.with_brand do %>
+    <%= resource_logo_tag(classname: "h-8 w-8") %>
   <% end %>
 <% end %>

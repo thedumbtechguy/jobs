@@ -10,5 +10,8 @@ application.register("hello", HelloController)
 import RevealController from "./reveal_controller"
 application.register("reveal", RevealController)
 
+import DismissableController from "./dismissable_controller"
+application.register("dismissable", DismissableController)
+
 import { registerControllers } from "@radioactive-labs/plutonium"
 registerControllers(application)

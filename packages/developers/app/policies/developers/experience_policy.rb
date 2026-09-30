@@ -15,5 +15,9 @@ module Developers
     def permitted_attributes_for_read
       permitted_attributes_for_create
     end
+
+    def permitted_attributes_for_index
+      %i[title company_name location started_on ended_on]
+    end
   end
 end

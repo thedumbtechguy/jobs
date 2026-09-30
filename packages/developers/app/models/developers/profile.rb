@@ -106,6 +106,25 @@ class Developers::Profile < Developers::ResourceRecord
     name
   end
 
+  CompletenessItem = Data.define(:key, :label, :done)
+
+  # Checklist shown on the dashboards to nudge people toward a useful profile.
+  def completeness_items
+    [
+      CompletenessItem.new(:headline, "Add a headline", headline.present?),
+      CompletenessItem.new(:bio, "Write a short bio", bio.present?),
+      CompletenessItem.new(:location, "Say where you're based", country.present?),
+      CompletenessItem.new(:links, "Link your GitHub, LinkedIn or website", [github_url, linkedin_url, website_url].any?(&:present?)),
+      CompletenessItem.new(:skills, "Add at least 3 skills", profile_skills.size >= 3),
+      CompletenessItem.new(:experience, "Add your experience", experiences.any?)
+    ]
+  end
+
+  def completeness_percent
+    items = completeness_items
+    (items.count(&:done) * 100.0 / items.size).round
+  end
+
   def location
     [city, region, country].compact_blank.join(", ")
   end
