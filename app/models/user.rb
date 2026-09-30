@@ -1,5 +1,19 @@
+# == Schema Information
+#
+# Table name: users
+#
+#  id            :integer          not null, primary key
+#  email         :string           not null
+#  password_hash :string
+#  status        :integer          default("unverified"), not null
+#
+# Indexes
+#
+#  index_users_on_email  (email) UNIQUE WHERE status IN (1, 2)
+#
 class User < ResourceRecord
   include Rodauth::Rails.model(:user)
+
   # add concerns above.
 
   # add constants above.
