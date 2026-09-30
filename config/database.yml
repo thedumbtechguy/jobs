@@ -5,6 +5,18 @@
 #   gem "sqlite3"
 #
 default: &default
+  # Plutonium-tuned SQLite pragmas (pu:lite:tune).
+  # Rails 8.1+ already sets WAL, synchronous=NORMAL, foreign_keys,
+  # mmap=128MB and journal_size_limit by default; only deltas are added
+  # there. We intentionally do NOT set SQLite's internal busy pragma —
+  # Rails routes the `timeout:` key to the sqlite3 gem's constant-poll
+  # busy_handler_timeout, which has better tail-latency than SQLite's
+  # backoff.
+  pragmas:
+    cache_size: -64000           # 64 MB page cache (default ~2 MB is too small)
+    temp_store: 2                # MEMORY — sorts/temp indexes stay off disk
+    mmap_size: 536870912         # 512 MB (override the 128 MB default)
+    wal_autocheckpoint: 10000    # checkpoint every ~40 MB of WAL, fewer pauses
   adapter: sqlite3
   max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
