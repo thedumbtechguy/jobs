@@ -6,6 +6,10 @@ image: dev_registry
 
 # Deploy to these servers.
 servers:
+  litestream:
+    hosts:
+      - <%= ENV['DEPLOY_HOST'] %>
+    cmd: bin/litestream
   web:
     - 192.168.0.1
   # job:
