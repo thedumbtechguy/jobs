@@ -25,3 +25,9 @@ production:
     queue: default
     schedule: every day at 1am
     description: "Archive/purge old Rails Pulse data"
+
+  sqlite_maintenance:
+    class: SqliteMaintenanceJob
+    queue: default
+    schedule: "every day at 3:30am"
+    description: "VACUUM + PRAGMA optimize across SQLite databases"
