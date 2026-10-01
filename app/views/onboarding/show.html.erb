@@ -1,48 +1,8 @@
 <% content_for :title, "Welcome" %>
-<% label_class = "block mb-2 text-sm font-medium text-[var(--pu-text)]" %>
 
 <div class="space-y-1">
   <h1 class="text-xl font-bold text-[var(--pu-text)]">Welcome! What brings you here?</h1>
   <p class="text-sm text-[var(--pu-text-muted)]">Pick one or both. You can add the other later from your dashboard.</p>
 </div>
 
-<%= form_with model: @onboarding, scope: :onboarding, url: onboarding_path, class: "space-y-6" do |f| %>
-  <%= render "shared/form_errors", model: @onboarding %>
-
-  <section class="space-y-4" data-controller="reveal">
-    <label class="flex items-start gap-3">
-      <%= f.check_box :developer, class: "mt-1", data: {action: "reveal#toggle"} %>
-      <span>
-        <span class="block text-sm font-medium text-[var(--pu-text)]">I'm a developer</span>
-        <span class="block text-xs text-[var(--pu-text-muted)]">Create a profile with your skills, experience and projects.</span>
-      </span>
-    </label>
-
-    <div data-reveal-target="item" class="space-y-4 <%= "hidden" unless @onboarding.developer %>">
-      <%= render "developer_profile_setups/fields", f:, label_class: %>
-    </div>
-  </section>
-
-  <section class="pt-6 border-t border-[var(--pu-border-muted)] space-y-4" data-controller="reveal">
-    <label class="flex items-start gap-3">
-      <%= f.check_box :hiring, class: "mt-1", data: {action: "reveal#toggle"} %>
-      <span>
-        <span class="block text-sm font-medium text-[var(--pu-text)]">I'm hiring for a company</span>
-        <span class="block text-xs text-[var(--pu-text-muted)]">Set up a company to post jobs and invite recruiters.</span>
-      </span>
-    </label>
-
-    <div data-reveal-target="item" class="space-y-4 <%= "hidden" unless @onboarding.hiring %>">
-      <div>
-        <%= f.label :company_name, class: label_class %>
-        <%= f.text_field :company_name, class: "pu-input w-full" %>
-      </div>
-      <div>
-        <%= f.label :company_website, class: label_class %>
-        <%= f.url_field :company_website, class: "pu-input w-full", placeholder: "https://" %>
-      </div>
-    </div>
-  </section>
-
-  <%= f.submit "Get started", class: "w-full pu-btn pu-btn-md pu-btn-primary" %>
-<% end %>
+<%= render Forms::OnboardingForm.new(@onboarding, action: onboarding_path, method: :post, submit_label: "Get started") %>

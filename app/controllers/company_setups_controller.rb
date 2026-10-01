@@ -1,6 +1,6 @@
 # Lets an onboarded user set up a company. They become its owner; their
 # developer profile (if any) is unaffected.
-class CompanySetupsController < ApplicationController
+class CompanySetupsController < ::PlutoniumController
   include UserAuthenticated
   include RequiresOnboarding
 
