@@ -7,7 +7,7 @@ Plutonium.configure do |config|
   config.shell = :modern
   config.assets.stylesheet = "application"
   config.assets.script = "application"
-  config.assets.logo = "brand/devcongress-dev.png"
+  config.assets.logo = "brand/devcongress-dev-square.png"
   config.assets.favicon = "brand/devcongress-dev-square.png"
   # Configure plutonium above.
 end
