@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_100100) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_110000) do
   create_table "active_shrine_attachments", force: :cascade do |t|
     t.string "record_type"
     t.bigint "record_id"
@@ -263,6 +263,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_100100) do
     t.index ["slug"], name: "index_skills_on_slug", unique: true
   end
 
+  create_table "user_identities", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "provider", null: false
+    t.string "uid", null: false
+    t.json "info", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["provider", "uid"], name: "index_user_identities_on_provider_and_uid", unique: true
+    t.index ["user_id"], name: "index_user_identities_on_user_id"
+  end
+
   create_table "user_login_change_keys", force: :cascade do |t|
     t.string "key", null: false
     t.string "login", null: false
@@ -316,6 +327,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_100100) do
   add_foreign_key "hiring_job_applications", "developers_profiles", column: "profile_id"
   add_foreign_key "hiring_job_applications", "hiring_job_posts", column: "job_post_id"
   add_foreign_key "hiring_job_posts", "companies"
+  add_foreign_key "user_identities", "users", on_delete: :cascade
   add_foreign_key "user_login_change_keys", "users", column: "id"
   add_foreign_key "user_password_reset_keys", "users", column: "id"
   add_foreign_key "user_remember_keys", "users", column: "id"

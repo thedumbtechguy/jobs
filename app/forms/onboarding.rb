@@ -11,6 +11,7 @@ class Onboarding
   attribute :headline, :string
   attribute :city, :string
   attribute :country, :string
+  attribute :github_url, :string
 
   attribute :hiring, :boolean, default: false
   attribute :company_name, :string
@@ -23,11 +24,12 @@ class Onboarding
   def initialize(user:, **attributes)
     @user = user
     super(**attributes)
+    prefill_from_social_sign_in
     self.handle ||= suggested_handle
   end
 
   def save
-    @profile = user.build_developer_profile(name:, handle:, headline:, city:, country:) if developer
+    @profile = user.build_developer_profile(name:, handle:, headline:, city:, country:, github_url:) if developer
     @company = Company.new(name: company_name, website: company_website) if hiring
 
     return false unless valid? & records_valid?
@@ -60,6 +62,18 @@ class Onboarding
     end
 
     profile_valid && company_valid
+  end
+
+  # People who signed up with Google or GitHub get their name (and, from
+  # GitHub, their username and profile link) filled in for them.
+  def prefill_from_social_sign_in
+    info = user.identities.order(:id).map(&:info).compact.reduce({}) { |merged, i| merged.merge(i.compact_blank) }
+    return if info.empty?
+
+    self.name ||= info["name"]
+    nickname = info["nickname"].to_s.downcase
+    self.handle ||= nickname if nickname.match?(Developers::Profile::HANDLE_FORMAT)
+    self.github_url ||= info.dig("urls", "GitHub")
   end
 
   def suggested_handle

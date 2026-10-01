@@ -51,10 +51,14 @@ env:
     - SMTP_PASSWORD
     - LITESTREAM_ACCESS_KEY_ID
     - LITESTREAM_SECRET_ACCESS_KEY
+    - GOOGLE_CLIENT_SECRET
+    - GITHUB_CLIENT_SECRET
   clear:
     RAILS_DEFAULT_URL: https://<%= ENV['APP_HOST'] %>
     SMTP_ADDRESS: <%= ENV['SMTP_ADDRESS'] %>
     MAIL_FROM: <%= ENV['MAIL_FROM'] %>
+    GOOGLE_CLIENT_ID: <%= ENV['GOOGLE_CLIENT_ID'] %>
+    GITHUB_CLIENT_ID: <%= ENV['GITHUB_CLIENT_ID'] %>
     LITESTREAM_REPLICA_BUCKET: <%= ENV['LITESTREAM_REPLICA_BUCKET'] %>
 
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.

@@ -27,7 +27,7 @@ no data to migrate; we carry over its ideas, not its tables.
 | Database | SQLite for everything (primary, queue, cache, cable, errors) |
 | Background jobs | Solid Queue, with recurring tasks in `config/recurring.yml` |
 | Backups | Litestream |
-| Auth | Rodauth: a `user` account (signup, optionally Google) and an `admin` account (invite-only, TOTP) |
+| Auth | Rodauth: a `user` account (email and password, plus Google and GitHub sign-in via rodauth-omniauth when their credentials are set) and an `admin` account (invite-only, TOTP available) |
 | UI | Phlex, Tailwind, Stimulus, Turbo (Plutonium defaults), styled after devcongress.org: cream/ink/pink/yellow, DM Serif Display + Inter (self-hosted), pill buttons, ink-bordered cards with a pink offset shadow (`.dc-card`) |
 | Search | Behind a `Searchable` concern. `LIKE` for now; swapped for the in-house SQLite search when it lands |
 | Deploy | Kamal on our own hosts, with SQLite files on a mounted volume |
