@@ -8,7 +8,7 @@
 
 <div class="mx-auto max-w-6xl space-y-6">
   <header>
-    <h1 class="text-2xl font-bold tracking-tight text-[var(--pu-text)]">Overview</h1>
+    <h1 class="font-display text-3xl text-[var(--pu-text)]">Overview</h1>
     <p class="mt-1 text-[var(--pu-text-muted)]">Everything on Dev Registry at a glance.</p>
   </header>
 
@@ -17,7 +17,7 @@
       <a href="<%= resource_url_for(resource, parent: nil) %>" class="pu-card block transition-shadow hover:shadow-[var(--pu-shadow-lg)]">
         <div class="pu-card-body">
           <p class="text-sm text-[var(--pu-text-muted)]"><%= label %></p>
-          <p class="text-2xl font-semibold tabular-nums text-[var(--pu-text)]"><%= count %></p>
+          <p class="font-display text-4xl tabular-nums text-primary-600 dark:text-primary-400"><%= count %></p>
         </div>
       </a>
     <% end %>

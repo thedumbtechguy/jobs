@@ -8,11 +8,11 @@
 <% content_for :title, company.name %>
 
 <div class="mx-auto max-w-6xl space-y-6">
-  <section class="pu-card">
+  <section class="dc-card">
     <div class="pu-card-body flex flex-col gap-4 sm:flex-row sm:items-center">
       <%= render InitialsAvatar.new(name: company.name, seed: company.slug, size: :xl, shape: :square) %>
       <div class="min-w-0 flex-1">
-        <h1 class="text-2xl font-bold tracking-tight text-[var(--pu-text)]"><%= company.name %></h1>
+        <h1 class="font-display text-3xl text-[var(--pu-text)]"><%= company.name %></h1>
         <div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--pu-text-muted)]">
           <% if company.website.present? %>
             <a href="<%= company.website %>" target="_blank" rel="noopener" class="flex items-center gap-1 text-primary-600 hover:underline dark:text-primary-400">
@@ -34,19 +34,19 @@
   <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
     <div class="pu-card"><div class="pu-card-body">
       <p class="text-sm text-[var(--pu-text-muted)]">Active jobs</p>
-      <p class="text-2xl font-semibold tabular-nums text-[var(--pu-text)]"><%= company.job_posts.active.count %></p>
+      <p class="font-display text-4xl tabular-nums text-primary-600 dark:text-primary-400"><%= company.job_posts.active.count %></p>
     </div></div>
     <div class="pu-card"><div class="pu-card-body">
       <p class="text-sm text-[var(--pu-text-muted)]">Applicants to review</p>
-      <p class="text-2xl font-semibold tabular-nums text-[var(--pu-text)]"><%= applications.submitted.count %></p>
+      <p class="font-display text-4xl tabular-nums text-primary-600 dark:text-primary-400"><%= applications.submitted.count %></p>
     </div></div>
     <div class="pu-card"><div class="pu-card-body">
       <p class="text-sm text-[var(--pu-text-muted)]">Members</p>
-      <p class="text-2xl font-semibold tabular-nums text-[var(--pu-text)]"><%= memberships.size %></p>
+      <p class="font-display text-4xl tabular-nums text-primary-600 dark:text-primary-400"><%= memberships.size %></p>
     </div></div>
     <div class="pu-card"><div class="pu-card-body">
       <p class="text-sm text-[var(--pu-text-muted)]">Pending invitations</p>
-      <p class="text-2xl font-semibold tabular-nums text-[var(--pu-text)]"><%= pending_invites.size %></p>
+      <p class="font-display text-4xl tabular-nums text-primary-600 dark:text-primary-400"><%= pending_invites.size %></p>
     </div></div>
   </div>
 
