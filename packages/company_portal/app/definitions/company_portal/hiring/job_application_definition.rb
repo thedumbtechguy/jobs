@@ -15,6 +15,8 @@ module CompanyPortal
 
       column :profile, label: "Applicant"
       column :rating_stars, label: "Rating"
+      column :status, label: "Stage", as: ::Hiring::StageBadge
+      display :status, label: "Stage", as: ::Hiring::StageBadge
 
       search { |scope, query| scope.search(query) }
 
@@ -40,10 +42,10 @@ module CompanyPortal
         per_column 50
         card_fields header: :profile, subheader: :job_post, meta: [:rating_stars], footer: :created_at
 
-        column :submitted, label: "New",
+        column :submitted, label: "New", color: :blue,
           scope: -> { where(status: :submitted) },
           on_enter: ->(application) { application.move_to!(:submitted) }
-        column :reviewing,
+        column :reviewing, color: :pink,
           scope: -> { where(status: :reviewing) },
           on_enter: ->(application) { application.move_to!(:reviewing) }
         column :shortlisted, color: :amber,
@@ -55,7 +57,7 @@ module CompanyPortal
         column :rejected, role: :lost,
           scope: -> { where(status: :rejected) },
           enter_interaction: ::Hiring::RejectApplicationInteraction
-        column :withdrawn, collapsed: true, locked: true,
+        column :withdrawn, color: :gray, collapsed: true, locked: true,
           scope: -> { where(status: :withdrawn) }
       end
       default_index_view :kanban
