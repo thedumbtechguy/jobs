@@ -5,6 +5,7 @@
 #  id                   :integer          not null, primary key
 #  accepts_applications :boolean          default(TRUE), not null
 #  apply_url            :string
+#  approved_at          :datetime
 #  archived_at          :datetime
 #  city                 :string
 #  country              :string
@@ -19,7 +20,7 @@
 #  salary_min           :integer
 #  seniority            :integer
 #  title                :string           not null
-#  visibility           :integer          default(2), not null
+#  visibility           :integer          default("everyone"), not null
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #  company_id           :integer          not null
@@ -39,6 +40,11 @@ require_relative "../hiring"
 # draft -> published for VALIDITY_PERIOD -> expired (renewable), and it can be
 # marked filled or archived at any point. Applications happen in the app,
 # through an external link, or both.
+#
+# A company's first job is reviewed: until an admin approves one of its jobs
+# the company isn't trusted, and publishing puts the job in review (hidden,
+# admins emailed). Approval makes it live and trusts the company, so later
+# jobs go live as soon as they're published.
 class Hiring::JobPost < Hiring::ResourceRecord
   VALIDITY_PERIOD = ENV.fetch("JOB_VALIDITY_DAYS", 30).to_i.days
 
@@ -54,8 +60,10 @@ class Hiring::JobPost < Hiring::ResourceRecord
   has_many :job_applications, class_name: "Hiring::JobApplication", dependent: :destroy
 
   scope :published, -> { where.not(published_at: nil) }
-  scope :active, -> { published.where(filled_at: nil, archived_at: nil).where("expires_at > ?", Time.current) }
+  scope :approved, -> { published.where.not(approved_at: nil) }
+  scope :active, -> { approved.where(filled_at: nil, archived_at: nil).where("expires_at > ?", Time.current) }
   scope :drafts, -> { where(published_at: nil, archived_at: nil) }
+  scope :pending_review, -> { published.where(approved_at: nil, filled_at: nil, archived_at: nil) }
   scope :newest, -> { order(published_at: :desc, created_at: :desc) }
   # Active jobs a viewer may see: public ones for guests, all for members.
   scope :visible_to, ->(user) { user ? active : active.visible_to_everyone }
@@ -83,6 +91,7 @@ class Hiring::JobPost < Hiring::ResourceRecord
     if archived_at then :archived
     elsif filled_at then :filled
     elsif published_at.nil? then :draft
+    elsif approved_at.nil? then :pending_review
     elsif expires_at&.past? then :expired
     else :active
     end
@@ -94,12 +103,36 @@ class Hiring::JobPost < Hiring::ResourceRecord
 
   def publishable? = status == :draft
 
+  def pending_review? = status == :pending_review
+
   def renewable? = status == :expired
 
   def fillable? = %i[active expired].include?(status)
 
+  # Goes live straight away for trusted companies; otherwise waits for review.
   def publish!
-    update!(published_at: Time.current, expires_at: VALIDITY_PERIOD.from_now)
+    if company.jobs_trusted?
+      update!(published_at: Time.current, approved_at: Time.current, expires_at: VALIDITY_PERIOD.from_now)
+    else
+      update!(published_at: Time.current, approved_at: nil, expires_at: nil)
+      Hiring::JobReviewMailer.with(job_post: self).review_requested.deliver_later
+    end
+  end
+
+  # Admin approval: the job goes live for the full period and the company is
+  # trusted from now on.
+  def approve!
+    transaction do
+      update!(approved_at: Time.current, published_at: Time.current, expires_at: VALIDITY_PERIOD.from_now)
+      company.update!(jobs_trusted_at: Time.current) unless company.jobs_trusted?
+    end
+    Hiring::JobReviewMailer.with(job_post: self).approved.deliver_later
+  end
+
+  # Admin sends the job back to draft with a reason for the company.
+  def decline!(reason)
+    update!(published_at: nil, approved_at: nil, expires_at: nil)
+    Hiring::JobReviewMailer.with(job_post: self, reason:).declined.deliver_later
   end
 
   def renew!

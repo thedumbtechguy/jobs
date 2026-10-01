@@ -2,15 +2,16 @@
 #
 # Table name: companies
 #
-#  id          :integer          not null, primary key
-#  city        :string
-#  country     :string
-#  description :text
-#  name        :string           not null
-#  slug        :string           not null
-#  website     :string
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id              :integer          not null, primary key
+#  city            :string
+#  country         :string
+#  description     :text
+#  jobs_trusted_at :datetime
+#  name            :string           not null
+#  slug            :string           not null
+#  website         :string
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
 #
 # Indexes
 #
@@ -54,6 +55,9 @@ class Company < ::ResourceRecord
   # add delegations above.
 
   # add misc attribute macros above.
+
+  # Trusted once an admin approves the company's first job.
+  def jobs_trusted? = jobs_trusted_at.present?
 
   # add methods above. add private methods below.
 end

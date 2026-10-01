@@ -23,6 +23,35 @@
     <% end %>
   </div>
 
+  <% pending = Hiring::JobPost.pending_review.includes(:company).order(:published_at) %>
+  <section class="dc-card">
+    <div class="pu-card-body space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="font-semibold text-[var(--pu-text)]">Jobs waiting for review</h2>
+        <span class="pu-badge <%= pending.any? ? "pu-badge-warning" : "pu-badge-neutral" %>"><%= pending.size %></span>
+      </div>
+      <% if pending.any? %>
+        <p class="text-sm text-[var(--pu-text-muted)]">First jobs from new companies. Approving one makes it live and lets that company publish without review.</p>
+        <ul class="divide-y divide-[var(--pu-border-muted)]">
+          <% pending.each do |job| %>
+            <li>
+              <a href="<%= resource_url_for(job, parent: nil) %>" class="flex items-center gap-3 py-3 hover:bg-[var(--pu-surface-alt)]">
+                <%= render InitialsAvatar.new(name: job.company.name, seed: job.company.slug, size: :sm, shape: :square) %>
+                <span class="min-w-0 flex-1">
+                  <span class="block truncate text-sm font-medium text-[var(--pu-text)]"><%= job.title %></span>
+                  <span class="block truncate text-xs text-[var(--pu-text-muted)]"><%= job.company.name %> · submitted <%= time_ago_in_words(job.published_at) %> ago</span>
+                </span>
+                <span class="text-sm font-semibold text-primary-600 dark:text-primary-400">Review →</span>
+              </a>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-sm text-[var(--pu-text-muted)]">Nothing to review.</p>
+      <% end %>
+    </div>
+  </section>
+
   <section class="pu-card">
     <div class="pu-card-body space-y-4">
       <h2 class="font-semibold text-[var(--pu-text)]">Newest developer profiles</h2>

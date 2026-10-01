@@ -1,7 +1,7 @@
 <% variant = {
-     "active" => "pu-badge-success", "draft" => "pu-badge-neutral", "expired" => "pu-badge-warning",
+     "active" => "pu-badge-success", "draft" => "pu-badge-neutral", "pending_review" => "pu-badge-warning", "expired" => "pu-badge-warning",
      "filled" => "pu-badge-info", "archived" => "pu-badge-neutral",
      "submitted" => "pu-badge-info", "reviewing" => "pu-badge-primary", "shortlisted" => "pu-badge-success",
      "rejected" => "pu-badge-neutral", "hired" => "pu-badge-success", "withdrawn" => "pu-badge-neutral"
    }.fetch(status.to_s, "pu-badge-neutral") %>
-<span class="pu-badge <%= variant %>"><%= status.to_s.humanize %></span>
+<span class="pu-badge <%= variant %>"><%= status.to_s == "pending_review" ? "In review" : status.to_s.humanize %></span>

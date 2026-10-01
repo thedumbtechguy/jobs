@@ -17,11 +17,30 @@ class HiringTest < ActionDispatch::IntegrationTest
     post "/company/acme-labs/hiring/job_posts", params: {hiring_job_post: {
       title: "Rails Engineer", description: "Ship features.", employment_type: "full_time", accepts_applications: "1"
     }}
-    job = @company.job_posts.sole
+    job = @company.job_posts.find_by!(title: "Rails Engineer")
     assert_equal :draft, job.status
 
+    # A new company's first job goes to review instead of going live.
     post "/company/acme-labs/hiring/job_posts/#{job.id}/record_actions/publish"
+    assert_equal :pending_review, job.reload.status
+    follow_redirect!
+    assert_includes response.body, "Submitted for review"
+
+    get "/jobs"
+    assert_not_includes response.body, "Rails Engineer"
+
+    job.approve!
     assert_equal :active, job.reload.status
+    get "/jobs"
+    assert_includes response.body, "Rails Engineer"
+
+    # Trusted now, so the next job publishes straight away.
+    post "/company/acme-labs/hiring/job_posts", params: {hiring_job_post: {
+      title: "Second Role", description: "More features.", employment_type: "contract", accepts_applications: "1"
+    }}
+    second = @company.job_posts.find_by!(title: "Second Role")
+    post "/company/acme-labs/hiring/job_posts/#{second.id}/record_actions/publish"
+    assert_equal :active, second.reload.status
 
     post "/company/acme-labs/hiring/job_posts/#{job.id}/record_actions/mark_filled"
     assert_equal :filled, job.reload.status

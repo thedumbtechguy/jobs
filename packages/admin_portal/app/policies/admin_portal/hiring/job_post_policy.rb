@@ -5,6 +5,10 @@ module AdminPortal
 
       def destroy? = true
 
+      def approve? = record.pending_review?
+
+      def decline? = record.pending_review?
+
       def permitted_attributes_for_create
         [:company, *super]
       end

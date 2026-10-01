@@ -232,13 +232,26 @@ end
    accounts, companies and invites, portals mounted, CI (tests plus
    standardrb), Kamal config.
 2. **Catalogue:** `developers` package with profile, experience and skills ✅,
-   developer portal ✅, onboarding ✅, then the public directory and `/@handle`.
+   developer portal ✅, onboarding ✅, public directory (`/devs`) and `/@handle` ✅.
 3. **Showcase:** projects and the contributor confirm flow.
 4. **Hiring:** companies and the company portal ✅, `hiring` package with job
    posts, lifecycle actions (publish, renew, filled, reopen, archive) and
    applications ✅, developers browse and apply from the developer portal ✅.
-   Still to do: expiry reminder emails and the public `/jobs` pages.
+   Public `/jobs`, job and company pages ✅. A new company's first job is
+   reviewed by an admin (emailed) before it goes live; approval trusts the
+   company ✅. Still to do: expiry reminder emails, active-job cap per company.
 5. **Network:** follows and connections, endorsements, and "people you may
    know" (connections of connections).
 6. **Polish:** landing page and admin moderation, then plug in the SQLite
    search.
+
+## Visibility
+
+| Record | Settings | Default |
+|---|---|---|
+| Developer profile | Public (directory, `/@handle`, search engines) · Members only · Hidden (owner only) | Members only |
+| Contact email/phone | Everyone who can see the profile · Members only · Only you (until connections exist) | Members only |
+| Job post | Public · Members only. Drafts, jobs in review, expired, filled and archived jobs are never shown | Public |
+
+Guests see public records; signed-in members also see members-only ones. Pages
+for non-public records are marked `noindex`.
