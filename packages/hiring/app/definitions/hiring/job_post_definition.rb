@@ -61,7 +61,10 @@ module Hiring
     form_layout do
       section :role, :title, :employment_type, :seniority, label: "What you're posting", columns: 3
       section :description, :description, label: "Description"
-      section :timing, :duration, :starts_on, label: "Timing", columns: 2
+      # Hidden as a whole for permanent roles; hiding only its fields would
+      # leave an empty heading behind.
+      section :timing, :duration, :starts_on, label: "Timing", columns: 2,
+        condition: -> { object.time_bound? }
       section :location, :remote_ok, :city, :country, label: "Location", columns: 3
       section :pay, :paid, :pay_period, :salary_min, :salary_max, :salary_currency, label: "Pay",
         description: "Optional, but posts that list pay get more applicants.", columns: 3
