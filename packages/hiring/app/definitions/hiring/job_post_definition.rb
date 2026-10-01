@@ -59,7 +59,10 @@ module Hiring
     default_sort :created_at, :desc
 
     form_layout do
-      section :role, :title, :employment_type, :seniority, label: "What you're posting", columns: 3
+      # On edit the type is locked (see the policy), so it's named in the heading instead.
+      section :role, :title, :employment_type, :seniority, columns: 3,
+        label: ->(form) { form.object.persisted? ? "What you're posting: #{form.object.type_label}" : "What you're posting" },
+        description: ->(form) { "The type can't be changed after a post is created." if form.object.persisted? }
       section :description, :description, label: "Description"
       # Hidden as a whole for permanent roles; hiding only its fields would
       # leave an empty heading behind.

@@ -48,4 +48,13 @@ class Hiring::PostTypesTest < ActiveSupport::TestCase
     assert_equal [intern], Hiring::JobPost.of_kind(:internships).to_a
     assert_equal %w[job gig internship], [job, gig, intern].map(&:kind_noun)
   end
+
+  test "the type can't change once the post exists" do
+    post = build_post(employment_type: :freelance)
+    post.save!
+
+    post.employment_type = :full_time
+    assert_not post.valid?
+    assert_includes post.errors[:employment_type], "can't be changed once the post is created"
+  end
 end
