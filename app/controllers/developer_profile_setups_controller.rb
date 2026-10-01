@@ -1,5 +1,5 @@
 # Lets an onboarded user who skipped it create their developer profile.
-class DeveloperProfileSetupsController < ApplicationController
+class DeveloperProfileSetupsController < ::PlutoniumController
   include UserAuthenticated
   include RequiresOnboarding
 

@@ -7,6 +7,8 @@ module UserAuthenticated
     include PortalPathsHelper
 
     helper PortalPathsHelper
+    # Plutonium's view helpers, needed by the Plutonium form components.
+    helper Plutonium::Helpers
     before_action { rodauth(:user).require_account }
     layout "onboarding"
   end

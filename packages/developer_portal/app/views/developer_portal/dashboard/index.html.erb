@@ -11,28 +11,33 @@
 
 <div class="mx-auto max-w-6xl space-y-6">
   <section class="pu-card overflow-hidden">
-    <div class="h-20 bg-gradient-to-r from-primary-600 to-primary-400 dark:from-primary-800 dark:to-primary-600"></div>
-    <div class="pu-card-body -mt-10 flex flex-col gap-4 sm:flex-row sm:items-end">
-      <%= render InitialsAvatar.new(name: profile.name, seed: profile.handle, size: :xl, class: "ring-4 ring-[var(--pu-card-bg)]") %>
-      <div class="min-w-0 flex-1">
-        <div class="flex flex-wrap items-center gap-2">
+    <div class="h-24 bg-gradient-to-r from-primary-600 to-primary-400 dark:from-primary-800 dark:to-primary-600"></div>
+    <div class="px-6 pb-6">
+      <div class="-mt-10 flex items-end justify-between gap-4">
+        <%= render InitialsAvatar.new(name: profile.name, seed: profile.handle, size: :xl, class: "ring-4 ring-[var(--pu-card-bg)]") %>
+        <a href="<%= edit_profile_url %>" class="pu-btn pu-btn-md pu-btn-outline">
+          <%= render Phlex::TablerIcons::Pencil.new(class: "mr-1 h-4 w-4") %> Edit profile
+        </a>
+      </div>
+
+      <div class="mt-4 space-y-2">
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
           <h1 class="text-2xl font-bold tracking-tight text-[var(--pu-text)]"><%= profile.name %></h1>
-          <%= render "shared/availability_badge", profile: %>
-          <% if profile.remote_ok? %><span class="pu-badge pu-badge-neutral">Remote OK</span><% end %>
-          <% unless profile.listed? %><span class="pu-badge pu-badge-warning">Hidden from directory</span><% end %>
+          <div class="flex flex-wrap gap-2">
+            <%= render "shared/availability_badge", profile: %>
+            <% if profile.remote_ok? %><span class="pu-badge pu-badge-neutral">Remote OK</span><% end %>
+            <% unless profile.listed? %><span class="pu-badge pu-badge-warning">Hidden from directory</span><% end %>
+          </div>
         </div>
         <p class="text-[var(--pu-text-muted)]">
           @<%= profile.handle %><%= " · #{profile.headline}" if profile.headline.present? %>
         </p>
         <% if profile.location.present? %>
-          <p class="mt-1 flex items-center gap-1 text-sm text-[var(--pu-text-muted)]">
+          <p class="flex items-center gap-1 text-sm text-[var(--pu-text-muted)]">
             <%= render Phlex::TablerIcons::MapPin.new(class: "h-4 w-4") %> <%= profile.location %>
           </p>
         <% end %>
       </div>
-      <a href="<%= edit_profile_url %>" class="pu-btn pu-btn-md pu-btn-outline">
-        <%= render Phlex::TablerIcons::Pencil.new(class: "mr-1 h-4 w-4") %> Edit profile
-      </a>
     </div>
   </section>
 

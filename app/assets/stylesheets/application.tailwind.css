@@ -1,3 +1,12 @@
+/* Base styles for Plutonium's form widgets, bundled instead of loaded from a
+   CDN (see SelfHostedAssets). They come first so Plutonium's theme wins. */
+@import "easymde/dist/easymde.min.css";
+@import "flatpickr/dist/flatpickr.min.css";
+@import "intl-tel-input/build/css/intlTelInput.min.css";
+@import "@uppy/core/dist/style.min.css";
+@import "@uppy/dashboard/dist/style.min.css";
+@import "@uppy/image-editor/dist/style.min.css";
+
 @import "gem:plutonium/src/css/plutonium.css";
 
 @import "tailwindcss";
@@ -10,4 +19,13 @@
   html.pu-rail-pinned:not(.pu-no-rail) .pu-sticky-footer {
     left: 14rem !important;
   }
+}
+
+/* intl-tel-input's bundled CSS points at ../img/*, which doesn't exist once
+   it's inlined here. Serve the images through the asset pipeline instead. */
+:root {
+  --iti-path-flags-1x: url("intl-tel-input/flags.webp");
+  --iti-path-flags-2x: url("intl-tel-input/flags@2x.webp");
+  --iti-path-globe-1x: url("intl-tel-input/globe.webp");
+  --iti-path-globe-2x: url("intl-tel-input/globe@2x.webp");
 }
