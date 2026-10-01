@@ -69,8 +69,9 @@
     <section class="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-4 py-20 md:grid-cols-2" id="companies">
       <% [
            ["For developers", "Get found for the work you actually do.", [
-             ["Make your profile", "Skills with years and level, your experience, and your links."],
-             ["Say if you're looking", "Open to work, open to offers, or just here to be counted."],
+             ["Make your profile", "Skills with years and level, your experience, and your links. Say if you're looking."],
+             ["Show the work", "Add projects and credit the people you built them with. They confirm before it shows."],
+             ["Connect", "Follow people. Follow each other and you're connected, and can endorse each other's skills."],
              ["Apply in one click", "Send your profile to companies, and track every application."]
            ], (signed_in ? "Open your dashboard" : "Create your profile")],
            ["For companies and clients", "Hire from a community that ships.", [
@@ -93,7 +94,7 @@
               </li>
             <% end %>
           </ol>
-          <%= link_to cta, (signed_in && eyebrow == "For companies") ? "/setup/company/new" : join_path,
+          <%= link_to cta, (signed_in && eyebrow.start_with?("For companies")) ? "/setup/company/new" : join_path,
                 class: "mt-6 inline-block rounded-full border-2 border-[#111] bg-white px-6 py-3 font-semibold transition-transform hover:-translate-y-0.5" %>
         </div>
       <% end %>
@@ -156,6 +157,24 @@
         </div>
       </div>
     </section>
+
+    <%# Projects %>
+    <% if @projects.any? %>
+      <section class="border-t-2 border-[#111]" id="projects">
+        <div class="mx-auto max-w-6xl px-4 py-20">
+          <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#555]">Show the work</p>
+          <div class="mt-3 flex items-baseline justify-between gap-4">
+            <h2 class="font-display text-4xl">Recent projects</h2>
+            <%= link_to "All projects →", public_projects_path, class: "text-sm font-semibold text-[#d10f72] hover:underline" %>
+          </div>
+          <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <% @projects.each do |project| %>
+              <%= render "site/projects/project_card", project: %>
+            <% end %>
+          </div>
+        </div>
+      </section>
+    <% end %>
 
     <%# Closing CTA %>
     <section class="bg-[#111] text-white">

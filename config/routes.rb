@@ -21,6 +21,16 @@ Rails.application.routes.draw do
     get "jobs", to: "jobs#index", as: :public_jobs
     get "jobs/:id", to: "jobs#show", as: :public_job
     get "companies/:slug", to: "companies#show", as: :public_company
+    get "projects", to: "projects#index", as: :public_projects
+    get "projects/:slug", to: "projects#show", as: :public_project
+
+    # Follow and endorse buttons (need a developer profile).
+    constraints handle: /[A-Za-z0-9_-]+/ do
+      post "@:handle/follow", to: "follows#create", as: :follow_developer
+      delete "@:handle/follow", to: "follows#destroy"
+      post "@:handle/skills/:skill/endorsement", to: "endorsements#create", as: :endorse_skill
+      delete "@:handle/skills/:skill/endorsement", to: "endorsements#destroy"
+    end
   end
 
   # Onboarding: users create a developer profile, a company, or both.

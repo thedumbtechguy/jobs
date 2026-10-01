@@ -140,6 +140,18 @@ users ─< company_users (role) >─ companies ─< job_posts ─< job_renewals
 **ProjectSkill**
 - The stack a project was built with.
 
+**As built**
+- Owners manage projects in the developer portal (Projects) and add
+  contributors by `@handle` from the project's Contributors tab. Hidden
+  profiles can't be added, and nobody can add themselves.
+- The contributor gets an email and confirms or declines from Credits. Only
+  confirmed contributors show on the project page and get the project on their
+  profile; the owner gets an email when they confirm.
+- Contributors whose profiles the viewer can't see are left off public pages.
+- The slug is set from the title when the project is created and never changes,
+  so shared links keep working.
+- `cover_image` isn't built yet; it waits on public image uploads.
+
 ### `network` package
 
 **Follow**
@@ -163,6 +175,23 @@ users ─< company_users (role) >─ companies ─< job_posts ─< job_renewals
 - `endorser` (a developer profile) and a `profile_skill`.
 - The policy only allows it when the endorser is connected to the skill's
   owner, and nobody can endorse themselves.
+
+**As built**
+- Follow and endorse buttons are on `/@handle` pages (plain controllers,
+  `Site::FollowsController` and `Site::EndorsementsController`), and need a
+  developer profile. Hidden profiles can't be followed and never appear in
+  network lists.
+- The validation lives on the model, so a connection is required however the
+  endorsement is made. `profile_skills.endorsements_count` is a counter cache;
+  skills on profiles are sorted by it.
+- Endorsements stay when people unfollow, like a reference that's been given.
+- The developer portal's Network page has Connections, Followers, Following
+  and People you may know: people your connections follow, ranked by how many
+  of them do, then people who share your skills.
+- Following emails the person followed (or tells them they're connected), at
+  most once a week per pair so unfollowing and refollowing can't spam anyone.
+- Profile routes in the developer portal declare their nested associations,
+  so followers, following and endorsers don't get portal routes.
 
 ### `hiring` package
 
@@ -196,10 +225,10 @@ Ported from the old app, with its rough edges removed.
 | Surface | Who | Contents |
 |---|---|---|
 | Main app (public) | Anyone | Landing page, developer directory with filters (skill, country, availability, remote), `/@handle` page, projects, jobs, company pages. Plain Rails controllers and Phlex views, reading through the same policies |
-| `dashboard_portal` | Signed-in user | Home: links to my developer profile and companies, and creates whichever is missing. Later: follows, connections, my applications |
-| `developer_portal` | The profile's owner | Profile, experience, skills. Later: projects, contributor invites, endorsements received |
+| `dashboard_portal` | Signed-in user | Home: links to my developer profile and companies, and creates whichever is missing |
+| `developer_portal` | The profile's owner | Profile, experience, skills (with endorsement counts), projects and their contributors, credits to confirm, network, jobs and applications |
 | `company_portal` | Company members | Job posts and their lifecycle actions, applicants, members |
-| `admin_portal` | Admin account | Every resource, skills taxonomy, hiding/unlisting developers, projects or jobs |
+| `admin_portal` | Admin account | Every resource, skills taxonomy, hiding/unlisting developers, projects or jobs; reviewing follows, endorsements and project credits |
 
 - **Signup and onboarding:** see *Accounts and onboarding* above.
 
@@ -288,7 +317,9 @@ end
    standardrb), Kamal config.
 2. **Catalogue:** `developers` package with profile, experience and skills ✅,
    developer portal ✅, onboarding ✅, public directory (`/devs`) and `/@handle` ✅.
-3. **Showcase:** projects and the contributor confirm flow.
+3. **Showcase:** projects and the contributor confirm flow ✅. Public
+   `/projects` and project pages, projects on profiles and the landing page.
+   Still to do: cover images (waits on image uploads).
 4. **Hiring:** companies and the company portal ✅, `hiring` package with job
    posts, lifecycle actions (publish, renew, filled, reopen, archive) and
    applications ✅, developers browse and apply from the developer portal ✅.
@@ -299,7 +330,7 @@ end
    individual posters ✅. Still to do: expiry reminder emails,
    active-job cap per company.
 5. **Network:** follows and connections, endorsements, and "people you may
-   know" (connections of connections).
+   know" ✅. Contact details can be limited to connections ✅.
 6. **Polish:** landing page and admin moderation, then plug in the SQLite
    search.
 
@@ -308,7 +339,8 @@ end
 | Record | Settings | Default |
 |---|---|---|
 | Developer profile | Public (directory, `/@handle`, search engines) · Members only · Hidden (owner only) | Members only |
-| Contact email/phone | Everyone who can see the profile · Members only · Only you (until connections exist) | Members only |
+| Contact email/phone | Everyone who can see the profile · Members only · Connections only | Members only |
+| Project | Everyone who can see the owner's profile · Members only · Hidden (owner only). Never more visible than the owner's profile | Everyone |
 | Job post | Public · Members only. Drafts, jobs in review, expired, filled and archived jobs are never shown | Public |
 
 Guests see public records; signed-in members also see members-only ones. Pages

@@ -13,7 +13,7 @@ module Developers
     end
 
     def permitted_attributes_for_read
-      permitted_attributes_for_create
+      [*permitted_attributes_for_create, :endorsements_count]
     end
   end
 end

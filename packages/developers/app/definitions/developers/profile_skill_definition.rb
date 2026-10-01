@@ -6,7 +6,10 @@ module Developers
 
     input :years, hint: "Years of experience with this skill"
 
+    field :endorsements_count, label: "Endorsements"
+
     sort :years
+    sort :endorsements_count
     default_sort { |scope| scope.joins(:skill).order("skills.name") }
   end
 end

@@ -2,13 +2,14 @@
 #
 # Table name: developers_profile_skills
 #
-#  id         :integer          not null, primary key
-#  level      :integer
-#  years      :integer
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  profile_id :integer          not null
-#  skill_id   :integer          not null
+#  id                 :integer          not null, primary key
+#  endorsements_count :integer          default(0), not null
+#  level              :integer
+#  years              :integer
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  profile_id         :integer          not null
+#  skill_id           :integer          not null
 #
 # Indexes
 #
@@ -40,6 +41,8 @@ class Developers::ProfileSkill < Developers::ResourceRecord
 
   # add has_one associations above.
 
+  has_many :endorsements, class_name: "Network::Endorsement", dependent: :delete_all
+  has_many :endorsers, through: :endorsements
   # add has_many associations above.
 
   # add attachments above.

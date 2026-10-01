@@ -32,9 +32,11 @@ bundle exec standardrb
 | `/dashboard` | Signed-in user's home (`packages/dashboard_portal`) |
 | `/developer/:handle` | Developer portal, scoped to the user's own profile (`packages/developer_portal`); models in `packages/developers` |
 | `/company/:slug` | Company portal, scoped to one company (`packages/company_portal`) |
-| `/admins/login`, `/admin` | Admin accounts (TOTP required) and admin portal (`packages/admin_portal`) |
+| `/admins/login`, `/admin` | Admin accounts (TOTP available, not yet enforced) and admin portal (`packages/admin_portal`) |
 | `/devs`, `/@handle` | Public developer directory and profile pages |
 | `/jobs`, `/jobs/:id`, `/companies/:slug` | Public jobs board, job and company pages |
+| `/projects`, `/projects/:slug` | Public projects and project pages (`packages/showcase`) |
+| `/developer/:handle/network` | Connections, followers, following and people you may know (`packages/network`) |
 | `/manage/*` | Jobs, errors, Litestream and performance dashboards (admins only) |
 
 Admins can't sign up. Create the first one with:
@@ -62,6 +64,9 @@ use your development records.
 | New applicant | Company members | Someone applies in the app |
 | Application update | Applicant | Status moves to reviewing, shortlisted, rejected or hired, with the team's optional message |
 | Company invite | Invitee | A member invites someone |
+| New follower / you're connected | The person followed | Someone follows them (at most once a week per pair) |
+| Credited on a project | Contributor | A project's owner adds them; they confirm or decline |
+| Credit confirmed | Project owner | A contributor confirms |
 
 ## Deploy
 

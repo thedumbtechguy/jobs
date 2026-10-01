@@ -45,6 +45,34 @@ module PortalPathsHelper
     )
   end
 
+  # ?tab= connections, followers, following or suggestions.
+  def developer_portal_network_path(profile, tab: nil)
+    PortalPathsHelper.routes.developer_portal.developers_profile_scoped_network_path(developers_profile_scoped: profile, tab:)
+  end
+
+  def developer_portal_project_path(profile, project)
+    PortalPathsHelper.routes.developer_portal.developers_profile_scoped_showcase_project_path(
+      developers_profile_scoped: profile, id: project
+    )
+  end
+
+  def developer_portal_new_project_path(profile)
+    PortalPathsHelper.routes.developer_portal.new_developers_profile_scoped_showcase_project_path(developers_profile_scoped: profile)
+  end
+
+  # Where a credited developer confirms or declines a project credit.
+  def developer_portal_credit_path(profile, contributor)
+    PortalPathsHelper.routes.developer_portal.developers_profile_scoped_showcase_project_contributor_path(
+      developers_profile_scoped: profile, id: contributor
+    )
+  end
+
+  def developer_portal_credits_path(profile)
+    PortalPathsHelper.routes.developer_portal.developers_profile_scoped_showcase_project_contributors_path(
+      developers_profile_scoped: profile
+    )
+  end
+
   def developer_portal_edit_profile_path(profile)
     developer_portal_home_path(profile).chomp("/") + "/developers_profile/edit"
   end

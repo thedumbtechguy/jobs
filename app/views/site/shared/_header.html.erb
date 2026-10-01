@@ -7,6 +7,7 @@
     </a>
     <nav class="hidden items-center gap-6 text-sm font-medium text-[#555] md:flex" aria-label="Main">
       <%= link_to "Developers", developers_directory_path, class: class_names("hover:text-[#111]", "text-[#111] underline decoration-[#e8117f] decoration-2 underline-offset-8" => current_page?(developers_directory_path)) %>
+      <%= link_to "Projects", public_projects_path, class: class_names("hover:text-[#111]", "text-[#111] underline decoration-[#e8117f] decoration-2 underline-offset-8" => current_page?(public_projects_path)) %>
       <%= link_to "Jobs & gigs", public_jobs_path, class: class_names("hover:text-[#111]", "text-[#111] underline decoration-[#e8117f] decoration-2 underline-offset-8" => current_page?(public_jobs_path)) %>
     </nav>
     <div class="flex items-center gap-2">
@@ -18,8 +19,9 @@
       <% end %>
     </div>
   </div>
-  <nav class="flex justify-center gap-8 border-t border-[#e0ddd4] py-2 text-sm font-medium text-[#555] md:hidden" aria-label="Main">
+  <nav class="flex justify-center gap-6 border-t border-[#e0ddd4] py-2 text-sm font-medium text-[#555] md:hidden" aria-label="Main">
     <%= link_to "Developers", developers_directory_path %>
+    <%= link_to "Projects", public_projects_path %>
     <%= link_to "Jobs & gigs", public_jobs_path %>
   </nav>
 </header>

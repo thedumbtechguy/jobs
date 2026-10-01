@@ -27,7 +27,8 @@ module Developers
       choices: [["Everyone: public directory and /@handle page", "everyone"], ["Signed-in members only", "members"], ["Hidden: only you", "hidden"]],
       hint: "Public profiles can be found by companies and search engines."
     input :contact_visibility, as: :select, label: "Who can see your email and phone",
-      choices: [["Everyone who can see your profile", "everyone"], ["Signed-in members only", "members"], ["Only you (for now)", "connections"]]
+      hint: "Connections are people you follow who follow you back.",
+      choices: [["Everyone who can see your profile", "everyone"], ["Signed-in members only", "members"], ["Your connections only", "connections"]]
     input :github_url, placeholder: "https://github.com/you"
     input :linkedin_url, placeholder: "https://linkedin.com/in/you"
     input :website_url, placeholder: "https://"
