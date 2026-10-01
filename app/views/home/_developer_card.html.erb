@@ -1,0 +1,16 @@
+<% skills = developer.profile_skills.map { |ps| ps.skill.name }.sort.first(3) %>
+<div class="flex items-start gap-3 rounded-xl border-2 border-[#111] bg-white p-4">
+  <%= render InitialsAvatar.new(name: developer.name, seed: developer.handle) %>
+  <div class="min-w-0 flex-1">
+    <div class="flex items-center gap-2">
+      <p class="truncate font-semibold"><%= developer.name %></p>
+      <% if developer.looking? %><span class="shrink-0 rounded-full bg-[#dcfce7] px-2 py-0.5 text-[11px] font-semibold text-[#166534]">Open to work</span><% end %>
+    </div>
+    <p class="truncate text-sm text-[#555]"><%= developer.headline.presence || "@#{developer.handle}" %></p>
+    <% if skills.any? %>
+      <div class="mt-2 flex flex-wrap gap-1.5">
+        <% skills.each do |skill| %><span class="rounded-full border border-[#e0ddd4] bg-[#f5f2e8] px-2 py-0.5 text-xs"><%= skill %></span><% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

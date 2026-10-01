@@ -28,6 +28,7 @@ class Skill < ::ResourceRecord
 
   # add has_one associations above.
 
+  has_many :profile_skills, class_name: "Developers::ProfileSkill", dependent: :restrict_with_error
   # add has_many associations above.
 
   # add attachments above.
