@@ -20,22 +20,35 @@ module.exports = {
   theme: plutoniumTailwindConfig.merge(
     plutoniumTailwindConfig.theme,
     {
-      // Brand: indigo primary. Keys must cover 50-950, like Plutonium's palette.
+      // DevCongress brand (devcongress.org): hot pink on cream, yellow
+      // highlights, ink-black borders. 500 is the brand pink; 600 is a touch
+      // deeper so white button text and links pass WCAG AA.
       extend: {
         colors: {
           primary: {
-            50: '#EEF2FF',
-            100: '#E0E7FF',
-            200: '#C7D2FE',
-            300: '#A5B4FC',
-            400: '#818CF8',
-            500: '#6366F1',
-            600: '#4F46E5',
-            700: '#4338CA',
-            800: '#3730A3',
-            900: '#312E81',
-            950: '#1E1B4B',
+            50: '#FDF2F8',
+            100: '#FCE7F3',
+            200: '#FBCFE8',
+            300: '#F9A8D4',
+            400: '#F45AA6',
+            500: '#E8117F',
+            600: '#D10F72',
+            700: '#B00C60',
+            800: '#8F0D4F',
+            900: '#760F44',
+            950: '#4A0326',
           },
+          brand: {
+            pink: '#E8117F',
+            yellow: '#F5E642',
+            ink: '#111111',
+            cream: '#F5F2E8',
+          },
+        },
+        fontFamily: {
+          body: ['"Inter Variable"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          sans: ['"Inter Variable"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          display: ['"DM Serif Display"', 'Georgia', 'serif'],
         },
       },
     },

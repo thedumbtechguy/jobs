@@ -29,3 +29,96 @@
   --iti-path-globe-1x: url("intl-tel-input/globe.webp");
   --iti-path-globe-2x: url("intl-tel-input/globe@2x.webp");
 }
+
+/* ---------------------------------------------------------------------------
+   DevCongress brand (devcongress.org): cream paper, ink, hot pink, yellow.
+   Fonts are self-hosted (SIL OFL) from app/assets/fonts.
+   ------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("inter-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("inter-latin-ext-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "DM Serif Display";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("dm-serif-display-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "DM Serif Display";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 400;
+  src: url("dm-serif-display-latin-400-italic.woff2") format("woff2");
+}
+
+/* Light: cream body, white cards, warm borders, ink text. */
+:root {
+  --dc-ink: #111111;
+  --dc-pink: #e8117f;
+  --dc-yellow: #f5e642;
+  --pu-body: #f5f2e8;
+  --pu-surface: #fbfaf5;
+  --pu-surface-alt: #efebdd;
+  --pu-border: #e0ddd4;
+  --pu-border-muted: #ece9df;
+  --pu-border-strong: #c9c5b8;
+  --pu-text: #111111;
+  --pu-text-muted: #555555;
+  --pu-text-subtle: #6b6b6b;
+  --pu-card-border: #e0ddd4;
+  --pu-input-border: #d6d2c6;
+}
+
+/* Dark: Plutonium's slate surfaces, restated because the :root overrides
+   above would otherwise leak into dark mode. */
+.dark {
+  --dc-ink: #f8fafc;
+  --pu-body: #0f172a;
+  --pu-surface: #1e293b;
+  --pu-surface-alt: #0f172a;
+  --pu-border: #334155;
+  --pu-border-muted: #1e293b;
+  --pu-border-strong: #475569;
+  --pu-text: #f8fafc;
+  --pu-text-muted: #94a3b8;
+  --pu-text-subtle: #94a3b8;
+  --pu-card-border: #334155;
+  --pu-input-border: #475569;
+}
+
+body {
+  font-family: "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Pill buttons, like devcongress.org. */
+.pu-btn {
+  border-radius: 9999px;
+}
+
+/* The site's signature card: ink border with an offset pink shadow. */
+.dc-card {
+  background: var(--pu-card-bg);
+  border: 2px solid var(--dc-ink);
+  border-radius: var(--pu-radius-lg);
+  box-shadow: 6px 6px 0 var(--dc-pink);
+}
+
+/* Yellow highlight band, as in the site's "community highlight" panel. */
+.dc-highlight {
+  background: var(--dc-yellow);
+  color: #111111;
+}

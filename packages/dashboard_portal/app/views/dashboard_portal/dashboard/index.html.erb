@@ -4,7 +4,7 @@
 
 <div class="mx-auto max-w-5xl space-y-8">
   <header>
-    <h1 class="text-2xl font-bold tracking-tight text-[var(--pu-text)]">
+    <h1 class="font-display text-3xl text-[var(--pu-text)]">
       Welcome back<%= ", #{profile.name.split.first}" if profile %>
     </h1>
     <p class="mt-1 text-[var(--pu-text-muted)]">Pick up where you left off.</p>
@@ -15,7 +15,7 @@
 
     <% if profile %>
       <% percent = profile.completeness_percent %>
-      <a href="<%= developer_portal_home_path(profile) %>" class="pu-card block transition-shadow hover:shadow-[var(--pu-shadow-lg)]">
+      <a href="<%= developer_portal_home_path(profile) %>" class="dc-card block transition-transform hover:-translate-y-0.5">
         <div class="pu-card-body flex flex-col gap-5 sm:flex-row sm:items-center">
           <div class="flex min-w-0 flex-1 items-center gap-4">
             <%= render InitialsAvatar.new(name: profile.name, seed: profile.handle, size: :lg) %>
