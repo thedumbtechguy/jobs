@@ -39,6 +39,11 @@ module Hiring
       ]
     end
 
+    # The type (job, gig, internship) is fixed once the post exists.
+    def permitted_attributes_for_update
+      permitted_attributes_for_create - %i[employment_type]
+    end
+
     def permitted_attributes_for_read
       %i[title status visibility type_label seniority location pay timing description accepts_applications apply_url published_at expires_at]
     end

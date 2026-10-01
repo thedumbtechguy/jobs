@@ -32,6 +32,13 @@ class IndividualPostingTest < ActionDispatch::IntegrationTest
     gig = space.job_posts.find_by!(title: "Landing page for a bakery")
     assert_equal "500 USD fixed budget", gig.pay
 
+    # Editing can't switch it to another type; the form names the type instead.
+    get "/company/kwame-personal/hiring/job_posts/#{gig.id}/edit"
+    assert_select "[name='hiring_job_post[employment_type]']", count: 0
+    assert_includes response.body, "What you&#39;re posting: Freelance / gig"
+    patch "/company/kwame-personal/hiring/job_posts/#{gig.id}", params: {hiring_job_post: {title: "Landing page for a bakery, v2", employment_type: "full_time"}}
+    assert_equal ["Landing page for a bakery, v2", "freelance"], gig.reload.values_at(:title, :employment_type)
+
     # A first post from an individual is reviewed like a new company's.
     assert_enqueued_email_with Hiring::JobReviewMailer, :review_requested, params: {job_post: gig} do
       post "/company/kwame-personal/hiring/job_posts/#{gig.id}/record_actions/publish"

@@ -101,6 +101,7 @@ class Hiring::JobPost < Hiring::ResourceRecord
   validates :apply_url, **WebUrl.validation
   validates :duration, length: {maximum: 40}
   validate :has_a_way_to_apply
+  validate :type_unchanged, on: :update
 
   normalizes :salary_currency, with: ->(currency) { currency.strip.upcase }
 
@@ -216,6 +217,12 @@ class Hiring::JobPost < Hiring::ResourceRecord
   end
 
   private
+
+  # Applicants and the board rely on what kind of post this is, so it can't
+  # change after creation. Post a new one instead.
+  def type_unchanged
+    errors.add(:employment_type, "can't be changed once the post is created") if employment_type_changed?
+  end
 
   def has_a_way_to_apply
     return if accepts_applications? || apply_url.present?
