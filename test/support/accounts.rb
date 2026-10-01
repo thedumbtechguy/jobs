@@ -13,9 +13,13 @@ module AccountsTestHelper
     end
   end
 
-  def create_job!(company:, published: true, **attributes)
+  # Published jobs are approved too unless review: true (first-job review).
+  def create_job!(company:, published: true, review: false, **attributes)
     job = company.job_posts.create!(title: "Backend Engineer", description: "Build things.", **attributes)
-    job.publish! if published
+    return job unless published
+
+    company.update!(jobs_trusted_at: Time.current) unless review || company.jobs_trusted?
+    job.publish!
     job
   end
 

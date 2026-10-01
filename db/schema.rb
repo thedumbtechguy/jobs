@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_080100) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_090100) do
   create_table "admin_active_session_keys", primary_key: ["admin_id", "session_id"], force: :cascade do |t|
     t.integer "admin_id"
     t.string "session_id"
@@ -84,6 +84,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_080100) do
     t.string "country"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "jobs_trusted_at"
     t.index ["name"], name: "index_companies_on_name", unique: true
     t.index ["slug"], name: "index_companies_on_slug", unique: true
   end
@@ -215,6 +216,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_080100) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "visibility", default: 2, null: false
+    t.datetime "approved_at"
     t.index ["company_id"], name: "index_hiring_job_posts_on_company_id"
     t.index ["published_at", "expires_at"], name: "index_hiring_job_posts_on_published_at_and_expires_at"
   end

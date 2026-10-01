@@ -23,6 +23,11 @@ module Hiring
 
     def apply? = false
 
+    # Reviewing first jobs is for admins only (see the admin portal policy).
+    def approve? = false
+
+    def decline? = false
+
     def permitted_attributes_for_create
       %i[
         title description employment_type seniority

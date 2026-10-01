@@ -1,0 +1,4 @@
+<p><strong><%= @job.company.name %></strong> published its first job on Dev Registry, so it needs a review before it goes live.</p>
+<p><strong><%= @job.title %></strong><br><%= [@job.employment_type.humanize, @job.location.presence].compact.join(" · ") %></p>
+<p><a href="<%= @review_url %>">Review it in the admin portal</a></p>
+<p>Approving makes the job live for 30 days and trusts <%= @job.company.name %>, so its later jobs publish without review. You can also decline it with a note to the company.</p>

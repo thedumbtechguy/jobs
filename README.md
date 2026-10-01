@@ -33,6 +33,8 @@ bundle exec standardrb
 | `/developer/:handle` | Developer portal, scoped to the user's own profile (`packages/developer_portal`); models in `packages/developers` |
 | `/company/:slug` | Company portal, scoped to one company (`packages/company_portal`) |
 | `/admins/login`, `/admin` | Admin accounts (TOTP required) and admin portal (`packages/admin_portal`) |
+| `/devs`, `/@handle` | Public developer directory and profile pages |
+| `/jobs`, `/jobs/:id`, `/companies/:slug` | Public jobs board, job and company pages |
 | `/manage/*` | Jobs, errors, Litestream and performance dashboards (admins only) |
 
 Admins can't sign up. Create the first one with:
@@ -58,6 +60,7 @@ machine that runs `kamal deploy`; `.kamal/secrets` passes the secret ones throug
 | `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY` | yes | As above |
 | `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` | yes | As above |
 | `SMTP_ADDRESS`, `SMTP_USERNAME`, `SMTP_PASSWORD` | for email | Outgoing mail (`SMTP_PORT` defaults to 587) |
+| `MAIL_FROM` | for email | Sender for app emails, e.g. `Dev Registry <no-reply@devcongress.org>` |
 | `LITESTREAM_REPLICA_BUCKET`, `LITESTREAM_ACCESS_KEY_ID`, `LITESTREAM_SECRET_ACCESS_KEY` | for backups | Litestream S3 replica |
 
 The app refuses to boot in production if a required variable is missing.

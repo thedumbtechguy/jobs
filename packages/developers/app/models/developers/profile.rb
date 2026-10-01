@@ -20,7 +20,7 @@
 #  remote_ok          :boolean          default(TRUE), not null
 #  seniority          :integer
 #  timezone           :string
-#  visibility         :integer          default(1), not null
+#  visibility         :integer          default("members"), not null
 #  website_url        :string
 #  x_url              :string
 #  years_experience   :integer

@@ -5,6 +5,8 @@ module Hiring
     index_page_title "Jobs"
 
     action :publish, interaction: Hiring::PublishJobPostInteraction, category: :primary
+    action :approve, interaction: Hiring::ApproveJobPostInteraction, category: :primary
+    action :decline, interaction: Hiring::DeclineJobPostInteraction, modal: :centered
     action :apply, interaction: Hiring::ApplyToJobInteraction, category: :primary, modal: :centered
     action :renew, interaction: Hiring::RenewJobPostInteraction
     action :mark_filled, interaction: Hiring::MarkJobPostFilledInteraction, confirmation: "Mark this job as filled? It will stop being listed."
