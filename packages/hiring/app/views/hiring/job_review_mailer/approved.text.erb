@@ -1,5 +1,9 @@
-Good news: "<%= @job.title %>" has been approved and is now live on Dev Registry for 30 days.
+Your job is live
+================
 
-View it: <%= @job_url %>
+Good news: we approved your job and it's now on the Dev Registry job board.
 
-Your future jobs will go live as soon as you publish them.
+  <%= @job.title %>
+  <%= @job_url %>
+
+It stays up until <%= @job.expires_at.to_date.to_fs(:long) %>, and you can renew it from your company dashboard (<%= @dashboard_url %>). From now on, jobs you publish for <%= @company.name %> go live straight away.

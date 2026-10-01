@@ -46,7 +46,7 @@ class OnboardingTest < ActionDispatch::IntegrationTest
 
     get "/dashboard"
     assert_response :success
-    assert_select "a", "Create developer profile"
+    assert_select "a[href=?]", "/setup/developer/new", text: "Developer profile"
   end
 
   test "creates both" do

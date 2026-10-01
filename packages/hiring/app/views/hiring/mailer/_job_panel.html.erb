@@ -1,0 +1,6 @@
+<%= email_panel do %>
+  <%= email_panel_title job.title, [job.company.name, job.employment_type&.humanize, job.location.presence].compact.join(" · ") %>
+  <% if job.salary_range.present? %>
+    <div style="margin-top:6px;font-size:14px;"><%= job.salary_range %></div>
+  <% end %>
+<% end %>

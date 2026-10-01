@@ -1,4 +1,12 @@
-<p><strong><%= @job.company.name %></strong> published its first job on Dev Registry, so it needs a review before it goes live.</p>
-<p><strong><%= @job.title %></strong><br><%= [@job.employment_type.humanize, @job.location.presence].compact.join(" · ") %></p>
-<p><a href="<%= @review_url %>">Review it in the admin portal</a></p>
-<p>Approving makes the job live for 30 days and trusts <%= @job.company.name %>, so its later jobs publish without review. You can also decline it with a note to the company.</p>
+<% content_for :preheader, "#{@company.name}'s first job is waiting for you." %>
+<%= email_heading "A first job needs review" %>
+<%= email_paragraph do %>
+  <strong><%= @company.name %></strong> just published its first job. New companies' first jobs wait for an admin before they go public.
+<% end %>
+<%= render "hiring/mailer/job_panel", job: @job %>
+<%= email_button "Review the job", @review_url %>
+<%= email_muted do %>
+  <strong>Approve</strong> to make it live for <%= Hiring::JobPost::VALIDITY_PERIOD.inspect %> and trust <%= @company.name %>, so its later jobs publish straight away.
+  <strong>Decline</strong> to send it back to drafts with a note to the company.
+<% end %>
+<% content_for :footer_note, "You're getting this because you're a Dev Registry admin." %>
