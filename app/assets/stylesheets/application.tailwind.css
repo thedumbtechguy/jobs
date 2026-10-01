@@ -122,3 +122,15 @@ body {
   background: var(--dc-yellow);
   color: #111111;
 }
+
+/* Scrolling roles band on the landing page (paused for reduced motion). */
+@keyframes dc-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.dc-marquee {
+  animation: dc-marquee 40s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dc-marquee { animation: none; }
+}
