@@ -4,17 +4,19 @@ module Site
       scope = Hiring::JobPost.visible_to(current_user)
       @countries = scope.where.not(country: [nil, ""]).distinct.order(:country).pluck(:country)
 
+      @kind = params[:kind].presence_in(Hiring::JobPost::KINDS.keys)
+      scope = scope.of_kind(@kind) if @kind
       scope = scope.search(params[:q]) if params[:q].present?
       scope = scope.where(employment_type: params[:type]) if Hiring::JobPost.employment_types.key?(params[:type])
       scope = scope.where(seniority: params[:seniority]) if Hiring::JobPost.seniorities.key?(params[:seniority])
       scope = scope.where(country: params[:country]) if params[:country].present?
       scope = scope.where(remote_ok: true) if params[:remote] == "1"
 
-      @jobs = paginate(scope.includes(:company).newest)
+      @jobs = paginate(scope.includes(company: {personal_owner: :developer_profile}).newest)
     end
 
     def show
-      @job = Hiring::JobPost.includes(:company).from_path_param(params[:id]).first!
+      @job = Hiring::JobPost.includes(company: {personal_owner: :developer_profile}).from_path_param(params[:id]).first!
       raise ActiveRecord::RecordNotFound unless @job.visible_to?(current_user)
 
       @profile = current_user&.developer_profile

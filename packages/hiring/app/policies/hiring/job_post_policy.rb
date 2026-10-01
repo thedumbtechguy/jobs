@@ -32,18 +32,19 @@ module Hiring
       %i[
         title description employment_type seniority
         remote_ok city country
-        salary_min salary_max salary_currency
+        paid pay_period salary_min salary_max salary_currency
+        duration starts_on
         accepts_applications apply_url
         visibility
       ]
     end
 
     def permitted_attributes_for_read
-      %i[title status visibility employment_type seniority location salary_range description accepts_applications apply_url published_at expires_at]
+      %i[title status visibility type_label seniority location pay timing description accepts_applications apply_url published_at expires_at]
     end
 
     def permitted_attributes_for_index
-      %i[title status employment_type location expires_at]
+      %i[title status type_label location expires_at]
     end
 
     def permitted_associations

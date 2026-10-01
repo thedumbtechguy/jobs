@@ -21,6 +21,9 @@
           <a href="<%= main_app.developer_page_path(profile.handle) %>" class="pu-btn pu-btn-md pu-btn-outline">
             <%= render Phlex::TablerIcons::ExternalLink.new(class: "mr-1 h-4 w-4") %> View profile page
           </a>
+          <%= button_to post_as_yourself_path, method: :post, class: "pu-btn pu-btn-md pu-btn-outline" do %>
+            <%= render Phlex::TablerIcons::Send.new(class: "mr-1 h-4 w-4") %> Post a gig
+          <% end %>
           <a href="<%= edit_profile_url %>" class="pu-btn pu-btn-md pu-btn-primary">
             <%= render Phlex::TablerIcons::Pencil.new(class: "mr-1 h-4 w-4") %> Edit profile
           </a>
@@ -130,10 +133,10 @@
               <% latest_jobs.each do |job| %>
                 <li>
                   <a href="<%= resource_url_for(job, parent: nil) %>" class="group flex items-center gap-3">
-                    <%= render InitialsAvatar.new(name: job.company.name, seed: job.company.slug, size: :sm, shape: :square) %>
+                    <%= render InitialsAvatar.new(name: job.poster_name, seed: job.company.slug, size: :sm, shape: :square) %>
                     <span class="min-w-0">
                       <span class="block truncate text-sm font-medium text-[var(--pu-text)] group-hover:text-primary-600 dark:group-hover:text-primary-400"><%= job.title %></span>
-                      <span class="block truncate text-xs text-[var(--pu-text-muted)]"><%= [job.company.name, job.location.presence].compact.join(" · ") %></span>
+                      <span class="block truncate text-xs text-[var(--pu-text-muted)]"><%= [job.poster_name, job.location.presence].compact.join(" · ") %></span>
                     </span>
                   </a>
                 </li>
@@ -157,7 +160,7 @@
                 <li class="flex items-center gap-3">
                   <span class="min-w-0 flex-1">
                     <span class="block truncate text-sm font-medium text-[var(--pu-text)]"><%= application.job_post.title %></span>
-                    <span class="block truncate text-xs text-[var(--pu-text-muted)]"><%= application.job_post.company.name %></span>
+                    <span class="block truncate text-xs text-[var(--pu-text-muted)]"><%= application.job_post.company.display_name %></span>
                   </span>
                   <%= render "shared/status_badge", status: application.status %>
                 </li>

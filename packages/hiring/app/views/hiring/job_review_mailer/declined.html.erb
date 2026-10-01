@@ -1,4 +1,4 @@
-<% content_for :preheader, "A reviewer left a note. Update the job and publish again." %>
+<% content_for :preheader, "A reviewer left a note. Update your post and publish again." %>
 <%= email_heading "A few changes first" %>
 <%= email_paragraph do %>
   Thanks for posting <strong><%= @job.title %></strong>. Before it goes public, our reviewer asked for some changes, so it's back in your drafts.
@@ -8,4 +8,4 @@
   <%= simple_format @reason, {style: "margin:0 0 8px;"}, wrapper_tag: "div" %>
 <% end %>
 <%= email_button "Edit and publish again", @edit_url %>
-<% content_for :footer_note, "You're getting this because you're a member of #{@company.name} on Dev Registry." %>
+<% content_for :footer_note, @company.personal? ? "You're getting this because you posted on Dev Registry." : "You're getting this because you're a member of #{@company.display_name} on Dev Registry." %>

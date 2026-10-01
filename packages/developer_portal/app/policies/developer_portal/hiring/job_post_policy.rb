@@ -27,15 +27,16 @@ module DeveloperPortal
       def archive? = false
 
       def apply?
-        record.accepts_applications? && record.active? && !record.job_applications.exists?(profile: entity_scope)
+        record.accepts_applications? && record.active? && record.company.personal_owner_id != entity_scope.user_id &&
+          !record.job_applications.exists?(profile: entity_scope)
       end
 
       def permitted_attributes_for_read
-        %i[title company employment_type seniority location salary_range description apply_url published_at]
+        %i[title company type_label seniority location pay timing description apply_url published_at]
       end
 
       def permitted_attributes_for_index
-        %i[title company employment_type location salary_range]
+        %i[title company type_label location pay]
       end
 
       def permitted_associations

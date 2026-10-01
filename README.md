@@ -57,8 +57,8 @@ use your development records.
 |---|---|---|
 | Confirm email, reset password, confirm new email, password changed/reset | The account | Account activity (Rodauth, `app/views/rodauth_mailer`) |
 | Unlock account | Admin | Too many failed admin sign-ins |
-| Review needed | All admins | A company publishes its first job |
-| Job live / changes needed | Company members | An admin approves or declines that job |
+| Review needed | All admins | A company or individual publishes their first post |
+| Post live / changes needed | The poster | An admin approves or declines that post |
 | New applicant | Company members | Someone applies in the app |
 | Application update | Applicant | Status moves to reviewing, shortlisted, rejected or hired, with the team's optional message |
 | Company invite | Invitee | A member invites someone |

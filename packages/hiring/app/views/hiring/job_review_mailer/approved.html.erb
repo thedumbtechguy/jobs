@@ -1,9 +1,10 @@
-<% content_for :preheader, "It's public now, and your next jobs skip review." %>
-<%= email_heading "Your job is live" %>
-<%= email_paragraph "Good news: we approved your job and it's now on the Dev Registry job board." %>
+<% noun = @job.kind_noun %>
+<% content_for :preheader, "It's public now, and your next posts skip review." %>
+<%= email_heading "Your #{noun} is live" %>
+<%= email_paragraph "Good news: we approved your #{noun} and it's now on the Dev Registry board." %>
 <%= render "hiring/mailer/job_panel", job: @job %>
-<%= email_button "See it on the job board", @job_url %>
+<%= email_button "See it on the board", @job_url %>
 <%= email_paragraph do %>
-  It stays up until <strong><%= @job.expires_at.to_date.to_fs(:long) %></strong>, and you can renew it from your <%= email_link "company dashboard", @dashboard_url %>. From now on, jobs you publish for <%= @company.name %> go live straight away.
+  It stays up until <strong><%= @job.expires_at.to_date.to_fs(:long) %></strong>, and you can renew it from your <%= email_link "dashboard", @dashboard_url %>. From now on, what you post<%= " for #{@company.display_name}" unless @company.personal? %> goes live straight away.
 <% end %>
-<% content_for :footer_note, "You're getting this because you're a member of #{@company.name} on Dev Registry." %>
+<% content_for :footer_note, @company.personal? ? "You're getting this because you posted on Dev Registry." : "You're getting this because you're a member of #{@company.display_name} on Dev Registry." %>

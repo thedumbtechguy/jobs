@@ -26,6 +26,26 @@ module SiteHelper
     tag.span(label, class: "shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold #{classes}")
   end
 
+  # Who posted a job: the company, or for personal posts the person.
+  def poster_avatar(job, size: :md)
+    company = job.company
+    if company.personal?
+      render InitialsAvatar.new(name: company.display_name, seed: company.personal_profile&.handle || company.slug, size:)
+    else
+      render InitialsAvatar.new(name: company.display_name, seed: company.slug, size:, shape: :square)
+    end
+  end
+
+  # The poster's public page: their profile (when the viewer may see it) or
+  # the company page. Nil when there's nowhere to link.
+  def poster_path(job)
+    company = job.company
+    return public_company_path(company.slug) unless company.personal?
+
+    profile = company.personal_profile
+    developer_page_path(handle: profile.handle) if profile&.visible_to?(current_user)
+  end
+
   def pill(text, extra = nil)
     tag.span(text, class: "rounded-full border border-[#e0ddd4] bg-[#f5f2e8] px-2.5 py-0.5 text-xs #{extra}")
   end

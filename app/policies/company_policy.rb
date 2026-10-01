@@ -9,8 +9,9 @@ class CompanyPolicy < ::ResourcePolicy
   #   true
   # end
 
+  # Personal posting spaces belong to one person, so they have no team.
   def invite_user?
-    current_membership&.owner?
+    current_membership&.owner? && !record.personal?
   end
 
   # Core attributes

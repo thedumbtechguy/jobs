@@ -23,6 +23,8 @@ module Site
       @experiences = @profile.experiences
       @profile_skills = @profile.profile_skills.includes(:skill).sort_by { |ps| [-(ps.years || 0), ps.skill.name] }
       @own = current_user && @profile.user_id == current_user.id
+      # Gigs and jobs they've posted as themselves.
+      @posts = Hiring::JobPost.visible_to(current_user).joins(:company).where(companies: {personal_owner_id: @profile.user_id}).newest.limit(5)
     end
   end
 end

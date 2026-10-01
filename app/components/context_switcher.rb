@@ -40,10 +40,10 @@ class ContextSwitcher < Plutonium::UI::Component::Base
         end
 
         heading("Companies")
-        @user.company_users.includes(:company).sort_by { |m| m.company.name }.each do |membership|
+        @user.company_users.includes(:company).sort_by { |m| m.company.display_name }.each do |membership|
           company = membership.company
-          item(label: company.name, sublabel: membership.role.humanize, href: company_portal_home_path(company), active: @current == company) do
-            render InitialsAvatar.new(name: company.name, seed: company.slug, size: :sm, shape: :square)
+          item(label: company.to_label, sublabel: membership.role.humanize, href: company_portal_home_path(company), active: @current == company) do
+            render InitialsAvatar.new(name: company.display_name, seed: company.slug, size: :sm, shape: :square)
           end
         end
         create_link("Set up a company", new_company_path)

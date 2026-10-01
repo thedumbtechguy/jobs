@@ -10,15 +10,19 @@
 #  city                 :string
 #  country              :string
 #  description          :text             not null
+#  duration             :string
 #  employment_type      :integer          default("full_time"), not null
 #  expires_at           :datetime
 #  filled_at            :datetime
+#  paid                 :boolean          default(TRUE), not null
+#  pay_period           :integer          default(0), not null
 #  published_at         :datetime
 #  remote_ok            :boolean          default(FALSE), not null
 #  salary_currency      :string           default("USD"), not null
 #  salary_max           :integer
 #  salary_min           :integer
 #  seniority            :integer
+#  starts_on            :date
 #  title                :string           not null
 #  visibility           :integer          default("everyone"), not null
 #  created_at           :datetime         not null
@@ -48,7 +52,17 @@ require_relative "../hiring"
 class Hiring::JobPost < Hiring::ResourceRecord
   VALIDITY_PERIOD = ENV.fetch("JOB_VALIDITY_DAYS", 30).to_i.days
 
-  enum :employment_type, {full_time: 0, part_time: 1, contract: 2, internship: 3}
+  # What kind of post this is. Freelance posts are "gigs"; the board groups
+  # types into kinds (see KINDS).
+  enum :employment_type, {full_time: 0, part_time: 1, contract: 2, internship: 3, freelance: 4}
+  TYPE_LABELS = {
+    "full_time" => "Full time", "part_time" => "Part time", "contract" => "Contract",
+    "freelance" => "Freelance / gig", "internship" => "Internship"
+  }.freeze
+  KINDS = {"jobs" => %w[full_time part_time contract], "gigs" => %w[freelance], "internships" => %w[internship]}.freeze
+  # What the pay amount is per. "fixed" is a one-off budget for the whole piece of work.
+  enum :pay_period, {year: 0, month: 1, day: 2, hour: 3, fixed: 4}, prefix: :paid_per
+  PAY_PERIOD_LABELS = {"year" => "per year", "month" => "per month", "day" => "per day", "hour" => "per hour", "fixed" => "fixed budget"}.freeze
   enum :seniority, {junior: 0, mid: 1, senior: 2, lead: 3, principal: 4}
   # Who can see the job on the public site. Applying always needs an account.
   enum :visibility, {members: 1, everyone: 2}, prefix: :visible_to
@@ -68,6 +82,8 @@ class Hiring::JobPost < Hiring::ResourceRecord
   # Active jobs a viewer may see: public ones for guests, all for members.
   scope :visible_to, ->(user) { user ? active : active.visible_to_everyone }
 
+  scope :of_kind, ->(kind) { where(employment_type: KINDS.fetch(kind.to_s)) }
+
   scope :search, ->(query) {
     term = "%#{sanitize_sql_like(query.to_s.strip.downcase)}%"
     joins(:company).where(
@@ -83,9 +99,16 @@ class Hiring::JobPost < Hiring::ResourceRecord
   validates :salary_min, :salary_max, numericality: {only_integer: true, greater_than_or_equal_to: 0}, allow_nil: true
   validates :salary_max, comparison: {greater_than_or_equal_to: :salary_min}, allow_nil: true, if: :salary_min
   validates :apply_url, **WebUrl.validation
+  validates :duration, length: {maximum: 40}
   validate :has_a_way_to_apply
 
   normalizes :salary_currency, with: ->(currency) { currency.strip.upcase }
+
+  # Only internships can be unpaid; permanent roles have no duration or start.
+  before_validation do
+    self.paid = true unless internship?
+    self.duration = self.starts_on = nil unless time_bound?
+  end
 
   def status
     if archived_at then :archived
@@ -156,14 +179,40 @@ class Hiring::JobPost < Hiring::ResourceRecord
     remote_ok? ? [parts.presence, "Remote"].compact.join(" · ") : parts
   end
 
-  def salary_range
-    return if salary_min.nil? && salary_max.nil?
-
-    [salary_min, salary_max].compact.uniq.map { |amount| ActiveSupport::NumberHelper.number_to_delimited(amount) }.join(" – ") + " #{salary_currency}"
+  # "job", "gig" or "internship", for wording that follows the post type.
+  def kind_noun
+    if freelance? then "gig"
+    elsif internship? then "internship"
+    else "job"
+    end
   end
 
+  def type_label = TYPE_LABELS.fetch(employment_type)
+
+  # Gigs, contracts and internships have a length and a start; permanent roles don't.
+  def time_bound? = !(full_time? || part_time?)
+
+  # "60,000 – 90,000 USD per year", "500 USD fixed budget", "Unpaid".
+  def pay
+    return "Unpaid" unless paid?
+    return if salary_min.nil? && salary_max.nil?
+
+    amounts = [salary_min, salary_max].compact.uniq.map { |amount| ActiveSupport::NumberHelper.number_to_delimited(amount) }.join(" – ")
+    "#{amounts} #{salary_currency} #{PAY_PERIOD_LABELS.fetch(pay_period)}"
+  end
+  alias_method :salary_range, :pay
+
+  # "3 months · starts 1 Nov 2026"
+  def timing
+    return unless time_bound?
+
+    [duration.presence, starts_on && "starts #{starts_on.strftime("%-d %b %Y")}"].compact.join(" · ").presence
+  end
+
+  def poster_name = company.display_name
+
   def to_label
-    "#{title} at #{company.name}"
+    company.personal? ? "#{title} by #{poster_name}" : "#{title} at #{poster_name}"
   end
 
   private

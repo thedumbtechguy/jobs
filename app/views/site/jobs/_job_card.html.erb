@@ -1,11 +1,12 @@
 <%= link_to public_job_path(job), class: "group flex items-center gap-4 rounded-xl border-2 border-[#111] bg-white p-4 transition-transform hover:-translate-y-0.5" do %>
-  <%= render InitialsAvatar.new(name: job.company.name, seed: job.company.slug, shape: :square) %>
+  <%= poster_avatar(job) %>
   <span class="min-w-0 flex-1">
     <span class="block truncate font-semibold group-hover:text-[#d10f72]"><%= job.title %></span>
-    <span class="block truncate text-sm text-[#555]"><%= [job.company.name, job.location.presence, job.employment_type.humanize].compact.join(" · ") %></span>
+    <span class="block truncate text-sm text-[#555]"><%= [job.poster_name, job.location.presence, job.type_label].compact.join(" · ") %></span>
     <span class="mt-1 flex flex-wrap items-center gap-1.5">
       <% if job.seniority %><%= pill(job.seniority.humanize) %><% end %>
-      <% if job.salary_range %><%= pill(job.salary_range) %><% end %>
+      <% if job.pay %><%= pill(job.pay) %><% end %>
+      <% if job.timing %><%= pill(job.timing) %><% end %>
       <% if job.visible_to_members? %><%= pill("Members only", "border-[#c9c5b8]") %><% end %>
       <span class="text-xs text-[#6b6b6b]">Posted <%= time_ago_in_words(job.published_at) %> ago</span>
     </span>

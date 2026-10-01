@@ -34,8 +34,8 @@ module Hiring
     def status_subject
       case @application.status
       when "shortlisted" then "You're on the shortlist for #{@job.title}"
-      when "hired" then "#{@company.name} wants to hire you"
-      else "An update on your application to #{@company.name}"
+      when "hired" then "#{@company.display_name} wants to hire you"
+      else "An update on your application to #{@company.display_name}"
       end
     end
   end

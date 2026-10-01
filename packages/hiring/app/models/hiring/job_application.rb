@@ -116,6 +116,7 @@ class Hiring::JobApplication < Hiring::ResourceRecord
   def job_accepts_applications
     return if job_post.nil?
 
-    errors.add(:base, "This job isn't accepting applications here") unless job_post.accepts_applications? && job_post.active?
+    errors.add(:base, "This post isn't accepting applications here") unless job_post.accepts_applications? && job_post.active?
+    errors.add(:base, "You can't apply to your own post") if profile && job_post.company.personal_owner_id == profile.user_id
   end
 end

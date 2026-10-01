@@ -27,6 +27,7 @@ Rails.application.routes.draw do
   resource :onboarding, only: %i[show create], controller: "onboarding"
   resource :company_setup, only: %i[new create], path: "setup/company"
   resource :developer_profile_setup, only: %i[new create], path: "setup/developer"
+  resource :personal_posting, only: %i[create], path: "post-as-yourself"
   constraints ManagementConstraint do
     mount RailsPulse::Engine, at: "/manage/pulse"
     mount Litestream::Engine, at: "/manage/litestream"
