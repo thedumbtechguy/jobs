@@ -25,6 +25,9 @@
           <% end %>
         </div>
       </div>
+      <a href="<%= main_app.public_company_path(company.slug) %>" class="pu-btn pu-btn-md pu-btn-outline">
+        <%= render Phlex::TablerIcons::ExternalLink.new(class: "mr-1 h-4 w-4") %> View company page
+      </a>
       <a href="<%= resource_url_for(Company, parent: nil, action: :edit) %>" class="pu-btn pu-btn-md pu-btn-outline">
         <%= render Phlex::TablerIcons::Pencil.new(class: "mr-1 h-4 w-4") %> Edit company
       </a>

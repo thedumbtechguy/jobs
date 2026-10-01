@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_062104) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_080100) do
   create_table "admin_active_session_keys", primary_key: ["admin_id", "session_id"], force: :cascade do |t|
     t.integer "admin_id"
     t.string "session_id"
@@ -173,13 +173,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_062104) do
     t.integer "seniority"
     t.integer "years_experience"
     t.integer "contact_visibility", default: 1, null: false
-    t.boolean "listed", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "visibility", default: 1, null: false
     t.index ["country"], name: "index_developers_profiles_on_country"
     t.index ["handle"], name: "index_developers_profiles_on_handle", unique: true
-    t.index ["listed", "availability"], name: "index_developers_profiles_on_listed_and_availability"
     t.index ["user_id"], name: "index_developers_profiles_on_user_id", unique: true
+    t.index ["visibility", "availability"], name: "index_developers_profiles_on_visibility_and_availability"
   end
 
   create_table "hiring_job_applications", force: :cascade do |t|
@@ -214,6 +214,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_062104) do
     t.datetime "archived_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "visibility", default: 2, null: false
     t.index ["company_id"], name: "index_hiring_job_posts_on_company_id"
     t.index ["published_at", "expires_at"], name: "index_hiring_job_posts_on_published_at_and_expires_at"
   end

@@ -1,33 +1,7 @@
-<% content_for :title, "Dev Registry · DevCongress" %>
-<% signed_in = rodauth(:user).logged_in? %>
+<% signed_in = current_user.present? %>
 <% join_path = signed_in ? "/dashboard" : rodauth(:user).create_account_path %>
 <% roles = ["Backend Engineer", "Frontend Developer", "Mobile Developer", "Product Designer", "Data Scientist", "DevOps Engineer", "Tech Lead", "QA Engineer", "Founder", "Product Manager", "ML Engineer", "Security Engineer"] %>
 
-<div class="min-h-screen bg-[#f5f2e8] text-[#111] antialiased">
-  <%# Nav %>
-  <header class="sticky top-0 z-20 border-b-2 border-[#111] bg-[#f5f2e8]/95 backdrop-blur">
-    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-      <a href="<%= root_path %>" class="flex items-center gap-3" aria-label="Dev Registry home">
-        <%= image_tag "brand/devcongress-wordmark.png", alt: "DevCongress", class: "h-6 w-auto sm:h-7" %>
-        <span class="hidden rounded-full border-2 border-[#111] px-2 py-0.5 font-mono text-xs font-bold sm:inline">registry</span>
-      </a>
-      <nav class="hidden items-center gap-6 text-sm font-medium text-[#555] md:flex">
-        <a href="#developers" class="hover:text-[#111]">Developers</a>
-        <a href="#jobs" class="hover:text-[#111]">Jobs</a>
-        <a href="#companies" class="hover:text-[#111]">For companies</a>
-      </nav>
-      <div class="flex items-center gap-2">
-        <% if signed_in %>
-          <%= link_to "Dashboard", "/dashboard", class: "rounded-full border-2 border-[#111] bg-[#d10f72] px-5 py-2 text-sm font-semibold text-white" %>
-        <% else %>
-          <%= link_to "Log in", rodauth(:user).login_path, class: "rounded-full border-2 border-[#111] bg-white px-4 py-2 text-sm font-semibold sm:px-5" %>
-          <%= link_to "Join", rodauth(:user).create_account_path, class: "rounded-full border-2 border-[#111] bg-[#d10f72] px-4 py-2 text-sm font-semibold text-white sm:px-5" %>
-        <% end %>
-      </div>
-    </div>
-  </header>
-
-  <main>
     <%# Hero %>
     <section class="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-16 lg:grid-cols-[1.15fr_1fr] lg:py-24">
       <div>
@@ -130,12 +104,15 @@
       <div class="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-4 py-20 lg:grid-cols-[1.4fr_1fr]">
         <div>
           <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#555]">Hiring now</p>
-          <h2 class="mt-3 font-display text-4xl">Latest jobs</h2>
+          <div class="mt-3 flex items-baseline justify-between gap-4">
+            <h2 class="font-display text-4xl">Latest jobs</h2>
+            <%= link_to "All jobs →", public_jobs_path, class: "text-sm font-semibold text-[#d10f72] hover:underline" %>
+          </div>
           <% if @jobs.any? %>
             <ul class="mt-8 space-y-3">
               <% @jobs.each do |job| %>
                 <li>
-                  <%= link_to join_path, class: "group flex items-center gap-4 rounded-xl border-2 border-[#111] bg-[#f5f2e8] p-4 transition-transform hover:-translate-y-0.5" do %>
+                  <%= link_to public_job_path(job), class: "group flex items-center gap-4 rounded-xl border-2 border-[#111] bg-[#f5f2e8] p-4 transition-transform hover:-translate-y-0.5" do %>
                     <%= render InitialsAvatar.new(name: job.company.name, seed: job.company.slug, shape: :square) %>
                     <span class="min-w-0 flex-1">
                       <span class="block truncate font-semibold group-hover:text-[#d10f72]"><%= job.title %></span>
@@ -154,13 +131,16 @@
 
         <div id="developers">
           <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#555]">The community knows</p>
-          <h2 class="mt-3 font-display text-4xl">Top skills</h2>
+          <div class="mt-3 flex items-baseline justify-between gap-4">
+            <h2 class="font-display text-4xl">Top skills</h2>
+            <%= link_to "All developers →", developers_directory_path, class: "text-sm font-semibold text-[#d10f72] hover:underline" %>
+          </div>
           <% if @top_skills.any? %>
             <div class="mt-8 flex flex-wrap gap-2">
-              <% @top_skills.each do |name, count| %>
-                <span class="rounded-full border-2 border-[#111] bg-[#f5f2e8] px-4 py-1.5 text-sm font-medium">
+              <% @top_skills.each do |(name, slug), count| %>
+                <%= link_to developers_directory_path(skill: slug), class: "rounded-full border-2 border-[#111] bg-[#f5f2e8] px-4 py-1.5 text-sm font-medium hover:bg-[#f5e642]" do %>
                   <%= name %> <span class="text-[#d10f72]"><%= count %></span>
-                </span>
+                <% end %>
               <% end %>
             </div>
           <% else %>
@@ -187,15 +167,3 @@
               class: "shrink-0 rounded-full border-2 border-white bg-[#d10f72] px-8 py-3.5 font-semibold text-white" %>
       </div>
     </section>
-  </main>
-
-  <footer class="border-t-2 border-[#111]">
-    <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-[#555] sm:flex-row">
-      <p>A <a href="https://devcongress.org" class="font-semibold text-[#111] hover:text-[#d10f72]">DevCongress</a> project. Africa's home for builders.</p>
-      <div class="flex gap-6">
-        <a href="https://devcongress.org" class="hover:text-[#111]">devcongress.org</a>
-        <%= link_to "Log in", signed_in ? "/dashboard" : rodauth(:user).login_path, class: "hover:text-[#111]" %>
-      </div>
-    </div>
-  </footer>
-</div>

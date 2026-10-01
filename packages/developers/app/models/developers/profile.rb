@@ -13,7 +13,6 @@
 #  handle             :string           not null
 #  headline           :string
 #  linkedin_url       :string
-#  listed             :boolean          default(TRUE), not null
 #  name               :string           not null
 #  open_to_relocation :boolean          default(FALSE), not null
 #  phone              :string
@@ -21,6 +20,7 @@
 #  remote_ok          :boolean          default(TRUE), not null
 #  seniority          :integer
 #  timezone           :string
+#  visibility         :integer          default(1), not null
 #  website_url        :string
 #  x_url              :string
 #  years_experience   :integer
@@ -30,10 +30,10 @@
 #
 # Indexes
 #
-#  index_developers_profiles_on_country                  (country)
-#  index_developers_profiles_on_handle                   (handle) UNIQUE
-#  index_developers_profiles_on_listed_and_availability  (listed,availability)
-#  index_developers_profiles_on_user_id                  (user_id) UNIQUE
+#  index_developers_profiles_on_country                      (country)
+#  index_developers_profiles_on_handle                       (handle) UNIQUE
+#  index_developers_profiles_on_user_id                      (user_id) UNIQUE
+#  index_developers_profiles_on_visibility_and_availability  (visibility,availability)
 #
 # Foreign Keys
 #
@@ -54,7 +54,11 @@ class Developers::Profile < Developers::ResourceRecord
 
   enum :availability, {not_looking: 0, open: 1, looking: 2}
   enum :seniority, {junior: 0, mid: 1, senior: 2, lead: 3, principal: 4}
-  # Who may see contact_email and phone. Enforced in the profile policies.
+  # Who can find the profile (directory and /@handle). Hidden profiles are
+  # only visible to their owner.
+  enum :visibility, {hidden: 0, members: 1, everyone: 2}, prefix: :visible_to
+  # Who may see contact_email and phone. "connections" stays owner-only until
+  # follows exist.
   enum :contact_visibility, {everyone: 0, members: 1, connections: 2}, prefix: :contact_visible_to
 
   # add enums above.
@@ -77,7 +81,18 @@ class Developers::Profile < Developers::ResourceRecord
 
   # add attachments above.
 
-  scope :listed, -> { where(listed: true) }
+  # Profiles a viewer may see in the directory: public ones for guests, plus
+  # members-only ones for signed-in users.
+  scope :visible_to, ->(user) { user ? where(visibility: %i[members everyone]) : visible_to_everyone }
+
+  scope :search, ->(query) {
+    term = "%#{sanitize_sql_like(query.to_s.strip.downcase)}%"
+    left_joins(profile_skills: :skill).where(
+      "LOWER(developers_profiles.name) LIKE :t OR developers_profiles.handle LIKE :t OR LOWER(developers_profiles.headline) LIKE :t " \
+      "OR LOWER(developers_profiles.bio) LIKE :t OR LOWER(developers_profiles.city) LIKE :t OR LOWER(developers_profiles.country) LIKE :t " \
+      "OR LOWER(skills.name) LIKE :t", t: term
+    ).distinct
+  }
 
   # add scopes above.
 
@@ -93,7 +108,6 @@ class Developers::Profile < Developers::ResourceRecord
   validates :open_to_relocation, inclusion: {in: [true, false]}
   validates :availability, presence: true
   validates :contact_visibility, presence: true
-  validates :listed, inclusion: {in: [true, false]}
   # add validations above.
 
   normalizes :handle, with: ->(handle) { handle.strip.downcase.delete_prefix("@") }
@@ -125,6 +139,19 @@ class Developers::Profile < Developers::ResourceRecord
   def completeness_percent
     items = completeness_items
     (items.count(&:done) * 100.0 / items.size).round
+  end
+
+  def visible_to?(user)
+    return true if user && user_id == user.id
+    return false if visible_to_hidden?
+
+    visible_to_everyone? || user.present?
+  end
+
+  def contact_visible_to?(user)
+    return true if user && user_id == user.id
+
+    contact_visible_to_everyone? || (contact_visible_to_members? && user.present?)
   end
 
   def location

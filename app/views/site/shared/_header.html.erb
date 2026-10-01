@@ -1,0 +1,25 @@
+<% signed_in = current_user.present? %>
+<header class="sticky top-0 z-20 border-b-2 border-[#111] bg-[#f5f2e8]/95 backdrop-blur">
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+    <a href="<%= root_path %>" class="flex items-center gap-3" aria-label="Dev Registry home">
+      <%= image_tag "brand/devcongress-wordmark.png", alt: "DevCongress", class: "h-6 w-auto sm:h-7" %>
+      <span class="hidden rounded-full border-2 border-[#111] px-2 py-0.5 font-mono text-xs font-bold sm:inline">registry</span>
+    </a>
+    <nav class="hidden items-center gap-6 text-sm font-medium text-[#555] md:flex" aria-label="Main">
+      <%= link_to "Developers", developers_directory_path, class: class_names("hover:text-[#111]", "text-[#111] underline decoration-[#e8117f] decoration-2 underline-offset-8" => current_page?(developers_directory_path)) %>
+      <%= link_to "Jobs", public_jobs_path, class: class_names("hover:text-[#111]", "text-[#111] underline decoration-[#e8117f] decoration-2 underline-offset-8" => current_page?(public_jobs_path)) %>
+    </nav>
+    <div class="flex items-center gap-2">
+      <% if signed_in %>
+        <%= link_to "Dashboard", "/dashboard", class: "rounded-full border-2 border-[#111] bg-[#d10f72] px-5 py-2 text-sm font-semibold text-white" %>
+      <% else %>
+        <%= link_to "Log in", rodauth(:user).login_path, class: "rounded-full border-2 border-[#111] bg-white px-4 py-2 text-sm font-semibold sm:px-5" %>
+        <%= link_to "Join", rodauth(:user).create_account_path, class: "rounded-full border-2 border-[#111] bg-[#d10f72] px-4 py-2 text-sm font-semibold text-white sm:px-5" %>
+      <% end %>
+    </div>
+  </div>
+  <nav class="flex justify-center gap-8 border-t border-[#e0ddd4] py-2 text-sm font-medium text-[#555] md:hidden" aria-label="Main">
+    <%= link_to "Developers", developers_directory_path %>
+    <%= link_to "Jobs", public_jobs_path %>
+  </nav>
+</header>

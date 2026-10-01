@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= [content_for(:title), "Dev Registry · DevCongress"].compact.join(" · ") %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="application-name" content="Dev Registry">
+    <% if content_for?(:description) %><meta name="description" content="<%= content_for(:description) %>"><% end %>
+    <% if content_for?(:noindex) %><meta name="robots" content="noindex"><% end %>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="/icon.png">
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
+  </head>
+
+  <body class="min-h-screen bg-[#f5f2e8] text-[#111] antialiased">
+    <%= render "site/shared/header" %>
+    <main><%= yield %></main>
+    <%= render "site/shared/footer" %>
+  </body>
+</html>

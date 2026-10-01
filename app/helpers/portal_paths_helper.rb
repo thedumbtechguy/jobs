@@ -26,6 +26,23 @@ module PortalPathsHelper
     PortalPathsHelper.routes.company_portal.company_scoped_root_path(company_scoped: company)
   end
 
+  # The Apply form for a job, in the applicant's developer portal.
+  def developer_portal_apply_path(profile, job)
+    PortalPathsHelper.routes.developer_portal.interactive_record_action_developers_profile_scoped_hiring_job_post_path(
+      developers_profile_scoped: profile, id: job, interactive_action: :apply
+    )
+  end
+
+  def developer_portal_application_path(profile, application)
+    PortalPathsHelper.routes.developer_portal.developers_profile_scoped_hiring_job_application_path(
+      developers_profile_scoped: profile, id: application
+    )
+  end
+
+  def developer_portal_edit_profile_path(profile)
+    developer_portal_home_path(profile).chomp("/") + "/developers_profile/edit"
+  end
+
   def new_developer_profile_path
     Rails.application.routes.url_helpers.new_developer_profile_setup_path
   end

@@ -21,7 +21,7 @@ module Developers
         city region country timezone remote_ok open_to_relocation
         contact_email phone contact_visibility
         website_url github_url linkedin_url x_url
-        availability seniority years_experience listed
+        availability seniority years_experience visibility
       ]
     end
 
