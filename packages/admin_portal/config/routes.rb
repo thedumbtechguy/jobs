@@ -7,6 +7,10 @@ AdminPortal::Engine.routes.draw do
   register_resource ::Developers::Profile
   register_resource ::Hiring::JobPost
   register_resource ::Hiring::JobApplication
+  register_resource ::Showcase::Project
+  register_resource ::Showcase::ProjectContributor
+  register_resource ::Network::Follow
+  register_resource ::Network::Endorsement
 
   # register resources above.
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_120100) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_140000) do
   create_table "active_shrine_attachments", force: :cascade do |t|
     t.string "record_type"
     t.bigint "record_id"
@@ -164,6 +164,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_120100) do
     t.integer "years"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "endorsements_count", default: 0, null: false
     t.index ["profile_id", "skill_id"], name: "index_developers_profile_skills_on_profile_id_and_skill_id", unique: true
     t.index ["profile_id"], name: "index_developers_profile_skills_on_profile_id"
     t.index ["skill_id"], name: "index_developers_profile_skills_on_skill_id"
@@ -260,6 +261,64 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_120100) do
     t.index ["published_at", "expires_at"], name: "index_hiring_job_posts_on_published_at_and_expires_at"
   end
 
+  create_table "network_endorsements", force: :cascade do |t|
+    t.integer "endorser_id", null: false
+    t.integer "profile_skill_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["endorser_id"], name: "index_network_endorsements_on_endorser_id"
+    t.index ["profile_skill_id", "endorser_id"], name: "index_network_endorsements_on_profile_skill_id_and_endorser_id", unique: true
+  end
+
+  create_table "network_follows", force: :cascade do |t|
+    t.integer "follower_id", null: false
+    t.integer "followee_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["followee_id"], name: "index_network_follows_on_followee_id"
+    t.index ["follower_id", "followee_id"], name: "index_network_follows_on_follower_id_and_followee_id", unique: true
+    t.check_constraint "follower_id <> followee_id", name: "network_follows_not_self"
+  end
+
+  create_table "showcase_project_contributors", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.integer "profile_id", null: false
+    t.string "role"
+    t.integer "status", default: 0, null: false
+    t.datetime "confirmed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["profile_id"], name: "index_showcase_project_contributors_on_profile_id"
+    t.index ["project_id", "profile_id"], name: "idx_on_project_id_profile_id_42ba9b7f27", unique: true
+  end
+
+  create_table "showcase_project_skills", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.integer "skill_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "skill_id"], name: "index_showcase_project_skills_on_project_id_and_skill_id", unique: true
+    t.index ["skill_id"], name: "index_showcase_project_skills_on_skill_id"
+  end
+
+  create_table "showcase_projects", force: :cascade do |t|
+    t.integer "owner_id", null: false
+    t.string "title", null: false
+    t.string "slug", null: false
+    t.string "summary"
+    t.text "body"
+    t.string "repo_url"
+    t.string "demo_url"
+    t.date "started_on"
+    t.date "ended_on"
+    t.integer "visibility", default: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_id"], name: "index_showcase_projects_on_owner_id"
+    t.index ["slug"], name: "index_showcase_projects_on_slug", unique: true
+    t.index ["visibility", "updated_at"], name: "index_showcase_projects_on_visibility_and_updated_at"
+  end
+
   create_table "skills", force: :cascade do |t|
     t.string "name", null: false
     t.string "slug", null: false
@@ -334,6 +393,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_120100) do
   add_foreign_key "hiring_job_applications", "developers_profiles", column: "profile_id"
   add_foreign_key "hiring_job_applications", "hiring_job_posts", column: "job_post_id"
   add_foreign_key "hiring_job_posts", "companies"
+  add_foreign_key "network_endorsements", "developers_profile_skills", column: "profile_skill_id", on_delete: :cascade
+  add_foreign_key "network_endorsements", "developers_profiles", column: "endorser_id", on_delete: :cascade
+  add_foreign_key "network_follows", "developers_profiles", column: "followee_id", on_delete: :cascade
+  add_foreign_key "network_follows", "developers_profiles", column: "follower_id", on_delete: :cascade
+  add_foreign_key "showcase_project_contributors", "developers_profiles", column: "profile_id", on_delete: :cascade
+  add_foreign_key "showcase_project_contributors", "showcase_projects", column: "project_id", on_delete: :cascade
+  add_foreign_key "showcase_project_skills", "showcase_projects", column: "project_id", on_delete: :cascade
+  add_foreign_key "showcase_project_skills", "skills"
+  add_foreign_key "showcase_projects", "developers_profiles", column: "owner_id", on_delete: :cascade
   add_foreign_key "user_identities", "users", on_delete: :cascade
   add_foreign_key "user_login_change_keys", "users", column: "id"
   add_foreign_key "user_password_reset_keys", "users", column: "id"

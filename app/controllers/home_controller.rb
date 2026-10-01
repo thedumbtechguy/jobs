@@ -10,6 +10,7 @@ class HomeController < Site::BaseController
     }
     @developers = listed.includes(profile_skills: :skill).order(created_at: :desc).limit(6)
     @jobs = Hiring::JobPost.visible_to(current_user).includes(:company).newest.limit(5)
+    @projects = Showcase::Project.visible_to(current_user).includes(:owner, :skills, confirmed_contributors: :profile).newest.limit(3)
     @top_skills = Skill.joins(profile_skills: :profile).merge(listed)
       .group(:name, :slug).order(Arel.sql("COUNT(*) DESC"), :name).limit(16).count
   end

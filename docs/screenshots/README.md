@@ -19,3 +19,8 @@ The top-bar avatar is a Gravatar, which the screenshot sandbox couldn't load.
 | 12-post-form-gig | New post form with the gig fields shown |
 | 13-email-new-applicant | "New applicant" email |
 | 14-board-mobile | Board on a phone (390px) |
+| 15-projects | `/projects`, with stack filter |
+| 16-project-page | A project page with its confirmed contributors |
+| 17-profile-connected | A profile seen by a connection: follow state, endorse buttons, projects |
+| 18-network | Developer portal network page, "People you may know" |
+| 19-credits | Credits: projects you've been added to, to confirm or decline |

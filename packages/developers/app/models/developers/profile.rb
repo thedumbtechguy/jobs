@@ -57,8 +57,7 @@ class Developers::Profile < Developers::ResourceRecord
   # Who can find the profile (directory and /@handle). Hidden profiles are
   # only visible to their owner.
   enum :visibility, {hidden: 0, members: 1, everyone: 2}, prefix: :visible_to
-  # Who may see contact_email and phone. "connections" stays owner-only until
-  # follows exist.
+  # Who may see contact_email and phone.
   enum :contact_visibility, {everyone: 0, members: 1, connections: 2}, prefix: :contact_visible_to
 
   # add enums above.
@@ -76,6 +75,18 @@ class Developers::Profile < Developers::ResourceRecord
   has_many :profile_skills, class_name: "Developers::ProfileSkill", dependent: :destroy
   has_many :skills, through: :profile_skills
   has_many :job_applications, class_name: "Hiring::JobApplication", dependent: :destroy
+
+  # Network: follows in both directions. Two people who follow each other are
+  # connected (see #connections).
+  has_many :outgoing_follows, class_name: "Network::Follow", foreign_key: :follower_id, inverse_of: :follower, dependent: :delete_all
+  has_many :incoming_follows, class_name: "Network::Follow", foreign_key: :followee_id, inverse_of: :followee, dependent: :delete_all
+  has_many :following, through: :outgoing_follows, source: :followee
+  has_many :followers, through: :incoming_follows, source: :follower
+  has_many :given_endorsements, class_name: "Network::Endorsement", foreign_key: :endorser_id, inverse_of: :endorser, dependent: :destroy
+
+  # Showcase: projects they own, and their credits on other people's projects.
+  has_many :projects, class_name: "Showcase::Project", foreign_key: :owner_id, inverse_of: :owner, dependent: :destroy
+  has_many :project_contributions, class_name: "Showcase::ProjectContributor", dependent: :delete_all
 
   # add has_many associations above.
 
@@ -150,8 +161,52 @@ class Developers::Profile < Developers::ResourceRecord
 
   def contact_visible_to?(user)
     return true if user && user_id == user.id
+    return true if contact_visible_to_everyone?
+    return user.present? if contact_visible_to_members?
 
-    contact_visible_to_everyone? || (contact_visible_to_members? && user.present?)
+    connected_to?(user&.developer_profile)
+  end
+
+  # People this profile follows who follow it back.
+  def connections
+    following.where(id: incoming_follows.select(:follower_id))
+  end
+
+  def connected_to?(other)
+    return false if other.nil? || other.id == id
+
+    following?(other) && followed_by?(other)
+  end
+
+  def following?(other)
+    other.present? && outgoing_follows.exists?(followee_id: other.id)
+  end
+
+  def followed_by?(other)
+    other.present? && incoming_follows.exists?(follower_id: other.id)
+  end
+
+  # Followers this profile hasn't followed back yet.
+  def unanswered_followers
+    followers.where.not(id: outgoing_follows.select(:followee_id))
+  end
+
+  # "People you may know": people your connections follow, ranked by how many
+  # of your connections follow them, then people who share your skills.
+  # Hidden profiles and people you already follow are left out.
+  def suggested_profiles(limit: 6)
+    candidates = Developers::Profile.where.not(visibility: :hidden)
+      .where.not(id: id).where.not(id: outgoing_follows.select(:followee_id))
+
+    via_network = candidates.joins(:incoming_follows)
+      .where(network_follows: {follower_id: connections.select(:id)})
+      .group(:id).order(Arel.sql("COUNT(*) DESC"), updated_at: :desc).limit(limit).to_a
+    return via_network if via_network.size >= limit
+
+    shared_skills = candidates.where.not(id: via_network.map(&:id))
+      .where(id: Developers::ProfileSkill.where(skill_id: profile_skills.select(:skill_id)).select(:profile_id))
+      .order(updated_at: :desc).limit(limit - via_network.size)
+    via_network + shared_skills.to_a
   end
 
   def location

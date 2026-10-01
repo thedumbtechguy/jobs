@@ -1,0 +1,49 @@
+<% content_for :title, "Projects" %>
+<% content_for :description, "Things DevCongress developers have built, and who built them." %>
+<% filtered = params.values_at(:q, :skill).any?(&:present?) %>
+
+<section class="border-b-2 border-[#111]">
+  <div class="mx-auto max-w-6xl px-4 py-12">
+    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#555]">Show the work</p>
+    <h1 class="mt-3 font-display text-5xl">Projects</h1>
+    <p class="mt-3 max-w-2xl text-[#555]">
+      Things developers in the community have built. Everyone listed on a project has confirmed they worked on it.
+    </p>
+
+    <%= form_with url: public_projects_path, method: :get, class: "mt-8 grid grid-cols-1 gap-4 sm:grid-cols-[2fr_1fr_auto] sm:items-end", data: {turbo_action: "advance"} do %>
+      <label class="block">
+        <span class="mb-1 block text-xs font-semibold uppercase tracking-wide text-[#555]">Search</span>
+        <input type="search" name="q" value="<%= params[:q] %>" placeholder="Title, summary or stack" class="w-full rounded-lg border-2 border-[#111] bg-white px-3 py-2 text-sm">
+      </label>
+      <%= render "site/shared/filter_select", name: :skill, label: "Stack", all: "Any stack", choices: @skills.map { [_1.name, _1.slug] } %>
+      <button type="submit" class="rounded-full border-2 border-[#111] bg-[#d10f72] px-5 py-2 text-sm font-semibold text-white">Search</button>
+    <% end %>
+  </div>
+</section>
+
+<section class="mx-auto max-w-6xl px-4 py-10">
+  <div class="mb-6 flex items-center justify-between gap-4 text-sm text-[#555]">
+    <p><%= pluralize(@total, "project") %><%= " match" if filtered %></p>
+    <% if filtered %><%= link_to "Clear filters", public_projects_path, class: "font-semibold text-[#d10f72] hover:underline" %><% end %>
+  </div>
+
+  <% if @projects.any? %>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <% @projects.each do |project| %>
+        <%= render "site/projects/project_card", project: %>
+      <% end %>
+    </div>
+    <%= render "site/shared/pagination" %>
+  <% else %>
+    <div class="rounded-xl border-2 border-dashed border-[#c9c5b8] p-12 text-center">
+      <p class="font-display text-3xl"><%= filtered ? "Nothing matches that yet." : "No projects yet." %></p>
+      <p class="mt-2 text-[#555]">
+        <% if current_user&.developer_profile %>
+          Built something? <%= link_to "Add a project", developer_portal_new_project_path(current_user.developer_profile), class: "font-semibold text-[#d10f72] hover:underline" %>.
+        <% else %>
+          <%= filtered ? "Try fewer filters" : "Check back soon" %><%= ", or sign in to see members-only projects" unless current_user %>.
+        <% end %>
+      </p>
+    </div>
+  <% end %>
+</section>
