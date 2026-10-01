@@ -11,7 +11,7 @@
 
         m.item "Companies", icon: Phlex::TablerIcons::Building do |n|
           current_user.companies.order(:name).each do |company|
-            n.item company.name, url: company_portal_home_path(company)
+            n.item company.display_name, url: company_portal_home_path(company)
           end
           n.item "Set up a company", url: new_company_path
         end

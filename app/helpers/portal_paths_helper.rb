@@ -53,6 +53,11 @@ module PortalPathsHelper
     Rails.application.routes.url_helpers.new_developer_profile_setup_path
   end
 
+  # POST here to post a job or gig as yourself (see PersonalPostingsController).
+  def post_as_yourself_path
+    Rails.application.routes.url_helpers.personal_posting_path
+  end
+
   def new_company_path
     Rails.application.routes.url_helpers.new_company_setup_path
   end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_120100) do
   create_table "active_shrine_attachments", force: :cascade do |t|
     t.string "record_type"
     t.bigint "record_id"
@@ -100,7 +100,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_110000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "jobs_trusted_at"
+    t.integer "personal_owner_id"
     t.index ["name"], name: "index_companies_on_name", unique: true
+    t.index ["personal_owner_id"], name: "index_companies_on_personal_owner_id", unique: true
     t.index ["slug"], name: "index_companies_on_slug", unique: true
   end
 
@@ -250,6 +252,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_110000) do
     t.datetime "updated_at", null: false
     t.integer "visibility", default: 2, null: false
     t.datetime "approved_at"
+    t.integer "pay_period", default: 0, null: false
+    t.boolean "paid", default: true, null: false
+    t.string "duration"
+    t.date "starts_on"
     t.index ["company_id"], name: "index_hiring_job_posts_on_company_id"
     t.index ["published_at", "expires_at"], name: "index_hiring_job_posts_on_published_at_and_expires_at"
   end
@@ -313,6 +319,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_110000) do
   add_foreign_key "admin_recovery_codes", "admins", column: "id"
   add_foreign_key "admin_remember_keys", "admins", column: "id"
   add_foreign_key "admin_verification_keys", "admins", column: "id"
+  add_foreign_key "companies", "users", column: "personal_owner_id", on_delete: :cascade
   add_foreign_key "company_user_invites", "companies"
   add_foreign_key "company_user_invites", "users"
   add_foreign_key "company_users", "companies"

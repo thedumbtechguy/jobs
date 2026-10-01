@@ -18,7 +18,7 @@ module Hiring
       application = resource.job_applications.build(profile: current_scoped_entity, cover_note:)
       application.resume = resume if resume.present?
       application.save!
-      succeed(application).with_message("Application sent to #{resource.company.name}. They'll see your profile and contact details.")
+      succeed(application).with_message("Application sent to #{resource.poster_name}. They'll see your profile and contact details.")
     rescue ActiveRecord::RecordInvalid => e
       failed(e.record.errors)
     end

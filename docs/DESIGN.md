@@ -203,6 +203,33 @@ Ported from the old app, with its rough edges removed.
 
 - **Signup and onboarding:** see *Accounts and onboarding* above.
 
+## Posts: jobs, gigs and internships
+
+A `Hiring::JobPost` is any kind of post. `employment_type` decides the kind:
+
+| Kind | Types | Extra fields |
+|---|---|---|
+| Jobs | full time, part time, contract | |
+| Gigs | freelance | duration, start date |
+| Internships | internship | duration, start date, paid or unpaid |
+
+Contracts also get duration and start date. Pay is a range with a basis
+(`pay_period`: per year, month, day, hour, or a fixed budget), so the board can
+show "500 USD fixed budget" or "40 USD per hour". The public board has All /
+Jobs / Gigs / Internships tabs (`/jobs?kind=gigs`), and wording follows the kind
+("Your gig is live").
+
+### Individual posters
+
+Anyone with a developer profile can **post as themselves**. Behind the scenes this
+is a *personal posting space*: a `Company` row with `personal_owner_id` set, owned
+by that one user. It reuses everything companies have (company portal, applicant
+board, first-post review, emails), while the public site shows the person instead:
+their name and round avatar on posts, "About the poster", and `/companies/<slug>`
+redirects to their `/@handle` page, which lists their open posts. Personal spaces
+have no team: no members, invites or company settings. Nobody can apply to their
+own post.
+
 ## Applicant tracking
 
 Companies manage applicants in `company_portal` (`/company/:slug/hiring/job_applications`):
@@ -268,7 +295,8 @@ end
    Public `/jobs`, job and company pages ✅. A new company's first job is
    reviewed by an admin (emailed) before it goes live; approval trusts the
    company ✅. Applicant tracking: board, filters, notes, ratings, bulk moves,
-   CSV export, private CV uploads ✅. Still to do: expiry reminder emails,
+   CSV export, private CV uploads ✅. Gigs and internships, pay basis, and
+   individual posters ✅. Still to do: expiry reminder emails,
    active-job cap per company.
 5. **Network:** follows and connections, endorsements, and "people you may
    know" (connections of connections).

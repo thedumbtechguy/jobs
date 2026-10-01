@@ -17,4 +17,9 @@ class Company::InviteUserInteraction < Plutonium::Resource::Interaction
   def membership_class
     CompanyUser
   end
+
+  # The concern defaults to Invites::UserInvite, which this app doesn't have.
+  def invite_class
+    Invites::CompanyUserInvite
+  end
 end

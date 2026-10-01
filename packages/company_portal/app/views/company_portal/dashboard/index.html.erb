@@ -5,14 +5,15 @@
 <% applications = Hiring::JobApplication.joins(:job_post).where(hiring_job_posts: {company_id: company.id}) %>
 <% recent_applications = applications.includes(:profile, :job_post).order(created_at: :desc).limit(5) %>
 <% new_job_url = resource_url_for(Hiring::JobPost, parent: nil, action: :new) %>
-<% content_for :title, company.name %>
+<% personal_profile = company.personal_profile %>
+<% content_for :title, company.display_name %>
 
 <div class="mx-auto max-w-6xl space-y-6">
   <section class="dc-card">
     <div class="pu-card-body flex flex-col gap-4 sm:flex-row sm:items-center">
-      <%= render InitialsAvatar.new(name: company.name, seed: company.slug, size: :xl, shape: :square) %>
+      <%= render InitialsAvatar.new(name: company.display_name, seed: personal_profile&.handle || company.slug, size: :xl, shape: company.personal? ? :circle : :square) %>
       <div class="min-w-0 flex-1">
-        <h1 class="font-display text-3xl text-[var(--pu-text)]"><%= company.name %></h1>
+        <h1 class="font-display text-3xl text-[var(--pu-text)]"><%= company.display_name %></h1>
         <div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--pu-text-muted)]">
           <% if company.website.present? %>
             <a href="<%= company.website %>" target="_blank" rel="noopener" class="flex items-center gap-1 text-primary-600 hover:underline dark:text-primary-400">
@@ -25,24 +26,34 @@
           <% end %>
         </div>
       </div>
-      <a href="<%= main_app.public_company_path(company.slug) %>" class="pu-btn pu-btn-md pu-btn-outline">
-        <%= render Phlex::TablerIcons::ExternalLink.new(class: "mr-1 h-4 w-4") %> View company page
-      </a>
-      <a href="<%= resource_url_for(Company, parent: nil, action: :edit) %>" class="pu-btn pu-btn-md pu-btn-outline">
-        <%= render Phlex::TablerIcons::Pencil.new(class: "mr-1 h-4 w-4") %> Edit company
-      </a>
+      <% if company.personal? %>
+        <span class="pu-badge pu-badge-info self-start sm:self-center">Posting as yourself</span>
+        <% if personal_profile %>
+          <a href="<%= main_app.developer_page_path(handle: personal_profile.handle) %>" class="pu-btn pu-btn-md pu-btn-outline">
+            <%= render Phlex::TablerIcons::ExternalLink.new(class: "mr-1 h-4 w-4") %> View your profile
+          </a>
+        <% end %>
+      <% else %>
+        <a href="<%= main_app.public_company_path(company.slug) %>" class="pu-btn pu-btn-md pu-btn-outline">
+          <%= render Phlex::TablerIcons::ExternalLink.new(class: "mr-1 h-4 w-4") %> View company page
+        </a>
+        <a href="<%= resource_url_for(Company, parent: nil, action: :edit) %>" class="pu-btn pu-btn-md pu-btn-outline">
+          <%= render Phlex::TablerIcons::Pencil.new(class: "mr-1 h-4 w-4") %> Edit company
+        </a>
+      <% end %>
     </div>
   </section>
 
-  <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+  <div class="grid grid-cols-2 gap-4 <%= company.personal? ? "lg:grid-cols-2" : "lg:grid-cols-4" %>">
     <div class="pu-card"><div class="pu-card-body">
-      <p class="text-sm text-[var(--pu-text-muted)]">Active jobs</p>
+      <p class="text-sm text-[var(--pu-text-muted)]">Active posts</p>
       <p class="font-display text-4xl tabular-nums text-primary-600 dark:text-primary-400"><%= company.job_posts.active.count %></p>
     </div></div>
     <div class="pu-card"><div class="pu-card-body">
       <p class="text-sm text-[var(--pu-text-muted)]">Applicants to review</p>
       <p class="font-display text-4xl tabular-nums text-primary-600 dark:text-primary-400"><%= applications.submitted.count %></p>
     </div></div>
+    <% unless company.personal? %>
     <div class="pu-card"><div class="pu-card-body">
       <p class="text-sm text-[var(--pu-text-muted)]">Members</p>
       <p class="font-display text-4xl tabular-nums text-primary-600 dark:text-primary-400"><%= memberships.size %></p>
@@ -51,6 +62,7 @@
       <p class="text-sm text-[var(--pu-text-muted)]">Pending invitations</p>
       <p class="font-display text-4xl tabular-nums text-primary-600 dark:text-primary-400"><%= pending_invites.size %></p>
     </div></div>
+    <% end %>
   </div>
 
   <% if applications.exists? %>
@@ -81,11 +93,11 @@
     <section class="pu-card lg:col-span-2">
       <div class="pu-card-body space-y-4">
         <div class="flex items-center justify-between">
-          <h2 class="font-semibold text-[var(--pu-text)]">Jobs</h2>
+          <h2 class="font-semibold text-[var(--pu-text)]">Posts</h2>
           <div class="flex gap-2">
             <% if jobs.any? %><a href="<%= resource_url_for(Hiring::JobPost, parent: nil) %>" class="pu-btn pu-btn-sm pu-btn-ghost">View all</a><% end %>
             <a href="<%= new_job_url %>" class="pu-btn pu-btn-sm pu-btn-primary">
-              <%= render Phlex::TablerIcons::Plus.new(class: "mr-1 h-4 w-4") %> Post a job
+              <%= render Phlex::TablerIcons::Plus.new(class: "mr-1 h-4 w-4") %> New post
             </a>
           </div>
         </div>
@@ -97,7 +109,7 @@
                   <span class="min-w-0 flex-1">
                     <span class="block truncate text-sm font-medium text-[var(--pu-text)]"><%= job.title %></span>
                     <span class="block truncate text-xs text-[var(--pu-text-muted)]">
-                      <%= [job.employment_type.humanize, job.location.presence, pluralize(job.job_applications.size, "applicant")].compact.join(" · ") %>
+                      <%= [job.type_label, job.location.presence, pluralize(job.job_applications.size, "applicant")].compact.join(" · ") %>
                     </span>
                   </span>
                   <%= render "shared/status_badge", status: job.status %>
@@ -106,7 +118,7 @@
             <% end %>
           </ul>
         <% else %>
-          <p class="text-sm text-[var(--pu-text-muted)]">No jobs yet. Post one, then publish it when it's ready.</p>
+          <p class="text-sm text-[var(--pu-text-muted)]">Nothing posted yet. Add a job, gig or internship, then publish it when it's ready.</p>
         <% end %>
       </div>
     </section>
@@ -131,11 +143,12 @@
           </ul>
           <a href="<%= resource_url_for(Hiring::JobApplication, parent: nil) %>" class="text-sm text-primary-600 hover:underline dark:text-primary-400">Open the applicant board</a>
         <% else %>
-          <p class="text-sm text-[var(--pu-text-muted)]">Applicants to your jobs show up here.</p>
+          <p class="text-sm text-[var(--pu-text-muted)]">Applicants to your posts show up here.</p>
         <% end %>
       </div>
     </section>
 
+    <% unless company.personal? %>
     <section class="pu-card lg:col-span-2">
       <div class="pu-card-body space-y-4">
         <div class="flex items-center justify-between">
@@ -180,5 +193,6 @@
         <% end %>
       </div>
     </section>
+    <% end %>
   </div>
 </div>

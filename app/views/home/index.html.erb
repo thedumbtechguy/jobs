@@ -73,9 +73,9 @@
              ["Say if you're looking", "Open to work, open to offers, or just here to be counted."],
              ["Apply in one click", "Send your profile to companies, and track every application."]
            ], (signed_in ? "Open your dashboard" : "Create your profile")],
-           ["For companies", "Hire from a community that ships.", [
-             ["Set up your company", "Invite recruiters to work on hiring with you."],
-             ["Post a job", "Take applications here, link to your careers page, or both."],
+           ["For companies and clients", "Hire from a community that ships.", [
+             ["Post as a company or yourself", "Set up a company and invite recruiters, or post a gig under your own name."],
+             ["Post a job, gig or internship", "Take applications here, link to your own page, or both."],
              ["Review applicants", "Move people through reviewing, shortlisted and hired."]
            ], (signed_in ? "Set up a company" : "Start hiring")]
          ].each do |eyebrow, title, steps, cta| %>
@@ -105,20 +105,20 @@
         <div>
           <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#555]">Hiring now</p>
           <div class="mt-3 flex items-baseline justify-between gap-4">
-            <h2 class="font-display text-4xl">Latest jobs</h2>
-            <%= link_to "All jobs →", public_jobs_path, class: "text-sm font-semibold text-[#d10f72] hover:underline" %>
+            <h2 class="font-display text-4xl">Latest jobs & gigs</h2>
+            <%= link_to "See all →", public_jobs_path, class: "text-sm font-semibold text-[#d10f72] hover:underline" %>
           </div>
           <% if @jobs.any? %>
             <ul class="mt-8 space-y-3">
               <% @jobs.each do |job| %>
                 <li>
                   <%= link_to public_job_path(job), class: "group flex items-center gap-4 rounded-xl border-2 border-[#111] bg-[#f5f2e8] p-4 transition-transform hover:-translate-y-0.5" do %>
-                    <%= render InitialsAvatar.new(name: job.company.name, seed: job.company.slug, shape: :square) %>
+                    <%= poster_avatar(job) %>
                     <span class="min-w-0 flex-1">
                       <span class="block truncate font-semibold group-hover:text-[#d10f72]"><%= job.title %></span>
-                      <span class="block truncate text-sm text-[#555]"><%= [job.company.name, job.location.presence, job.employment_type.humanize].compact.join(" · ") %></span>
+                      <span class="block truncate text-sm text-[#555]"><%= [job.poster_name, job.location.presence, job.type_label].compact.join(" · ") %></span>
                     </span>
-                    <% if job.salary_range %><span class="hidden shrink-0 text-sm font-medium sm:block"><%= job.salary_range %></span><% end %>
+                    <% if job.pay %><span class="hidden shrink-0 text-sm font-medium sm:block"><%= job.pay %></span><% end %>
                     <span class="shrink-0 text-xl text-[#d10f72]" aria-hidden="true">→</span>
                   <% end %>
                 </li>

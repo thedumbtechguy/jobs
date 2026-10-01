@@ -15,4 +15,4 @@
 <%= email_paragraph do %>
   Or see their <%= email_link "full profile", @profile_url %>. Move them along from the application page and they'll get an update.
 <% end %>
-<% content_for :footer_note, "You're getting this because you're a member of #{@company.name} on Dev Registry." %>
+<% content_for :footer_note, @company.personal? ? "You're getting this because you posted on Dev Registry." : "You're getting this because you're a member of #{@company.display_name} on Dev Registry." %>

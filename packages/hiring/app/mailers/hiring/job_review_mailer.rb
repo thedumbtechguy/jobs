@@ -16,13 +16,13 @@ module Hiring
       return if recipients.empty?
 
       @review_url = absolute_url(PortalPathsHelper.routes.admin_portal.hiring_job_post_path(@job))
-      mail to: recipients, subject: "Review needed: #{@job.title} at #{@company.name}"
+      mail to: recipients, subject: "Review needed: #{@job.title} at #{@company.display_name}"
     end
 
     def approved
       @job_url = absolute_url(Rails.application.routes.url_helpers.public_job_path(@job))
       @dashboard_url = absolute_url(company_portal_home_path(@company))
-      mail to: company_emails, subject: "Your job is live: #{@job.title}"
+      mail to: company_emails, subject: "Your #{@job.kind_noun} is live: #{@job.title}"
     end
 
     def declined
