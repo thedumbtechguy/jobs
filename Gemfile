@@ -97,3 +97,7 @@ gem "rotp", "~> 6.3"
 gem "rqrcode", "~> 3.2"
 
 gem "active_shrine", "~> 0.7.2"
+
+gem "rodauth-omniauth", "~> 0.6.2"
+gem "omniauth-google-oauth2", "~> 1.2"
+gem "omniauth-github", "~> 2.0"

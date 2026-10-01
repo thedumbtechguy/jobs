@@ -12,7 +12,52 @@ class UserRodauthPlugin < RodauthPlugin
     # http://rodauth.jeremyevans.net/documentation.html
 
     # List of authentication features that are loaded.
-    enable :login, :remember, :logout, :create_account, :verify_account, :verify_account_grace_period, :reset_password, :reset_password_notify, :change_login, :verify_login_change, :change_password, :change_password_notify, :case_insensitive_login, :internal_request
+    enable :login, :remember, :logout, :create_account, :verify_account, :verify_account_grace_period, :reset_password, :reset_password_notify, :change_login, :verify_login_change, :change_password, :change_password_notify, :case_insensitive_login, :internal_request, :omniauth
+
+    # ==> Social sign-in (rodauth-omniauth)
+    # Each provider is offered only when its credentials are set. Callback URLs
+    # to register with the provider: <RAILS_DEFAULT_URL>/users/auth/google/callback
+    # and <RAILS_DEFAULT_URL>/users/auth/github/callback.
+    if ENV["GOOGLE_CLIENT_ID"].present? && ENV["GOOGLE_CLIENT_SECRET"].present?
+      omniauth_provider :google_oauth2, ENV["GOOGLE_CLIENT_ID"], ENV["GOOGLE_CLIENT_SECRET"], name: :google, scope: "email,profile"
+    end
+    if ENV["GITHUB_CLIENT_ID"].present? && ENV["GITHUB_CLIENT_SECRET"].present?
+      omniauth_provider :github, ENV["GITHUB_CLIENT_ID"], ENV["GITHUB_CLIENT_SECRET"], scope: "read:user,user:email"
+    end
+
+    omniauth_identities_table :user_identities
+    omniauth_identities_account_id_column :user_id
+
+    # Social sign-in links to an existing account with the same email, so only
+    # trust addresses the provider has verified. (omniauth-github only returns
+    # the primary *verified* address with the user:email scope.)
+    before_omniauth_callback_route do
+      verified = case omniauth_provider.to_s
+      when "google" then [true, "true"].include?(omniauth_extra.dig("raw_info", "email_verified"))
+      when "github" then omniauth_email.present?
+      else false
+      end
+
+      unless verified
+        set_redirect_error_flash "We couldn't confirm your email with #{omniauth_provider.to_s.titleize}. Verify it there, or sign up with email and password."
+        redirect login_path
+      end
+    end
+
+    # Keep the provider's public profile on the identity; onboarding uses it
+    # to prefill the developer profile.
+    omniauth_identity_insert_hash do
+      super().merge(info: social_profile_info.to_json, created_at: Time.current, updated_at: Time.current)
+    end
+    omniauth_identity_update_hash do
+      {info: social_profile_info.to_json, updated_at: Time.current}
+    end
+
+    auth_class_eval do
+      def social_profile_info
+        omniauth_info.to_h.slice("name", "nickname", "image", "urls")
+      end
+    end
 
     # ==> General
 
