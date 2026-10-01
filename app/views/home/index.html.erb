@@ -29,7 +29,7 @@
 
   <main>
     <%# Hero %>
-    <section class="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 lg:grid-cols-[1.15fr_1fr] lg:py-24">
+    <section class="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-16 lg:grid-cols-[1.15fr_1fr] lg:py-24">
       <div>
         <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#555]">The DevCongress developer registry</p>
         <h1 class="mt-5 font-display text-5xl leading-[1.05] sm:text-6xl lg:text-7xl">
@@ -67,7 +67,7 @@
 
     <%# Stats %>
     <section class="mx-auto max-w-6xl px-4 pb-16">
-      <div class="grid gap-6 sm:grid-cols-3">
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <% [
              [@stats[:developers], "Developers listed", "Searchable profiles with skills and experience."],
              [@stats[:companies], "Companies", "Teams hiring from the community."],
@@ -92,7 +92,7 @@
     </div>
 
     <%# Two audiences %>
-    <section class="mx-auto grid max-w-6xl gap-12 px-4 py-20 md:grid-cols-2" id="companies">
+    <section class="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-4 py-20 md:grid-cols-2" id="companies">
       <% [
            ["For developers", "Get found for the work you actually do.", [
              ["Make your profile", "Skills with years and level, your experience, and your links."],
@@ -127,7 +127,7 @@
 
     <%# Jobs + skills %>
     <section class="border-t-2 border-[#111] bg-white" id="jobs">
-      <div class="mx-auto grid max-w-6xl gap-12 px-4 py-20 lg:grid-cols-[1.4fr_1fr]">
+      <div class="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-4 py-20 lg:grid-cols-[1.4fr_1fr]">
         <div>
           <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#555]">Hiring now</p>
           <h2 class="mt-3 font-display text-4xl">Latest jobs</h2>
