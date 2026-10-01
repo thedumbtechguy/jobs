@@ -203,6 +203,34 @@ Ported from the old app, with its rough edges removed.
 
 - **Signup and onboarding:** see *Accounts and onboarding* above.
 
+## Applicant tracking
+
+Companies manage applicants in `company_portal` (`/company/:slug/hiring/job_applications`):
+
+- **Board** (default view): one column per stage: New, Reviewing, Shortlisted,
+  Hired, Rejected, Withdrawn. Dragging a card moves the applicant; dropping on
+  Rejected asks for an optional message first. Withdrawn is locked. Cards are
+  ordered within a column (`position`, scoped to status).
+- **Table:** search by applicant, filters (job, stage, minimum rating, applied
+  dates), "Open" and "Needs review" tabs, bulk "Move to stage", and CSV export
+  with contact details.
+- **Application page:** applicant summary and contact details (applying shares
+  them with the company), CV, cover note, skills and experience, team rating, and
+  an activity log of private notes and stage changes (who and when).
+- **Emails:** the applicant hears about every move forward, hire or rejection,
+  with the team's optional message. Moving back to New is silent.
+- Notes and ratings are never shown to the applicant; their own view shows the
+  stage and their CV.
+
+### Uploads
+
+[active_shrine](https://github.com/radioactive-labs/active_shrine) (Shrine with
+an Active Storage-style API) stores files **privately** under
+`storage/uploads`, which is not web-served. Pages hand out short-lived signed
+links (`PrivateFilesHelper`, one hour) that `PrivateFilesController` checks before
+streaming the file. Only render a link where the viewer is already allowed to
+see the file. CVs (`ResumeUploader`) must be PDF or Word, 5 MB at most.
+
 ## Search
 
 Every searchable model includes `Searchable` and declares its fields:
@@ -239,7 +267,9 @@ end
    applications ✅, developers browse and apply from the developer portal ✅.
    Public `/jobs`, job and company pages ✅. A new company's first job is
    reviewed by an admin (emailed) before it goes live; approval trusts the
-   company ✅. Still to do: expiry reminder emails, active-job cap per company.
+   company ✅. Applicant tracking: board, filters, notes, ratings, bulk moves,
+   CSV export, private CV uploads ✅. Still to do: expiry reminder emails,
+   active-job cap per company.
 5. **Network:** follows and connections, endorsements, and "people you may
    know" (connections of connections).
 6. **Polish:** landing page and admin moderation, then plug in the SQLite

@@ -10,7 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_090100) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_100100) do
+  create_table "active_shrine_attachments", force: :cascade do |t|
+    t.string "record_type"
+    t.bigint "record_id"
+    t.string "name", null: false
+    t.string "type", default: "ActiveShrine::Attachment", null: false
+    t.json "file_data", null: false
+    t.json "metadata", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["file_data"], name: "index_active_shrine_attachments_on_file_data"
+    t.index ["metadata"], name: "index_active_shrine_attachments_on_metadata"
+    t.index ["name"], name: "index_active_shrine_attachments_on_name"
+    t.index ["record_type", "record_id"], name: "index_active_shrine_attachments_on_record"
+  end
+
   create_table "admin_active_session_keys", primary_key: ["admin_id", "session_id"], force: :cascade do |t|
     t.integer "admin_id"
     t.string "session_id"
@@ -183,6 +198,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_090100) do
     t.index ["visibility", "availability"], name: "index_developers_profiles_on_visibility_and_availability"
   end
 
+  create_table "hiring_application_notes", force: :cascade do |t|
+    t.integer "job_application_id", null: false
+    t.integer "author_id"
+    t.integer "kind", default: 0, null: false
+    t.text "body"
+    t.string "from_status"
+    t.string "to_status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_hiring_application_notes_on_author_id"
+    t.index ["job_application_id", "created_at"], name: "idx_on_job_application_id_created_at_e70a1b5944"
+    t.index ["job_application_id"], name: "index_hiring_application_notes_on_job_application_id"
+  end
+
   create_table "hiring_job_applications", force: :cascade do |t|
     t.integer "job_post_id", null: false
     t.integer "profile_id", null: false
@@ -190,9 +219,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_090100) do
     t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "position", precision: 16, scale: 8
+    t.integer "rating"
+    t.datetime "status_changed_at"
     t.index ["job_post_id", "profile_id"], name: "index_hiring_job_applications_on_job_post_id_and_profile_id", unique: true
     t.index ["job_post_id"], name: "index_hiring_job_applications_on_job_post_id"
     t.index ["profile_id"], name: "index_hiring_job_applications_on_profile_id"
+    t.index ["status", "position"], name: "index_hiring_job_applications_on_status_and_position"
   end
 
   create_table "hiring_job_posts", force: :cascade do |t|
@@ -278,6 +311,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_090100) do
   add_foreign_key "developers_profile_skills", "developers_profiles", column: "profile_id"
   add_foreign_key "developers_profile_skills", "skills"
   add_foreign_key "developers_profiles", "users"
+  add_foreign_key "hiring_application_notes", "hiring_job_applications", column: "job_application_id", on_delete: :cascade
+  add_foreign_key "hiring_application_notes", "users", column: "author_id", on_delete: :nullify
   add_foreign_key "hiring_job_applications", "developers_profiles", column: "profile_id"
   add_foreign_key "hiring_job_applications", "hiring_job_posts", column: "job_post_id"
   add_foreign_key "hiring_job_posts", "companies"

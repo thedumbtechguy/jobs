@@ -6,14 +6,19 @@ module Hiring
 
     attribute :resource
     attribute :cover_note, :string
+    attribute :resume
 
     input :cover_note, as: :text, hint: "Optional. Why you're a good fit."
+    input :resume, as: :file, label: "CV", accept: ::ResumeUploader::TYPES.values.join(","),
+      hint: "Optional. PDF or Word, up to 5 MB. Only this company's hiring team can open it."
 
     private
 
     def execute
-      application = resource.job_applications.create!(profile: current_scoped_entity, cover_note:)
-      succeed(application).with_message("Application sent to #{resource.company.name}.")
+      application = resource.job_applications.build(profile: current_scoped_entity, cover_note:)
+      application.resume = resume if resume.present?
+      application.save!
+      succeed(application).with_message("Application sent to #{resource.company.name}. They'll see your profile and contact details.")
     rescue ActiveRecord::RecordInvalid => e
       failed(e.record.errors)
     end

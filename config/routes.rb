@@ -11,6 +11,9 @@ Rails.application.routes.draw do
 
   root "home#index"
 
+  # Private uploads, behind signed expiring links.
+  get "files/:token", to: "private_files#show", as: :private_file
+
   # Public site: developer directory, profiles, jobs and companies.
   scope module: :site do
     get "devs", to: "developers#index", as: :developers_directory

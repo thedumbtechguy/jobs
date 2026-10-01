@@ -1,6 +1,8 @@
 module Hiring
-  # Company members reviewing applicants (company portal). Applications are
-  # only created through the Apply action in the developer portal.
+  # Applications are created only by the Apply action in the developer portal.
+  # This base policy is read-only; each portal's policy grants what its
+  # audience may do (CompanyPortal for the hiring team, DeveloperPortal for
+  # the applicant).
   class JobApplicationPolicy < Hiring::ResourcePolicy
     def create? = false
 
@@ -10,8 +12,20 @@ module Hiring
 
     def destroy? = false
 
-    def update_status? = !record.withdrawn?
+    # Hiring-team actions.
+    def update_status? = false
 
+    def reject? = false
+
+    def add_note? = false
+
+    def rate? = false
+
+    def bulk_move? = false
+
+    def kanban_move? = false
+
+    # Applicant action.
     def withdraw? = false
 
     def permitted_attributes_for_read

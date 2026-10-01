@@ -10,12 +10,10 @@ module DeveloperPortal
         default_relation_scope(relation).where(profile: entity_scope)
       end
 
-      def update_status? = false
-
       def withdraw? = record.withdrawable?
 
       def permitted_attributes_for_read
-        %i[job_post status cover_note created_at]
+        %i[job_post status cover_note resume created_at]
       end
 
       def permitted_attributes_for_index

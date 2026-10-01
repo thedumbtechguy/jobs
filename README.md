@@ -60,7 +60,7 @@ use your development records.
 | Review needed | All admins | A company publishes its first job |
 | Job live / changes needed | Company members | An admin approves or declines that job |
 | New applicant | Company members | Someone applies in the app |
-| Application update | Applicant | Status moves to reviewing, shortlisted, rejected or hired |
+| Application update | Applicant | Status moves to reviewing, shortlisted, rejected or hired, with the team's optional message |
 | Company invite | Invitee | A member invites someone |
 
 ## Deploy

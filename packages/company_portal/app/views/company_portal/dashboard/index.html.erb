@@ -53,6 +53,30 @@
     </div></div>
   </div>
 
+  <% if applications.exists? %>
+    <% stage_counts = applications.group(:status).count %>
+    <% stages = %w[submitted reviewing shortlisted hired rejected] %>
+    <% board_url = resource_url_for(Hiring::JobApplication, parent: nil) %>
+    <section class="pu-card" aria-labelledby="pipeline-heading">
+      <div class="pu-card-body space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 id="pipeline-heading" class="font-semibold text-[var(--pu-text)]">Hiring pipeline</h2>
+          <a href="<%= board_url %>" class="pu-btn pu-btn-sm pu-btn-ghost">Open board</a>
+        </div>
+        <ol class="grid grid-cols-2 gap-3 sm:grid-cols-5">
+          <% stages.each do |stage| %>
+            <li>
+              <a href="<%= board_url %>?view=table&q[status][value][]=<%= stage %>" class="block rounded-[var(--pu-radius-lg)] border border-[var(--pu-border)] px-4 py-3 transition-colors hover:border-primary-400 hover:bg-[var(--pu-surface-alt)]">
+                <span class="block text-xs font-semibold uppercase tracking-wide text-[var(--pu-text-subtle)]"><%= Hiring::JobApplication::STAGE_LABELS.fetch(stage) %></span>
+                <span class="font-display text-3xl tabular-nums text-[var(--pu-text)]"><%= stage_counts.fetch(stage, 0) %></span>
+              </a>
+            </li>
+          <% end %>
+        </ol>
+      </div>
+    </section>
+  <% end %>
+
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     <section class="pu-card lg:col-span-2">
       <div class="pu-card-body space-y-4">
@@ -105,7 +129,7 @@
               </li>
             <% end %>
           </ul>
-          <a href="<%= resource_url_for(Hiring::JobApplication, parent: nil) %>" class="text-sm text-primary-600 hover:underline dark:text-primary-400">All applicants</a>
+          <a href="<%= resource_url_for(Hiring::JobApplication, parent: nil) %>" class="text-sm text-primary-600 hover:underline dark:text-primary-400">Open the applicant board</a>
         <% else %>
           <p class="text-sm text-[var(--pu-text-muted)]">Applicants to your jobs show up here.</p>
         <% end %>

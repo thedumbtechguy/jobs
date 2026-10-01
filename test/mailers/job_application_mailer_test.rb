@@ -27,7 +27,7 @@ class Hiring::JobApplicationMailerTest < ActionMailer::TestCase
   test "status changes the applicant should know about email them" do
     application = @job.job_applications.create!(profile: @profile)
 
-    assert_enqueued_email_with Hiring::JobApplicationMailer, :status_changed, params: {job_application: application} do
+    assert_enqueued_email_with Hiring::JobApplicationMailer, :status_changed, params: {job_application: application, message: nil} do
       application.update!(status: :shortlisted)
     end
     assert_no_enqueued_emails { application.update!(cover_note: "edited") }

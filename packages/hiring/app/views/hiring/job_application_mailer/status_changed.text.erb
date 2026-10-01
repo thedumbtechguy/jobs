@@ -10,6 +10,12 @@ Congratulations! <%= @company.name %> marked you as hired for <%= @job.title %>.
 <% else -%>
 <%= @company.name %> started reviewing your application for <%= @job.title %>.
 <% end -%>
+<% if @message.present? -%>
+
+A note from <%= @company.name %>:
+
+<%= @message %>
+<% end -%>
 
 <% if @application.rejected? -%>
 Browse open jobs: <%= @jobs_url %>
