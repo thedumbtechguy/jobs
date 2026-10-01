@@ -37,4 +37,13 @@ class Developers::ProfileTest < ActiveSupport::TestCase
 
     assert_equal 100, profile.reload.completeness_percent
   end
+
+  test "only accepts http(s) links" do
+    profile = create_profile!
+    profile.github_url = "javascript:alert(1)"
+    assert_not profile.valid?
+
+    profile.github_url = "https://github.com/ada"
+    assert profile.valid?
+  end
 end

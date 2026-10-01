@@ -13,6 +13,12 @@ module AccountsTestHelper
     end
   end
 
+  def create_job!(company:, published: true, **attributes)
+    job = company.job_posts.create!(title: "Backend Engineer", description: "Build things.", **attributes)
+    job.publish! if published
+    job
+  end
+
   # Logs in and follows the post-login redirects (/welcome checks for invites first).
   def login_user(user)
     login_as(user, portal: :user)

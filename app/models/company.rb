@@ -32,6 +32,7 @@ class Company < ::ResourceRecord
   # add has_one associations above.
   has_many :company_users, dependent: :destroy
   has_many :users, through: :company_users
+  has_many :job_posts, class_name: "Hiring::JobPost", dependent: :destroy
   has_many :company_user_invites, class_name: "Invites::CompanyUserInvite", dependent: :destroy
 
   # add has_many associations above.
@@ -42,6 +43,7 @@ class Company < ::ResourceRecord
   # add scopes above.
 
   validates :name, presence: true
+  validates :website, **WebUrl.validation
   validates :slug, presence: true, uniqueness: true,
     format: {with: /\A[a-z0-9]+(?:-[a-z0-9]+)*\z/, message: "may only contain lowercase letters, numbers and dashes"}
   # add validations above.
