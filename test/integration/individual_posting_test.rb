@@ -57,6 +57,23 @@ class IndividualPostingTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Posted by Kwame"
   end
 
+  test "the post form shows timing and pay fields that fit the type" do
+    Company.personal_for!(@poster.user)
+    login_user(@poster.user)
+
+    get "/company/kwame-personal/hiring/job_posts/new"
+    assert_response :success
+    assert_select "[name='hiring_job_post[duration]']", count: 0
+    assert_no_match ">Timing<", response.body
+    assert_select "[name='hiring_job_post[paid]']", count: 0
+
+    # Re-rendering with the type changed (what pre_submit does) brings them in.
+    post "/company/kwame-personal/hiring/job_posts", params: {pre_submit: "true", hiring_job_post: {employment_type: "internship", paid: "0"}}
+    assert_select "[name='hiring_job_post[duration]']"
+    assert_select "[name='hiring_job_post[paid]']"
+    assert_select "[name='hiring_job_post[salary_min]']", count: 0
+  end
+
   test "individuals need a developer profile to post" do
     user = create_user!
     create_company!(owner: user, name: "Day Job Ltd")
