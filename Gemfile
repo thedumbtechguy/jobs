@@ -95,3 +95,5 @@ gem "rodauth-rails", "~> 2.2"
 gem "rotp", "~> 6.3"
 
 gem "rqrcode", "~> 3.2"
+
+gem "active_shrine", "~> 0.7.2"

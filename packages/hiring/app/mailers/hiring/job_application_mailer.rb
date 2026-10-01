@@ -23,6 +23,7 @@ module Hiring
     end
 
     def status_changed
+      @message = params[:message]
       @application_url = absolute_url(developer_portal_application_path(@profile, @application))
       @jobs_url = absolute_url(Rails.application.routes.url_helpers.public_jobs_path)
       mail to: @profile.user.email, subject: status_subject

@@ -29,6 +29,12 @@
     <strong><%= @company.name %></strong> started reviewing your application for <strong><%= @job.title %></strong>.
   <% end %>
 <% end %>
+<% if @message.present? %>
+  <%= email_panel do %>
+    <div style="margin-bottom:6px;font-size:13px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:<%= EmailHelper::MUTED %>;">A note from <%= @company.name %></div>
+    <%= simple_format @message, {style: "margin:0 0 8px;"}, wrapper_tag: "div" %>
+  <% end %>
+<% end %>
 <%= render "hiring/mailer/job_panel", job: @job %>
 <% if @application.rejected? %>
   <%= email_button "Browse open jobs", @jobs_url %>

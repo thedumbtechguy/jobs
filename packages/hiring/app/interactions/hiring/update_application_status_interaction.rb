@@ -1,22 +1,26 @@
 module Hiring
   # Company members move an applicant through their pipeline.
   class UpdateApplicationStatusInteraction < Hiring::ResourceInteraction
-    STATUSES = %w[reviewing shortlisted rejected hired].freeze
+    STATUSES = %w[submitted reviewing shortlisted hired rejected].freeze
 
-    presents label: "Update status", icon: Phlex::TablerIcons::Progress, description: "Move this applicant along"
+    presents label: "Move to stage", icon: Phlex::TablerIcons::Progress, description: "Move this applicant along your pipeline"
 
     attribute :resource
     attribute :status, :string
+    attribute :message, :string
 
-    input :status, as: :select, choices: STATUSES.map { |s| [s.humanize, s] }
+    input :status, label: "Stage", as: :select,
+      choices: STATUSES.map { |s| [::Hiring::JobApplication::STAGE_LABELS.fetch(s), s] }
+    input :message, as: :text, label: "Message to the applicant",
+      hint: "Optional. Added to the email they get about the change. Moving back to New sends no email."
 
     validates :status, inclusion: {in: STATUSES}
 
     private
 
     def execute
-      resource.update!(status:)
-      succeed(resource).with_message("#{resource.profile.name} is now #{status.humanize.downcase}.")
+      resource.move_to!(status, message:)
+      succeed(resource).with_message("#{resource.profile.name} moved to #{resource.stage_label}.")
     rescue ActiveRecord::RecordInvalid => e
       failed(e.record.errors)
     end
