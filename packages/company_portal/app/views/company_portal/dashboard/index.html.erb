@@ -124,7 +124,7 @@
                     <span class="block truncate text-sm font-medium text-[var(--pu-text)]"><%= application.profile.name %></span>
                     <span class="block truncate text-xs text-[var(--pu-text-muted)]"><%= application.job_post.title %></span>
                   </span>
-                  <%= render "shared/status_badge", status: application.status %>
+                  <%= render "shared/status_badge", status: application.status, label: application.stage_label %>
                 </a>
               </li>
             <% end %>

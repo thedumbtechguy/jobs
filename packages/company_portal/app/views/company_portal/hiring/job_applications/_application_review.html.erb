@@ -8,8 +8,6 @@
 <% notes = application.notes.includes(author: :developer_profile).reverse %>
 <% links = {"Website" => profile.website_url, "GitHub" => profile.github_url, "LinkedIn" => profile.linkedin_url, "X" => profile.x_url}.compact_blank %>
 <% author_name = ->(user) { user.nil? ? "Someone" : (user == profile.user ? profile.name : (user.developer_profile&.name || user.email)) } %>
-<% stage_badge = {"submitted" => "pu-badge-info", "reviewing" => "pu-badge-info", "shortlisted" => "pu-badge-warning",
-                  "hired" => "pu-badge-success", "rejected" => "pu-badge-danger", "withdrawn" => "pu-badge-neutral"} %>
 
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
   <div class="min-w-0 space-y-6">
@@ -123,7 +121,7 @@
       <div class="pu-card-body space-y-4">
         <h3 id="stage-heading" class="sr-only">Stage</h3>
         <div class="flex items-center justify-between gap-3">
-          <span class="pu-badge <%= stage_badge.fetch(application.status) %>"><%= application.stage_label %></span>
+          <%= render "shared/status_badge", status: application.status, label: application.stage_label %>
           <span class="text-sm text-[var(--pu-text-subtle)]">since <%= time_ago_in_words(application.status_changed_at || application.created_at) %> ago</span>
         </div>
         <div>

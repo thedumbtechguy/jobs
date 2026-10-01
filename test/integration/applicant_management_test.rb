@@ -24,6 +24,9 @@ class ApplicantManagementTest < ActionDispatch::IntegrationTest
     get "#{@base}?view=table&q[search]=kwame"
     assert_response :success
     assert_includes response.body, "Kwame Mensah"
+    # The table uses the board's stage names.
+    assert_select "td span", text: "New"
+    assert_select "td span", text: "Submitted", count: 0
 
     get "#{@base}?view=table&q[search]=nobody-matches"
     assert_not_includes response.body, "Kwame Mensah"
