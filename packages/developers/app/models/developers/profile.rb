@@ -71,6 +71,7 @@ class Developers::Profile < Developers::ResourceRecord
   has_many :experiences, -> { order(started_on: :desc) }, class_name: "Developers::Experience", dependent: :destroy
   has_many :profile_skills, class_name: "Developers::ProfileSkill", dependent: :destroy
   has_many :skills, through: :profile_skills
+  has_many :job_applications, class_name: "Hiring::JobApplication", dependent: :destroy
 
   # add has_many associations above.
 
@@ -84,6 +85,7 @@ class Developers::Profile < Developers::ResourceRecord
     format: {with: HANDLE_FORMAT, message: "must be 3-30 lowercase letters, numbers, dashes or underscores"},
     exclusion: {in: RESERVED_HANDLES, message: "is reserved"}
   validates :user, uniqueness: {message: "already has a developer profile"}
+  validates :website_url, :github_url, :linkedin_url, :x_url, **WebUrl.validation
   validates :contact_email, format: {with: URI::MailTo::EMAIL_REGEXP}, allow_blank: true
   validates :years_experience, numericality: {only_integer: true, in: 0..60}, allow_nil: true
   validates :name, presence: true

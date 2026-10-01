@@ -3,6 +3,8 @@ CompanyPortal::Engine.routes.draw do
   register_resource ::Company, singular: true
   register_resource ::CompanyUser
   register_resource ::Invites::CompanyUserInvite
+  register_resource ::Hiring::JobPost
+  register_resource ::Hiring::JobApplication
 
   # register resources above.
 

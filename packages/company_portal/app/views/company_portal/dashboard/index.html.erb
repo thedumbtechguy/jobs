@@ -1,6 +1,10 @@
 <% company = current_scoped_entity %>
 <% memberships = company.company_users.includes(user: :developer_profile).order(:role, :created_at) %>
 <% pending_invites = company.company_user_invites.pending.order(created_at: :desc) %>
+<% jobs = company.job_posts.where(archived_at: nil).order(created_at: :desc).limit(6) %>
+<% applications = Hiring::JobApplication.joins(:job_post).where(hiring_job_posts: {company_id: company.id}) %>
+<% recent_applications = applications.includes(:profile, :job_post).order(created_at: :desc).limit(5) %>
+<% new_job_url = resource_url_for(Hiring::JobPost, parent: nil, action: :new) %>
 <% content_for :title, company.name %>
 
 <div class="mx-auto max-w-6xl space-y-6">
@@ -27,7 +31,15 @@
     </div>
   </section>
 
-  <div class="grid grid-cols-2 gap-4 lg:grid-cols-3">
+  <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div class="pu-card"><div class="pu-card-body">
+      <p class="text-sm text-[var(--pu-text-muted)]">Active jobs</p>
+      <p class="text-2xl font-semibold tabular-nums text-[var(--pu-text)]"><%= company.job_posts.active.count %></p>
+    </div></div>
+    <div class="pu-card"><div class="pu-card-body">
+      <p class="text-sm text-[var(--pu-text-muted)]">Applicants to review</p>
+      <p class="text-2xl font-semibold tabular-nums text-[var(--pu-text)]"><%= applications.submitted.count %></p>
+    </div></div>
     <div class="pu-card"><div class="pu-card-body">
       <p class="text-sm text-[var(--pu-text-muted)]">Members</p>
       <p class="text-2xl font-semibold tabular-nums text-[var(--pu-text)]"><%= memberships.size %></p>
@@ -39,6 +51,64 @@
   </div>
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <section class="pu-card lg:col-span-2">
+      <div class="pu-card-body space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="font-semibold text-[var(--pu-text)]">Jobs</h2>
+          <div class="flex gap-2">
+            <% if jobs.any? %><a href="<%= resource_url_for(Hiring::JobPost, parent: nil) %>" class="pu-btn pu-btn-sm pu-btn-ghost">View all</a><% end %>
+            <a href="<%= new_job_url %>" class="pu-btn pu-btn-sm pu-btn-primary">
+              <%= render Phlex::TablerIcons::Plus.new(class: "mr-1 h-4 w-4") %> Post a job
+            </a>
+          </div>
+        </div>
+        <% if jobs.any? %>
+          <ul class="divide-y divide-[var(--pu-border-muted)]">
+            <% jobs.each do |job| %>
+              <li>
+                <a href="<%= resource_url_for(job, parent: nil) %>" class="flex items-center gap-3 py-3 hover:bg-[var(--pu-surface-alt)]">
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate text-sm font-medium text-[var(--pu-text)]"><%= job.title %></span>
+                    <span class="block truncate text-xs text-[var(--pu-text-muted)]">
+                      <%= [job.employment_type.humanize, job.location.presence, pluralize(job.job_applications.size, "applicant")].compact.join(" · ") %>
+                    </span>
+                  </span>
+                  <%= render "shared/status_badge", status: job.status %>
+                </a>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-sm text-[var(--pu-text-muted)]">No jobs yet. Post one, then publish it when it's ready.</p>
+        <% end %>
+      </div>
+    </section>
+
+    <section class="pu-card">
+      <div class="pu-card-body space-y-4">
+        <h2 class="font-semibold text-[var(--pu-text)]">Recent applicants</h2>
+        <% if recent_applications.any? %>
+          <ul class="space-y-3">
+            <% recent_applications.each do |application| %>
+              <li>
+                <a href="<%= resource_url_for(application, parent: nil) %>" class="flex items-center gap-3">
+                  <%= render InitialsAvatar.new(name: application.profile.name, seed: application.profile.handle, size: :sm) %>
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate text-sm font-medium text-[var(--pu-text)]"><%= application.profile.name %></span>
+                    <span class="block truncate text-xs text-[var(--pu-text-muted)]"><%= application.job_post.title %></span>
+                  </span>
+                  <%= render "shared/status_badge", status: application.status %>
+                </a>
+              </li>
+            <% end %>
+          </ul>
+          <a href="<%= resource_url_for(Hiring::JobApplication, parent: nil) %>" class="text-sm text-primary-600 hover:underline dark:text-primary-400">All applicants</a>
+        <% else %>
+          <p class="text-sm text-[var(--pu-text-muted)]">Applicants to your jobs show up here.</p>
+        <% end %>
+      </div>
+    </section>
+
     <section class="pu-card lg:col-span-2">
       <div class="pu-card-body space-y-4">
         <div class="flex items-center justify-between">

@@ -3,6 +3,8 @@ DeveloperPortal::Engine.routes.draw do
   register_resource ::Developers::Profile, singular: true
   register_resource ::Developers::Experience
   register_resource ::Developers::ProfileSkill
+  register_resource ::Hiring::JobPost, associations: []
+  register_resource ::Hiring::JobApplication
 
   # register resources above.
 

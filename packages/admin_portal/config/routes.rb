@@ -5,6 +5,8 @@ AdminPortal::Engine.routes.draw do
   register_resource ::Admin
   register_resource ::Skill
   register_resource ::Developers::Profile
+  register_resource ::Hiring::JobPost
+  register_resource ::Hiring::JobApplication
 
   # register resources above.
 

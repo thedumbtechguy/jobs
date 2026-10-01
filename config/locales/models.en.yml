@@ -7,6 +7,12 @@ en:
       developers/experience:
         one: Experience
         other: Experience
+      hiring/job_post:
+        one: Job
+        other: Jobs
+      hiring/job_application:
+        one: Application
+        other: Applications
       developers/profile_skill:
         one: Skill
         other: Skills

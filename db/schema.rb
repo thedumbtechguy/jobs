@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_161147) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_062104) do
   create_table "admin_active_session_keys", primary_key: ["admin_id", "session_id"], force: :cascade do |t|
     t.integer "admin_id"
     t.string "session_id"
@@ -182,6 +182,42 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_161147) do
     t.index ["user_id"], name: "index_developers_profiles_on_user_id", unique: true
   end
 
+  create_table "hiring_job_applications", force: :cascade do |t|
+    t.integer "job_post_id", null: false
+    t.integer "profile_id", null: false
+    t.text "cover_note"
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["job_post_id", "profile_id"], name: "index_hiring_job_applications_on_job_post_id_and_profile_id", unique: true
+    t.index ["job_post_id"], name: "index_hiring_job_applications_on_job_post_id"
+    t.index ["profile_id"], name: "index_hiring_job_applications_on_profile_id"
+  end
+
+  create_table "hiring_job_posts", force: :cascade do |t|
+    t.integer "company_id", null: false
+    t.string "title", null: false
+    t.text "description", null: false
+    t.integer "employment_type", default: 0, null: false
+    t.integer "seniority"
+    t.integer "salary_min"
+    t.integer "salary_max"
+    t.string "salary_currency", default: "USD", null: false
+    t.boolean "remote_ok", default: false, null: false
+    t.string "city"
+    t.string "country"
+    t.string "apply_url"
+    t.boolean "accepts_applications", default: true, null: false
+    t.datetime "published_at"
+    t.datetime "expires_at"
+    t.datetime "filled_at"
+    t.datetime "archived_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id"], name: "index_hiring_job_posts_on_company_id"
+    t.index ["published_at", "expires_at"], name: "index_hiring_job_posts_on_published_at_and_expires_at"
+  end
+
   create_table "skills", force: :cascade do |t|
     t.string "name", null: false
     t.string "slug", null: false
@@ -239,6 +275,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_161147) do
   add_foreign_key "developers_profile_skills", "developers_profiles", column: "profile_id"
   add_foreign_key "developers_profile_skills", "skills"
   add_foreign_key "developers_profiles", "users"
+  add_foreign_key "hiring_job_applications", "developers_profiles", column: "profile_id"
+  add_foreign_key "hiring_job_applications", "hiring_job_posts", column: "job_post_id"
+  add_foreign_key "hiring_job_posts", "companies"
   add_foreign_key "user_login_change_keys", "users", column: "id"
   add_foreign_key "user_password_reset_keys", "users", column: "id"
   add_foreign_key "user_remember_keys", "users", column: "id"
