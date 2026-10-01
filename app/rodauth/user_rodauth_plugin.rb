@@ -77,8 +77,8 @@ class UserRodauthPlugin < RodauthPlugin
       Rodauth::UserMailer.verify_account(self.class.configuration_name, account_id, verify_account_key_value)
     end
 
-    create_verify_login_change_email do |_login|
-      Rodauth::UserMailer.verify_login_change(self.class.configuration_name, account_id, verify_login_change_key_value)
+    create_verify_login_change_email do |login|
+      Rodauth::UserMailer.verify_login_change(self.class.configuration_name, account_id, verify_login_change_key_value, login)
     end
 
     create_password_changed_email do

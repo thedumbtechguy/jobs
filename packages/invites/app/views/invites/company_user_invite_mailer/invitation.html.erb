@@ -1,45 +1,15 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <style>
-      .email-container {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-      .button {
-        display: inline-block;
-        padding: 12px 24px;
-        background-color: #3b82f6;
-        color: white;
-        text-decoration: none;
-        border-radius: 6px;
-        margin: 20px 0;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="email-container">
-      <h2>You've been invited to <%= @invite.entity.to_label %></h2>
-
-      <p>Hi there,</p>
-
-      <p><%= @invite.invited_by.email %> has invited you to join <%= @invite.entity.to_label %> as a <%= @invite.role %>.</p>
-
-      <p>Click the link below to accept your invitation:</p>
-
-      <%= link_to "Accept Invitation", @invitation_url, class: "button" %>
-
-      <p>Or copy and paste this URL into your browser:</p>
-      <p><%= @invitation_url %></p>
-
-      <% if @invite.expires_at.present? %>
-        <p><small>This invitation will expire on <%= @invite.expires_at.strftime("%B %d, %Y at %l:%M %p") %></small></p>
-      <% end %>
-
-      <p>If you didn't expect this invitation, you can safely ignore this email.</p>
-    </div>
-  </body>
-</html>
+<% company = @invite.entity.to_label %>
+<% inviter = @invite.invited_by.try(:developer_profile)&.name || @invite.invited_by.email %>
+<% content_for :preheader, "#{inviter} invited you to join #{company}." %>
+<%= email_heading "Join #{company} on Dev Registry" %>
+<%= email_paragraph "Hi there," %>
+<%= email_paragraph do %>
+  <strong><%= inviter %></strong> invited you to join <strong><%= company %></strong> as <%= @invite.role == "owner" ? "an owner" : "a #{@invite.role}" %>. You'll be able to post jobs and review applicants together.
+<% end %>
+<%= email_button "Accept the invitation", @invitation_url %>
+<% if @invite.expires_at.present? %>
+  <%= email_muted "The invitation expires on #{@invite.expires_at.to_date.to_fs(:long)}." %>
+<% end %>
+<%= email_paragraph "New to Dev Registry? You'll create an account with this email address when you accept." %>
+<%= email_link_fallback @invitation_url %>
+<% content_for :footer_note, "Not expecting this? You can ignore this email; nothing happens unless you accept." %>

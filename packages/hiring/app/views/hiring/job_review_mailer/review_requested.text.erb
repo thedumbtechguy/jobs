@@ -1,8 +1,11 @@
-<%= @job.company.name %> published its first job on Dev Registry, so it needs a review before it goes live.
+A first job needs review
+========================
+
+<%= @company.name %> just published its first job. New companies' first jobs wait for an admin before they go public.
 
   <%= @job.title %>
-  <%= [@job.employment_type.humanize, @job.location.presence].compact.join(" · ") %>
+  <%= [@company.name, @job.employment_type&.humanize, @job.location.presence].compact.join(" · ") %>
 
-Review it in the admin portal: <%= @review_url %>
+Review it here: <%= @review_url %>
 
-Approving makes the job live for 30 days and trusts <%= @job.company.name %>, so its later jobs publish without review. You can also decline it with a note to the company.
+Approve to make it live for <%= Hiring::JobPost::VALIDITY_PERIOD.inspect %> and trust <%= @company.name %>, so its later jobs publish straight away. Decline to send it back to drafts with a note to the company.

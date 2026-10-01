@@ -1,3 +1,9 @@
-<p>Good news: <strong><%= @job.title %></strong> has been approved and is now live on Dev Registry for 30 days.</p>
-<p><a href="<%= @job_url %>">View your job</a></p>
-<p>Your future jobs will go live as soon as you publish them.</p>
+<% content_for :preheader, "It's public now, and your next jobs skip review." %>
+<%= email_heading "Your job is live" %>
+<%= email_paragraph "Good news: we approved your job and it's now on the Dev Registry job board." %>
+<%= render "hiring/mailer/job_panel", job: @job %>
+<%= email_button "See it on the job board", @job_url %>
+<%= email_paragraph do %>
+  It stays up until <strong><%= @job.expires_at.to_date.to_fs(:long) %></strong>, and you can renew it from your <%= email_link "company dashboard", @dashboard_url %>. From now on, jobs you publish for <%= @company.name %> go live straight away.
+<% end %>
+<% content_for :footer_note, "You're getting this because you're a member of #{@company.name} on Dev Registry." %>

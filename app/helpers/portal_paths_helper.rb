@@ -39,6 +39,12 @@ module PortalPathsHelper
     )
   end
 
+  def company_portal_application_path(company, application)
+    PortalPathsHelper.routes.company_portal.company_scoped_hiring_job_application_path(
+      company_scoped: company, id: application
+    )
+  end
+
   def developer_portal_edit_profile_path(profile)
     developer_portal_home_path(profile).chomp("/") + "/developers_profile/edit"
   end

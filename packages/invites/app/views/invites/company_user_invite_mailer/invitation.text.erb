@@ -1,15 +1,19 @@
-You've been invited to <%= @invite.entity.to_label %>
-======================================================
+<% company = @invite.entity.to_label -%>
+<% inviter = @invite.invited_by.try(:developer_profile)&.name || @invite.invited_by.email -%>
+Join <%= company %> on Dev Registry
+<%= "=" * "Join #{company} on Dev Registry".length %>
 
 Hi there,
 
-<%= @invite.invited_by.email %> has invited you to join <%= @invite.entity.to_label %> as a <%= @invite.role %>.
+<%= inviter %> invited you to join <%= company %> as <%= @invite.role == "owner" ? "an owner" : "a #{@invite.role}" %>. You'll be able to post jobs and review applicants together.
 
-Accept your invitation by visiting this link:
+Accept the invitation:
 <%= @invitation_url %>
-
 <% if @invite.expires_at.present? %>
-This invitation will expire on <%= @invite.expires_at.strftime("%B %d, %Y at %l:%M %p") %>
+
+The invitation expires on <%= @invite.expires_at.to_date.to_fs(:long) %>.
 <% end %>
 
-If you didn't expect this invitation, you can safely ignore this email.
+New to Dev Registry? You'll create an account with this email address when you accept.
+
+Not expecting this? You can ignore this email; nothing happens unless you accept.

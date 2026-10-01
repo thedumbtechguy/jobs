@@ -37,6 +37,12 @@ class Hiring::JobApplication < Hiring::ResourceRecord
   validates :cover_note, length: {maximum: 5_000}
   validate :job_accepts_applications, on: :create
 
+  # Statuses the applicant hears about by email.
+  NOTIFY_STATUSES = %w[reviewing shortlisted rejected hired].freeze
+
+  after_create_commit { Hiring::JobApplicationMailer.with(job_application: self).received.deliver_later }
+  after_update_commit :notify_applicant, if: -> { saved_change_to_status? && status.in?(NOTIFY_STATUSES) }
+
   def to_label
     "#{profile.name} for #{job_post.title}"
   end
@@ -48,6 +54,10 @@ class Hiring::JobApplication < Hiring::ResourceRecord
   end
 
   private
+
+  def notify_applicant
+    Hiring::JobApplicationMailer.with(job_application: self).status_changed.deliver_later
+  end
 
   def job_accepts_applications
     return if job_post.nil?

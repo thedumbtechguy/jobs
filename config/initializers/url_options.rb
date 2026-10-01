@@ -8,4 +8,7 @@ if (default_url = ENV["RAILS_DEFAULT_URL"])
 
   ActionMailer::Base.default_url_options = url_options if ActionMailer::Base.default_url_options.blank?
   Rails.application.routes.default_url_options = url_options if Rails.application.routes.default_url_options.blank?
+
+  # Email images (the logo) need absolute URLs.
+  ActionMailer::Base.asset_host ||= "#{uri.scheme}://#{uri.host}#{":#{uri.port}" if uri.port != default_port}"
 end
