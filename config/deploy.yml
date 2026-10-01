@@ -54,6 +54,7 @@ env:
   clear:
     RAILS_DEFAULT_URL: https://<%= ENV['APP_HOST'] %>
     SMTP_ADDRESS: <%= ENV['SMTP_ADDRESS'] %>
+    MAIL_FROM: <%= ENV['MAIL_FROM'] %>
     LITESTREAM_REPLICA_BUCKET: <%= ENV['LITESTREAM_REPLICA_BUCKET'] %>
 
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
