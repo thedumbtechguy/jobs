@@ -19,6 +19,7 @@
 #  salary_min           :integer
 #  seniority            :integer
 #  title                :string           not null
+#  visibility           :integer          default(2), not null
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #  company_id           :integer          not null
@@ -43,6 +44,11 @@ class Hiring::JobPost < Hiring::ResourceRecord
 
   enum :employment_type, {full_time: 0, part_time: 1, contract: 2, internship: 3}
   enum :seniority, {junior: 0, mid: 1, senior: 2, lead: 3, principal: 4}
+  # Who can see the job on the public site. Applying always needs an account.
+  enum :visibility, {members: 1, everyone: 2}, prefix: :visible_to
+
+  # /jobs/42-senior-rails-engineer (the id is what's looked up).
+  dynamic_path_parameter :title
 
   belongs_to :company
   has_many :job_applications, class_name: "Hiring::JobApplication", dependent: :destroy
@@ -51,6 +57,16 @@ class Hiring::JobPost < Hiring::ResourceRecord
   scope :active, -> { published.where(filled_at: nil, archived_at: nil).where("expires_at > ?", Time.current) }
   scope :drafts, -> { where(published_at: nil, archived_at: nil) }
   scope :newest, -> { order(published_at: :desc, created_at: :desc) }
+  # Active jobs a viewer may see: public ones for guests, all for members.
+  scope :visible_to, ->(user) { user ? active : active.visible_to_everyone }
+
+  scope :search, ->(query) {
+    term = "%#{sanitize_sql_like(query.to_s.strip.downcase)}%"
+    joins(:company).where(
+      "LOWER(hiring_job_posts.title) LIKE :t OR LOWER(hiring_job_posts.description) LIKE :t OR LOWER(companies.name) LIKE :t " \
+      "OR LOWER(hiring_job_posts.city) LIKE :t OR LOWER(hiring_job_posts.country) LIKE :t", t: term
+    )
+  }
 
   validates :title, presence: true
   validates :description, presence: true
@@ -73,6 +89,8 @@ class Hiring::JobPost < Hiring::ResourceRecord
   end
 
   def active? = status == :active
+
+  def visible_to?(user) = active? && (visible_to_everyone? || user.present?)
 
   def publishable? = status == :draft
 

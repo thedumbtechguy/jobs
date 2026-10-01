@@ -29,11 +29,12 @@ module Hiring
         remote_ok city country
         salary_min salary_max salary_currency
         accepts_applications apply_url
+        visibility
       ]
     end
 
     def permitted_attributes_for_read
-      %i[title status employment_type seniority location salary_range description accepts_applications apply_url published_at expires_at]
+      %i[title status visibility employment_type seniority location salary_range description accepts_applications apply_url published_at expires_at]
     end
 
     def permitted_attributes_for_index

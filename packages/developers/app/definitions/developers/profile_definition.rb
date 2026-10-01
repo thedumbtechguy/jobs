@@ -15,7 +15,7 @@ module Developers
     field :years_experience, label: "Years of experience"
     field :remote_ok, label: "Open to remote work"
     field :open_to_relocation, label: "Open to relocating"
-    field :listed, label: "Listed in the directory"
+    field :visibility, label: "Who can see your profile"
 
     input :handle, hint: "Your public page will be at /@handle"
     input :headline, placeholder: "e.g. Backend engineer, Rails and Postgres"
@@ -23,8 +23,11 @@ module Developers
     input :timezone, as: :select, choices: -> { ActiveSupport::TimeZone.all.map(&:name) }
     input :remote_ok, as: :toggle
     input :open_to_relocation, as: :toggle
-    input :listed, as: :toggle, hint: "Turn off to hide your profile from the directory"
-    input :contact_visibility, hint: "Who can see your email and phone number"
+    input :visibility, as: :select,
+      choices: [["Everyone: public directory and /@handle page", "everyone"], ["Signed-in members only", "members"], ["Hidden: only you", "hidden"]],
+      hint: "Public profiles can be found by companies and search engines."
+    input :contact_visibility, as: :select, label: "Who can see your email and phone",
+      choices: [["Everyone who can see your profile", "everyone"], ["Signed-in members only", "members"], ["Only you (for now)", "connections"]]
     input :github_url, placeholder: "https://github.com/you"
     input :linkedin_url, placeholder: "https://linkedin.com/in/you"
     input :website_url, placeholder: "https://"
@@ -38,7 +41,7 @@ module Developers
       section :work, :availability, :seniority, :years_experience, label: "Work", description: "Let companies know if you're looking.", columns: 3
       section :location, :city, :region, :country, :timezone, :remote_ok, :open_to_relocation, label: "Location", columns: 2
       section :contact, :contact_email, :phone, :website_url, :github_url, :linkedin_url, :x_url, label: "Contact & links", columns: 2
-      section :privacy, :contact_visibility, :listed, label: "Privacy", columns: 2
+      section :privacy, :visibility, :contact_visibility, label: "Privacy", columns: 2
       ungrouped label: "Other"
     end
 
@@ -47,7 +50,7 @@ module Developers
       section :work, :availability, :seniority, :years_experience, label: "Work"
       section :location, :city, :region, :country, :timezone, :remote_ok, :open_to_relocation, label: "Location"
       section :contact, :contact_email, :phone, :website_url, :github_url, :linkedin_url, :x_url, label: "Contact & links"
-      section :privacy, :contact_visibility, :listed, label: "Privacy"
+      section :privacy, :visibility, :contact_visibility, label: "Privacy"
       ungrouped label: "Other"
     end
   end

@@ -17,9 +17,14 @@
     <div class="px-6 pb-6">
       <div class="-mt-10 flex items-end justify-between gap-4">
         <%= render InitialsAvatar.new(name: profile.name, seed: profile.handle, size: :xl, class: "ring-4 ring-[var(--pu-card-bg)]") %>
-        <a href="<%= edit_profile_url %>" class="pu-btn pu-btn-md pu-btn-outline">
-          <%= render Phlex::TablerIcons::Pencil.new(class: "mr-1 h-4 w-4") %> Edit profile
-        </a>
+        <div class="flex flex-wrap justify-end gap-2">
+          <a href="<%= main_app.developer_page_path(profile.handle) %>" class="pu-btn pu-btn-md pu-btn-outline">
+            <%= render Phlex::TablerIcons::ExternalLink.new(class: "mr-1 h-4 w-4") %> View profile page
+          </a>
+          <a href="<%= edit_profile_url %>" class="pu-btn pu-btn-md pu-btn-primary">
+            <%= render Phlex::TablerIcons::Pencil.new(class: "mr-1 h-4 w-4") %> Edit profile
+          </a>
+        </div>
       </div>
 
       <div class="mt-4 space-y-2">
@@ -28,7 +33,9 @@
           <div class="flex flex-wrap gap-2">
             <%= render "shared/availability_badge", profile: %>
             <% if profile.remote_ok? %><span class="pu-badge pu-badge-neutral">Remote OK</span><% end %>
-            <% unless profile.listed? %><span class="pu-badge pu-badge-warning">Hidden from directory</span><% end %>
+            <% if profile.visible_to_hidden? %><span class="pu-badge pu-badge-warning">Hidden</span>
+            <% elsif profile.visible_to_members? %><span class="pu-badge pu-badge-neutral">Members only</span>
+            <% else %><span class="pu-badge pu-badge-info">Public</span><% end %>
           </div>
         </div>
         <p class="text-[var(--pu-text-muted)]">

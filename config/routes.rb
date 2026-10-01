@@ -11,6 +11,15 @@ Rails.application.routes.draw do
 
   root "home#index"
 
+  # Public site: developer directory, profiles, jobs and companies.
+  scope module: :site do
+    get "devs", to: "developers#index", as: :developers_directory
+    get "@:handle", to: "developers#show", as: :developer_page, constraints: {handle: /[A-Za-z0-9_-]+/}
+    get "jobs", to: "jobs#index", as: :public_jobs
+    get "jobs/:id", to: "jobs#show", as: :public_job
+    get "companies/:slug", to: "companies#show", as: :public_company
+  end
+
   # Onboarding: users create a developer profile, a company, or both.
   resource :onboarding, only: %i[show create], controller: "onboarding"
   resource :company_setup, only: %i[new create], path: "setup/company"

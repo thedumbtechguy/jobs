@@ -29,6 +29,9 @@ module Hiring
     input :accepts_applications, as: :toggle, label: "Accept applications here",
       hint: "Developers apply with their profile. You review them under Applicants."
     input :apply_url, placeholder: "https://", hint: "Or send people to your own careers page. You can use both."
+    input :visibility, as: :select, label: "Who can see this job",
+      choices: [["Everyone: public jobs board, shareable link", "everyone"], ["Signed-in members only", "members"]]
+    display :visibility, label: "Visible to"
     input :salary_min, label: "Minimum salary"
     input :salary_max, label: "Maximum salary"
     input :salary_currency, label: "Currency", hint: "3-letter code, e.g. USD, GHS, NGN"
@@ -45,6 +48,7 @@ module Hiring
       section :location, :remote_ok, :city, :country, label: "Location", columns: 3
       section :salary, :salary_min, :salary_max, :salary_currency, label: "Salary", description: "Optional, but posts with a range get more applicants.", columns: 3
       section :applying, :accepts_applications, :apply_url, label: "How to apply", columns: 2
+      section :visibility, :visibility, label: "Visibility"
       ungrouped label: "Other"
     end
   end

@@ -13,5 +13,8 @@ application.register("reveal", RevealController)
 import DismissableController from "./dismissable_controller"
 application.register("dismissable", DismissableController)
 
+import ClipboardController from "./clipboard_controller"
+application.register("clipboard", ClipboardController)
+
 import { registerControllers } from "@radioactive-labs/plutonium"
 registerControllers(application)

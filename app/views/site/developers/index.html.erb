@@ -1,0 +1,50 @@
+<% content_for :title, "Developers" %>
+<% content_for :description, "Browse developers in the DevCongress community: skills, experience and availability." %>
+<% filtered = params.values_at(:q, :skill, :country, :availability, :remote).any?(&:present?) %>
+
+<section class="border-b-2 border-[#111]">
+  <div class="mx-auto max-w-6xl px-4 py-12">
+    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#555]">The registry</p>
+    <h1 class="mt-3 font-display text-5xl">Developers</h1>
+    <p class="mt-3 max-w-2xl text-[#555]">
+      <%= current_user ? "Everyone who's chosen to be visible to members or the public." : "Developers who've made their profiles public. Sign in to see members-only profiles too." %>
+    </p>
+
+    <%= form_with url: developers_directory_path, method: :get, class: "mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_auto] lg:items-end", data: {turbo_action: "advance"} do %>
+      <label class="block sm:col-span-2 lg:col-span-1">
+        <span class="mb-1 block text-xs font-semibold uppercase tracking-wide text-[#555]">Search</span>
+        <input type="search" name="q" value="<%= params[:q] %>" placeholder="Name, skill, headline or city" class="w-full rounded-lg border-2 border-[#111] bg-white px-3 py-2 text-sm">
+      </label>
+      <%= render "site/shared/filter_select", name: :skill, label: "Skill", all: "Any skill", choices: @skills.map { [_1.name, _1.slug] } %>
+      <%= render "site/shared/filter_select", name: :country, label: "Country", all: "Anywhere", choices: @countries %>
+      <%= render "site/shared/filter_select", name: :availability, label: "Availability", all: "Anyone", choices: [["Open to work", "looking"], ["Open to offers", "open"]] %>
+      <div class="flex items-center gap-4 lg:pb-2">
+        <label class="flex items-center gap-2 text-sm font-medium">
+          <input type="checkbox" name="remote" value="1" <%= "checked" if params[:remote] == "1" %> onchange="this.form.requestSubmit()" class="h-4 w-4 accent-[#d10f72]"> Remote OK
+        </label>
+        <button type="submit" class="rounded-full border-2 border-[#111] bg-[#d10f72] px-5 py-2 text-sm font-semibold text-white">Search</button>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<section class="mx-auto max-w-6xl px-4 py-10">
+  <div class="mb-6 flex items-center justify-between gap-4 text-sm text-[#555]">
+    <p><%= pluralize(@total, "developer") %><%= " match" if filtered %></p>
+    <% if filtered %><%= link_to "Clear filters", developers_directory_path, class: "font-semibold text-[#d10f72] hover:underline" %><% end %>
+  </div>
+
+  <% if @developers.any? %>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <% @developers.each do |developer| %>
+        <%= render "home/developer_card", developer: %>
+      <% end %>
+    </div>
+    <%= render "site/shared/pagination" %>
+  <% else %>
+    <div class="rounded-xl border-2 border-dashed border-[#c9c5b8] p-12 text-center">
+      <p class="font-display text-3xl">No one matches that yet.</p>
+      <p class="mt-2 text-[#555]">Try fewer filters<%= ", or sign in to see members-only profiles" unless current_user %>.</p>
+    </div>
+  <% end %>
+</section>
