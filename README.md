@@ -45,6 +45,24 @@ EMAIL=you@example.com bin/rails rodauth:admin
 
 In development, emails open in the browser through letter_opener.
 
+## Emails
+
+Every email uses the branded layout in `app/views/layouts/mailer.{html,text}.erb`
+and the building blocks in `app/helpers/email_helper.rb` (inline styles only,
+since mail clients drop stylesheets). Preview them all at
+<http://localhost:3000/rails/mailers>; the previews in `test/mailers/previews`
+use your development records.
+
+| Email | Sent to | When |
+|---|---|---|
+| Confirm email, reset password, confirm new email, password changed/reset | The account | Account activity (Rodauth, `app/views/rodauth_mailer`) |
+| Unlock account | Admin | Too many failed admin sign-ins |
+| Review needed | All admins | A company publishes its first job |
+| Job live / changes needed | Company members | An admin approves or declines that job |
+| New applicant | Company members | Someone applies in the app |
+| Application update | Applicant | Status moves to reviewing, shortlisted, rejected or hired |
+| Company invite | Invitee | A member invites someone |
+
 ## Deploy
 
 Kamal, configured in `config/deploy.yml`. All configuration comes from
@@ -59,11 +77,12 @@ machine that runs `kamal deploy`; `.kamal/secrets` passes the secret ones throug
 | `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY` | yes | From `bin/rails db:encryption:init`. Encrypts invite tokens |
 | `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY` | yes | As above |
 | `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` | yes | As above |
-| `SMTP_ADDRESS`, `SMTP_USERNAME`, `SMTP_PASSWORD` | for email | Outgoing mail (`SMTP_PORT` defaults to 587) |
-| `MAIL_FROM` | for email | Sender for app emails, e.g. `Dev Registry <no-reply@devcongress.org>` |
-| `LITESTREAM_REPLICA_BUCKET`, `LITESTREAM_ACCESS_KEY_ID`, `LITESTREAM_SECRET_ACCESS_KEY` | for backups | Litestream S3 replica |
+| `SMTP_ADDRESS`, `SMTP_USERNAME`, `SMTP_PASSWORD` | yes | Outgoing mail (`SMTP_PORT` defaults to 587) |
+| `MAIL_FROM` | yes | Sender for app emails, e.g. `Dev Registry <no-reply@devcongress.org>` |
+| `LITESTREAM_REPLICA_BUCKET`, `LITESTREAM_ACCESS_KEY_ID`, `LITESTREAM_SECRET_ACCESS_KEY` | yes | Litestream S3 replica |
 
-The app refuses to boot in production if a required variable is missing.
+The app refuses to boot in production if a required variable is missing; the
+list lives in `config/initializers/001_ensure_required_env.rb`.
 
 ## Working with Claude
 

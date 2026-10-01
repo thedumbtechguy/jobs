@@ -3,7 +3,7 @@ return if ENV["SECRET_KEY_BASE_DUMMY"].present?
 # In development/test, only check if dotenv is loaded (process may not have reloaded yet)
 return if Rails.env.local? && !defined?(Dotenv)
 
-# Add required env vars to this list
+# Needed everywhere: mailer and route URLs are built from it.
 required_env_vars = %w[
   RAILS_DEFAULT_URL
 ]
@@ -15,17 +15,29 @@ if Rails.env.production?
     ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY
     ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT
   ]
+
+  # Email: account verification, password resets, invites and job review all depend on it.
+  required_env_vars += %w[
+    MAIL_FROM
+    SMTP_ADDRESS
+    SMTP_USERNAME
+    SMTP_PASSWORD
+  ]
+
+  # Backups: the Litestream accessory replicates the SQLite files to this bucket.
+  required_env_vars += %w[
+    LITESTREAM_REPLICA_BUCKET
+    LITESTREAM_ACCESS_KEY_ID
+    LITESTREAM_SECRET_ACCESS_KEY
+  ]
 end
 
-# Add additional env vars here
+missing = required_env_vars.select { |env_var| ENV[env_var].blank? }
 
-# Check required env vars
-required_env_vars.each do |env_var|
-  if !ENV.has_key?(env_var) || ENV[env_var].blank?
-    raise <<~EOL
-      Missing required environment variable: #{env_var}
+if missing.any?
+  raise <<~EOL
+    Missing required environment variables: #{missing.join(", ")}
 
-      Ask a teammate for the appropriate value.
-    EOL
-  end
+    See the Deploy section of the README for what each one is for.
+  EOL
 end
