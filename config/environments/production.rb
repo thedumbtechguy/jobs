@@ -60,15 +60,8 @@ Rails.application.configure do
   # Set host to be used by links generated in mailer templates.
   # Mailer and route URLs come from RAILS_DEFAULT_URL (config/initializers/url_options.rb).
 
-  # Outgoing mail, configured from ENV (required; see config/initializers/001_ensure_required_env.rb).
-  config.action_mailer.delivery_method = :smtp
-  config.action_mailer.smtp_settings = {
-    address: ENV["SMTP_ADDRESS"],
-    port: ENV.fetch("SMTP_PORT", 587).to_i,
-    user_name: ENV["SMTP_USERNAME"],
-    password: ENV["SMTP_PASSWORD"],
-    authentication: :plain
-  }
+  # Outgoing mail through the Resend API (key set in config/initializers/resend.rb).
+  config.action_mailer.delivery_method = :resend
 
   # Active Record encryption (invite tokens), configured from ENV.
   config.active_record.encryption.primary_key = ENV["ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY"]

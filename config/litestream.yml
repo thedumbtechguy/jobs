@@ -1,47 +1,26 @@
 # This is the actual configuration file for litestream.
 #
-# You can either use the generated `config/initializers/litestream.rb`
-# file to configure the litestream-ruby gem, which will populate these
-# ENV variables when using the `rails litestream:replicate` command.
+# bin/litestream runs the binary directly, so the $LITESTREAM_* variables come
+# straight from the container env (config/deploy.yml). The rake tasks
+# (`bin/rails litestream:restore` etc.) fill them from
+# config/initializers/litestream.rb, which reads the same variables.
 #
-# Or, if you prefer, manually manage ENV variables and this configuration file.
-# In that case, simply ensure that the ENV variables are set before running the
-# `replicate` command.
+# Only the primary database is replicated. Solid Cache/Queue/Cable/Errors and
+# Rails Pulse are all reconstructible, and replicating a hot queue database is
+# cost and churn for no recovery value.
+#
+# The local path is absolute: it must match the -database= that
+# bin/docker-entrypoint restores to. The replica path is prefixed with the
+# service name so the bucket can be shared with other apps.
 #
 # For more details, see: https://litestream.io/reference/config/
 dbs:
-  - path: storage/production.sqlite3
+  - path: /rails/storage/production.sqlite3
     replicas:
       - type: s3
         bucket: $LITESTREAM_REPLICA_BUCKET
-        path: storage/production.sqlite3
-        access-key-id: $LITESTREAM_ACCESS_KEY_ID
-        secret-access-key: $LITESTREAM_SECRET_ACCESS_KEY
-  - path: storage/production-cache.sqlite3
-    replicas:
-      - type: s3
-        bucket: $LITESTREAM_REPLICA_BUCKET
-        path: storage/production-cache.sqlite3
-        access-key-id: $LITESTREAM_ACCESS_KEY_ID
-        secret-access-key: $LITESTREAM_SECRET_ACCESS_KEY
-  - path: storage/production-queue.sqlite3
-    replicas:
-      - type: s3
-        bucket: $LITESTREAM_REPLICA_BUCKET
-        path: storage/production-queue.sqlite3
-        access-key-id: $LITESTREAM_ACCESS_KEY_ID
-        secret-access-key: $LITESTREAM_SECRET_ACCESS_KEY
-  - path: storage/production-cable.sqlite3
-    replicas:
-      - type: s3
-        bucket: $LITESTREAM_REPLICA_BUCKET
-        path: storage/production-cable.sqlite3
-        access-key-id: $LITESTREAM_ACCESS_KEY_ID
-        secret-access-key: $LITESTREAM_SECRET_ACCESS_KEY
-  - path: storage/production-errors.sqlite3
-    replicas:
-      - type: s3
-        bucket: $LITESTREAM_REPLICA_BUCKET
-        path: storage/production-errors.sqlite3
+        path: devcongress_connect/production.sqlite3
+        region: $LITESTREAM_REPLICA_REGION
+        endpoint: $LITESTREAM_REPLICA_ENDPOINT
         access-key-id: $LITESTREAM_ACCESS_KEY_ID
         secret-access-key: $LITESTREAM_SECRET_ACCESS_KEY

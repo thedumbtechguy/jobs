@@ -18,10 +18,7 @@ if Rails.env.production?
 
   # Email: account verification, password resets, invites and job review all depend on it.
   required_env_vars += %w[
-    MAIL_FROM
-    SMTP_ADDRESS
-    SMTP_USERNAME
-    SMTP_PASSWORD
+    RESEND_API_KEY
   ]
 
   # Backups: the Litestream accessory replicates the SQLite files to this bucket.

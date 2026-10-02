@@ -41,6 +41,7 @@
 !/.env
 !/.env.template
 !/.env.local.template
+!/.env.production.template
 !/.env.test.local
 
 # Yarn install cache, rewritten on every install
