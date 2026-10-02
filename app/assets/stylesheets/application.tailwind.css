@@ -21,6 +21,14 @@
   }
 }
 
+/* The topbar and the table's sticky pagination footer are both z-30, and the
+   footer comes later in the page, so it painted over the topbar's dropdowns
+   (the context switcher). Lift the topbar a level; the filter drawer (z-40
+   backdrop, z-50 panel) still covers it. */
+.pu-topbar {
+  z-index: 35;
+}
+
 /* intl-tel-input's bundled CSS points at ../img/*, which doesn't exist once
    it's inlined here. Serve the images through the asset pipeline instead. */
 :root {
