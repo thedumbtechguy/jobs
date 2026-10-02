@@ -53,7 +53,7 @@ Not "defaults someone picked for you" — **computed from existing declarations*
 ### 4. Climb the escape-hatch ladder only as far as the problem requires
 
 1. **Change an option** — `input :content, as: :markdown`
-2. **Render inline** — `display :priority, as: :phlexi_render, with: ->(value, attrs) do … end`
+2. **Render inline** — `display :priority do |f| … end` (a block, `instance_exec`ed in Phlex, emits markup directly and gives you `f.object`)
 3. **Write a component** — a *field* component (subclasses the Phlexi base) plugs into `as:`; anything with its own constructor goes through a block (`display :card do |field| … end`)
 4. **Implement a hook** — controller hooks instead of reopening `create`/`update`; page `render_before_*` / `render_after_*` instead of `view_template`
 5. **Replace the page** — `view_template` on the nested class, or an ERB view at the controller path (ERB wins when both exist)
@@ -85,6 +85,7 @@ This is the global "look before you leap"; each targeted skill carries its own A
 | **[[plutonium-async-interactions]]** | Async interactions — `async`, the Run STI model, failure policies (`halt`/`continue`/`transactional`), authorization re-derivation at perform time, registering AsyncRun as a resource (progress page + running banner), scheduling `ReapJob` |
 | **[[plutonium-ui]]** | Page classes, forms, displays, tables, custom Phlex components, layouts, modals & tabs, Tailwind config, Stimulus, design tokens, `.pu-*` classes, Phlexi themes |
 | **[[plutonium-kanban]]** | `kanban do…end` DSL in a Definition — columns, `card_fields`, `position_on`, `realtime`, column actions, `kanban_move?` policy, quick-add, static vs dynamic boards |
+| **[[plutonium-dashboard]]** | Dashboards — `Plutonium::Dashboard::Base`, `metric` / `chart` / `card`, `register_dashboard`, lazy turbo-frame cards, `refresh`, `condition:`, `authorize?`, `pu:dashboard` |
 | **[[plutonium-auth]]** | Rodauth install, account types (basic / admin / SaaS), profile resource, security section |
 | **[[plutonium-tenancy]]** | Entity scoping (`associated_with`, `default_relation_scope`, three model shapes), nested resources, invites |
 | **[[plutonium-testing]]** | `pu:test:install`, `pu:test:scaffold`, `ResourceCrud`/`ResourcePolicy`/`ResourceDefinition`/`ResourceModel`/`NestedResource`/`PortalAccess`/`ResourceInteraction`, `AuthHelpers` |
@@ -122,6 +123,7 @@ Add when relevant:
 | Configure parent/child nested routes, custom parent resolution | **[[plutonium-tenancy]]** |
 | Set up user invitations or entity membership | **[[plutonium-tenancy]]** |
 | Build or customize a kanban board view — `kanban do…end`, columns, `card_fields`, `position_on`, `realtime`, column actions, `kanban_move?` policy | **[[plutonium-kanban]]** |
+| Build a dashboard, KPI overview or chart page — `pu:dashboard`, `metric` / `chart` / `card`, `register_dashboard`, refresh, per-card conditions | **[[plutonium-dashboard]]** |
 | Build a custom page (override `ShowPage`/`IndexPage`/`NewPage`/`EditPage`), custom form, custom display, custom table, custom Phlex component | **[[plutonium-ui]]** |
 | Configure Tailwind, register Stimulus controllers, edit design tokens, theme forms/displays/tables, write a custom layout | **[[plutonium-ui]]** |
 | Install Rodauth, set up accounts, configure login flow, add the profile resource | **[[plutonium-auth]]** |
@@ -169,6 +171,7 @@ Every Plutonium generator is discoverable via `rails g pu:<tab>`. Always pass `-
 | `pu:eject:shell` | Eject topbar/sidebar partials | `plutonium-ui` |
 | `pu:test:install` | Install `Plutonium::Testing` scaffolding | `plutonium-testing` |
 | `pu:test:scaffold NAME --portals=...` | Scaffold integration tests | `plutonium-testing` |
+| `pu:dashboard NAME --dest=PORTAL [--at=/]` | Dashboard class + `register_dashboard` route | `plutonium-dashboard` |
 | `pu:skills:sync` | Sync Plutonium Claude skills into the project | (this skill) |
 
 ## Unattended execution

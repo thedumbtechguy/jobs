@@ -26,6 +26,6 @@ class DeveloperProfileSetupsController < ::PlutoniumController
   end
 
   def profile_params
-    params.require(:developers_profile).permit(:name, :handle, :headline, :city, :country)
+    params.require(:developers_profile).permit(:first_name, :other_names, :handle, :headline, :country, :city)
   end
 end

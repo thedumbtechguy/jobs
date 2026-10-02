@@ -8,6 +8,7 @@ module Developers
 
     input :title, placeholder: "e.g. Senior Backend Engineer"
     input :company_name, label: "Company"
+    input :location, placeholder: "e.g. Accra, Ghana or Remote"
     input :ended_on, hint: "Leave blank if this is your current role"
     field :started_on, label: "Started"
     field :ended_on, label: "Ended"
@@ -21,6 +22,13 @@ module Developers
     form_layout do
       section :role, :title, :company_name, :location, columns: 2, label: "Role"
       section :dates, :started_on, :ended_on, columns: 2, label: "Dates"
+      section :details, :description, label: "What you did"
+      ungrouped label: "Other"
+    end
+
+    display_layout do
+      section :role, :title, :company_name, :location, label: "Role"
+      section :dates, :started_on, :ended_on, label: "Dates"
       section :details, :description, label: "What you did"
       ungrouped label: "Other"
     end

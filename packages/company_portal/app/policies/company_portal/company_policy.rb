@@ -9,12 +9,13 @@ class CompanyPortal::CompanyPolicy < ::CompanyPolicy
     false
   end
 
+  # The slug stays fixed so existing company URLs keep working.
   def permitted_attributes_for_read
-    [:name]
+    [:name, :website, :description, :country, :city]
   end
 
   def permitted_attributes_for_update
-    [:name]
+    permitted_attributes_for_read
   end
 
   def permitted_associations

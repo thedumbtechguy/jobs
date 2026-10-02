@@ -4,9 +4,9 @@ module Forms
       div(class: "space-y-6") do
         fields_wrapper do
           text :name, span: true
-          url :website
+          url :website, span: true
+          country :country
           text :city
-          text :country
         end
         render_actions
       end

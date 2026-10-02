@@ -56,6 +56,7 @@ class Company < ::ResourceRecord
 
   validates :name, presence: true
   validates :website, **WebUrl.validation
+  validates :country, **World.country_validation
   validates :slug, presence: true, uniqueness: true,
     format: {with: /\A[a-z0-9]+(?:-[a-z0-9]+)*\z/, message: "may only contain lowercase letters, numbers and dashes"}
   # add validations above.

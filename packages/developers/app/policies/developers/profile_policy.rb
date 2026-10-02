@@ -11,13 +11,14 @@ module Developers
 
     def destroy? = false
 
+    # The show page uses the full name rather than its two parts.
     def permitted_attributes_for_read
-      permitted_attributes_for_update
+      [:name, *(permitted_attributes_for_update - %i[first_name other_names])]
     end
 
     def permitted_attributes_for_update
       %i[
-        handle name headline bio
+        first_name other_names handle headline bio
         city region country timezone remote_ok open_to_relocation
         contact_email phone contact_visibility
         website_url github_url linkedin_url x_url

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_02_090000) do
   create_table "active_shrine_attachments", force: :cascade do |t|
     t.string "record_type"
     t.bigint "record_id"
@@ -195,6 +195,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_140000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "visibility", default: 1, null: false
+    t.string "first_name", null: false
+    t.string "other_names"
     t.index ["country"], name: "index_developers_profiles_on_country"
     t.index ["handle"], name: "index_developers_profiles_on_handle", unique: true
     t.index ["user_id"], name: "index_developers_profiles_on_user_id", unique: true

@@ -15,7 +15,7 @@
 #  expires_at           :datetime
 #  filled_at            :datetime
 #  paid                 :boolean          default(TRUE), not null
-#  pay_period           :integer          default(0), not null
+#  pay_period           :integer          default("year"), not null
 #  published_at         :datetime
 #  remote_ok            :boolean          default(FALSE), not null
 #  salary_currency      :string           default("USD"), not null
@@ -95,7 +95,8 @@ class Hiring::JobPost < Hiring::ResourceRecord
   validates :title, presence: true
   validates :description, presence: true
   validates :employment_type, presence: true
-  validates :salary_currency, presence: true, length: {is: 3}
+  validates :salary_currency, presence: true, **World.currency_validation
+  validates :country, **World.country_validation
   validates :salary_min, :salary_max, numericality: {only_integer: true, greater_than_or_equal_to: 0}, allow_nil: true
   validates :salary_max, comparison: {greater_than_or_equal_to: :salary_min}, allow_nil: true, if: :salary_min
   validates :apply_url, **WebUrl.validation

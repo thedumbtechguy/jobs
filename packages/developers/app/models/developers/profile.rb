@@ -9,12 +9,14 @@
 #  contact_email      :string
 #  contact_visibility :integer          default("members"), not null
 #  country            :string
+#  first_name         :string           not null
 #  github_url         :string
 #  handle             :string           not null
 #  headline           :string
 #  linkedin_url       :string
 #  name               :string           not null
 #  open_to_relocation :boolean          default(FALSE), not null
+#  other_names        :string
 #  phone              :string
 #  region             :string
 #  remote_ok          :boolean          default(TRUE), not null
@@ -114,7 +116,8 @@ class Developers::Profile < Developers::ResourceRecord
   validates :website_url, :github_url, :linkedin_url, :x_url, **WebUrl.validation
   validates :contact_email, format: {with: URI::MailTo::EMAIL_REGEXP}, allow_blank: true
   validates :years_experience, numericality: {only_integer: true, in: 0..60}, allow_nil: true
-  validates :name, presence: true
+  validates :first_name, presence: true
+  validates :country, **World.country_validation
   validates :remote_ok, inclusion: {in: [true, false]}
   validates :open_to_relocation, inclusion: {in: [true, false]}
   validates :availability, presence: true
@@ -122,6 +125,9 @@ class Developers::Profile < Developers::ResourceRecord
   # add validations above.
 
   normalizes :handle, with: ->(handle) { handle.strip.downcase.delete_prefix("@") }
+  normalizes :first_name, :other_names, with: ->(name) { name.squish }
+
+  before_validation { self.name = [first_name, other_names].compact_blank.join(" ") }
 
   # add callbacks above.
 

@@ -66,7 +66,7 @@ group :test do
   gem "selenium-webdriver"
 end
 
-gem "plutonium", "~> 0.64.0"
+gem "plutonium"
 
 gem "annotated", "~> 0.1.1", group: :development
 
@@ -101,3 +101,5 @@ gem "active_shrine", "~> 0.7.2"
 gem "rodauth-omniauth", "~> 0.6.2"
 gem "omniauth-google-oauth2", "~> 1.2"
 gem "omniauth-github", "~> 2.0"
+
+gem "countries", "~> 8.1"

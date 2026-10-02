@@ -42,3 +42,6 @@
 !/.env.template
 !/.env.local.template
 !/.env.test.local
+
+# Yarn install cache, rewritten on every install
+.yarn/install-state.gz

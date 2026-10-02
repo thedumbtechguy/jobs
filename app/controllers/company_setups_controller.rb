@@ -25,6 +25,6 @@ class CompanySetupsController < ::PlutoniumController
   private
 
   def company_params
-    params.require(:company).permit(:name, :website, :city, :country)
+    params.require(:company).permit(:name, :website, :country, :city)
   end
 end

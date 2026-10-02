@@ -495,7 +495,7 @@ end
 |--------|-----------|----------|
 | `field` | Forms + Show + Table | Universal type override |
 | `input` | Forms only | Form-specific options |
-| `display` | Show page only | Display-specific options |
+| `display` | Show page, and the table unless a `column` renders | Display-specific options |
 | `column` | Table only | Table-specific options |
 
 ```ruby
@@ -506,6 +506,17 @@ class PostDefinition < ResourceDefinition
   column :view_count, align: :end
 end
 ```
+
+⚠️ **A component option (`colors:`, `unit:`, `true_label:`, `formatter:`, …) must be declared on the surface that renders it (`input`, `display`, or `column`), not on `field`.** A component reads its attributes from the surface declaration. Options on `field` go to the Phlexi field builder instead, which consumes the field-level keys (`:label`, `:description`/`:hint`, `:placeholder`) and ignores the rest. So `field :status, as: :badge, colors: {...}` renders a badge everywhere but silently ignores `colors:` and falls back to auto-coloring. `field` is still the right place for the shared `as:` type and for label/description/placeholder.
+
+Where to put a component option:
+
+- **`display` covers show AND index.** With no `column` declared, the table column inherits the display's `as:` and attributes, so `display :status, as: :badge, colors: {...}` alone colors the badge on both the show page and the table.
+- **A `column` that renders, renders alone.** A `column` with an `as:`, a component attribute, or a block replaces the display for the table: its own `as:` and attributes only, even when the type matches. A `column` that only sets `align:`, `label:` or `condition:` keeps the display's rendering, so `column :status, align: :center` under `display :status, as: :badge, colors: {...}` is still a colored badge.
+- **`align:` and `label:` can live on `field`.** They configure the column header, not the cell, so `field :amount, align: :end` works and never leaks into a component.
+- Use `input` for the form.
+
+The field-level help keys (`:label`, `:description`, `:hint`, `:placeholder`) are always stripped before a component sees them, so they never leak as HTML attributes wherever you put them. Other unknown keys are not stripped: a stray option on a surface whose component does not consume it still renders as a raw HTML attribute.
 
 ## Separation of Concerns
 
@@ -592,6 +603,13 @@ input :team_members do |f|
 end
 ```
 
+⚠️ **Don't bind a form field to a bare association name for a multi-select** (say `input :tags` / permit `:tags`). This is by design: param extraction excludes association writers (`submitted_resource_params` keeps a key only when `reflect_on_association(k).nil?`) because `tags=` expects model instances, not param strings, so a bare `tags` param is dropped rather than mis-assigned. Bind to a non-association writer instead:
+
+- `input :tag_ids` uses Rails' collection-ids setter. Permit `:tag_ids`; values are plain ids. Simplest for a scoped checkbox list.
+- `input :tags, as: :secure_association` is the native picker. It sets input_param `tag_sgids`, scopes via `choices:` (or the target policy), and validates submitted SGIDs by decoded model-id.
+
+⚠️ Do **not** hand-roll `collection_checkboxes_tag(choices: [[label, record.to_sgid.to_s]])`. SGIDs are non-deterministic (`to_sgid` embeds a timestamp), the component re-derives `choices` at submit and intersects the posted value against the freshly-minted SGIDs, so it never matches and the value is dropped. Use stable ids in custom checkboxes, or `secure_association` (which validates by model-id).
+
 ## Conditional Rendering
 
 ```ruby
@@ -601,6 +619,8 @@ field :debug_info, condition: -> { Rails.env.development? }
 ```
 
 Use `condition` for UI state; use the policy for authorization.
+
+A surface's own `condition:` wins; otherwise the surface falls back to the `field` condition. So a `field` condition runs on the form, the show page AND the table. **The table has no `object`**, so a `field` condition must not reference the record: `-> { object.published? }` works on the form and show page and raises on the index. Keep a `field` condition to context that exists everywhere (`Rails.env`, a feature flag, `current_user`) and put record checks on `input`/`display`/`column`.
 
 ## Options That Vary Per Render
 
@@ -625,6 +645,38 @@ step    :billing,   condition: -> { data.plan.tier == "pro" }  # the wizard — 
 ```
 
 It cannot take a `form` argument the way an option does: for a `column`/`display`, a step, or an action there is no form.
+
+## Internationalization (labels, placeholders, hints)
+
+**Never hard-code display text a locale file can supply.** Labels come from `activerecord.attributes.<model>.<attr>` already. Placeholders, hints and descriptions are looked up by convention when the definition leaves them blank, so the translatable default is to declare nothing:
+
+```yaml
+en:
+  plutonium:
+    fields:
+      blogging/post:
+        title: { placeholder: "A short, descriptive title", hint: "Shown in search" }
+        body:  { description: "Rendered as Markdown" }
+    actions:        { blogging/post: { publish: "Publish now" } }
+    scopes:         { blogging/post: { drafts: "Drafts" } }
+    filters:        { blogging/post: { author: "Written by" } }
+    kanban_columns: { blogging/post: { in_review: "In review" } }
+    wizard_steps:   { onboarding_wizard: { billing: "Billing details" } }
+    values:         { blogging/post: { status: { archived: "Archived" } } }   # or activerecord.attributes.<model>.status/archived
+```
+
+Resolution for every slot: explicit option → `plutonium.portals.<portal>.…` → `plutonium.…` → (placeholder only) `helpers.placeholder.<model>.<attr>` → nothing. For actions, an interaction's explicit `presents label:` counts as declared (beats the convention); its class-name default does not. The model segment is `model_name.i18n_key` (`blogging/post`), walked up STI ancestors.
+
+When an explicit value must be translated, use the definition's class-level `t`, which is lazy (resolved per render, in the request locale):
+
+```ruby
+input  :email,   placeholder: t("forms.shared.email_placeholder")
+action :publish, label: t("plutonium.actions.blogging/post.publish")
+```
+
+🚨 Never `I18n.t(...)` in a class body: it freezes the string in whatever locale was active at load. Use `t(...)` or a `-> { I18n.t(...) }` proc.
+
+Full reference: `docs/reference/i18n.md`.
 
 ## Dynamic Forms (`pre_submit`)
 
@@ -684,21 +736,29 @@ input :birth_date do |f|
 end
 ```
 
-**`phlexi_render` for declarative custom display.** The `with:` option takes either a Phlex component class, or a proc whose body is **rendered inside a Phlex context** — so HTML tags (`span`, `div`, `a`, …) and Tailwind classes are first-class. The proc receives `(value, attrs)` where `value` is the field value and `attrs` are wrapper attributes.
+**Custom display: use the block form.** `display :x do |f| … end` is `instance_exec`ed in the display component's Phlex context (`render instance_exec(f, &block)`), so you emit markup directly, it runs **once** (no per-item loop), and `f.object` is the real record:
 
 ```ruby
-# Component class — preferred for anything reusable
-display :status, as: :phlexi_render, with: StatusBadgeComponent
+# Inline markup. span/div are Phlex tag methods here.
+display :priority do |f|
+  variant = {"high" => "danger", "medium" => "warning"}.fetch(f.value.to_s, "info")
+  span(class: "pu-badge pu-badge-#{variant}") { f.value.to_s.humanize }
+end
 
-# Inline Phlex proc — `span` here is a Phlex tag method, not Ruby/Rails
-display :priority, as: :phlexi_render, with: ->(value, attrs) {
-  case value
-  when 'high'   then span(class: "badge badge-danger")  { "High" }
-  when 'medium' then span(class: "badge badge-warning") { "Medium" }
-  else span(class: "badge badge-info") { "Low" }
+# Reaches the record, renders once even for a has_many
+display :tags do |f|
+  div(class: "flex flex-wrap gap-1.5") do
+    f.object.tags.each { |t| span(class: "pu-badge") { t.name } }
   end
-}
+end
+
+# Reusable markup: hand the block a component
+display :card do |f|
+  PostCardComponent.new(post: f.object)
+end
 ```
+
+> ⚠️ **`as: :phlexi_render, with:` is deprecated. Use the block form above.** It emits a deprecation warning and will be removed. It was strictly worse than the block form: the `with:` proc is `.call`ed with `self` set to the definition (so `span`/`div` in its body raise, and it must instead *return* a component or proc), its `value` arrives stringified (`DisplaysValue#normalize_value` runs `to_s`, so it never reaches the record), and for a `has_many`/`multiple?` field it fires once per element. The deprecation covers only the `as: :phlexi_render` display option. The internal `phlexi_render` helper is unaffected.
 
 See [[plutonium-ui]] for writing custom Phlex components.
 
@@ -731,6 +791,26 @@ column :full_name do |record|
   "#{record.first_name} #{record.last_name}"
 end
 ```
+
+**A `column` block runs in a Phlex context** (like a `display` block), so it can emit `span`/`div` directly, or return a String or a component. The block receives the record.
+
+```ruby
+column :status do |record|             # emit markup directly
+  span(class: "pu-badge") { record.status.humanize }
+end
+
+column :full_name do |record|          # or return a String, rendered as text
+  "#{record.first_name} #{record.last_name}"
+end
+
+column :card do |record|               # or return a component
+  StatusBadgeComponent.new(value: record.status)
+end
+
+column :status, as: :badge, colors: {...}   # or just declare the type, no block
+```
+
+Inside the block `self` is the table page (the same as a `display` block, where `self` is the show page): `current_user`, `helpers` and `resource_definition` work, methods defined on the definition class do not, so reach through the record you are passed. A block that emits markup must end with a tag call (or `nil`), because Phlex renders the return value too; a number or other scalar return renders as text. Most of the time you need no column block at all, because `display :x, as: …` already flows to the table column (type and attributes). Declare it once on `display` and reach for `column` only to override per-table.
 
 ## Nested Inputs
 
@@ -926,14 +1006,14 @@ end
 - **Options**: `label:`, `description:`, `collapsible:`, `collapsed:`, `columns:` (positive Integer, literal only), `condition:`. Every option except `columns:` may be a **proc**, resolved at render under the same arity rule as any other option — take a `form` argument to read the render context.
 - ⚠️ **Breaking in 0.63**: section options used to take a zero-arg proc run *against* the form. They now follow the shared rule, and a `form_layout` block is evaluated against the layout builder, so a bare `object` is a `NameError`. Migrate `collapsed: -> { object.persisted? }` → `collapsed: ->(form) { form.object.persisted? }`. `condition:` is unchanged (still form-evaluated, still reads `object` with no argument).
 - **Absent fields are skipped.** A key the section lists that isn't in the permitted set (policy, per-action, scoping, nesting, or a typo) is silently dropped — never an error. The same layout serves a richly-permitted `edit` and a minimal `new`.
-- **🚨 Zero-field sections drop entirely** — no heading, no grid. So `+ New` (fewer permitted attributes) won't sprout empty headings. This checks *field presence only*; per-field `condition:` runs later, so to hide a whole section by state, gate it with the **section's own `condition:`**, not by hiding every field inside it.
+- **🚨 Zero-field sections drop entirely** — no heading, no grid. So `+ New` (fewer permitted attributes) won't sprout empty headings. A section whose fields are **all** hidden by their own `condition:` on this render drops too (the hidden fields are still recorded on the form). A section's own `condition:` hides it as a unit regardless of its fields.
 - **Works on interactions too** (`Plutonium::Interaction::Base`) — groups `attribute` declarations. There `object` is the interaction instance; for record actions the record is `object.resource`.
 
 Full DSL reference: [Resource › Definition › Form layout](/reference/resource/definition#form-layout).
 
 ## Display Layout (`display_layout`)
 
-The show page's counterpart to `form_layout`. Same DSL, same resolution (first-section-wins, unlisted permitted fields fall into `ungrouped`, absent fields skipped, zero-field sections dropped) — applied to the show page's fields instead of the form's.
+The show page's counterpart to `form_layout`. Same DSL, same resolution (first-section-wins, unlisted permitted fields fall into `ungrouped`, absent fields skipped, zero-field and all-condition-hidden sections dropped) — applied to the show page's fields instead of the form's.
 
 ```ruby
 class PostDefinition < ResourceDefinition
@@ -1138,7 +1218,7 @@ action :reposition, hidden: true # route + policy predicate, no button
 - **`scope:` is the model author's job.** A globally positioned model rendered under a parent still reorders correctly per parent — but a rebalance renumbers every row in the table, not just that parent's.
 - Native HTML5 drag doesn't fire on **touch** devices (same limitation as kanban). Keyboard works: focus the grip, <kbd>↑</kbd>/<kbd>↓</kbd>.
 
-Full reference: `docs/reference/positioning.md`. Kanban specifics: `docs/reference/kanban/positioning.md`.
+Full reference: `docs/reference/resource/positioning.md`. Kanban specifics: `docs/reference/kanban/positioning.md`.
 
 ---
 

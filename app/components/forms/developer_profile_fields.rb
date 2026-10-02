@@ -5,11 +5,13 @@ module Forms
 
     def developer_profile_fields
       fields_wrapper do
-        text :name, label: "Your name"
-        text :handle, hint: "Your public page will be at /@handle"
-        text :headline, span: true, placeholder: "e.g. Backend engineer, Rails and Postgres"
+        text :first_name, required: true
+        text :other_names, hint: "Middle and last names"
+        text :handle, span: true, required: true, hint: "Your public page will be at /@handle"
+        text :headline, span: true, placeholder: "e.g. Backend engineer, Rails and Postgres",
+          hint: "One line on what you do. It shows under your name in the directory and on your profile."
+        country :country
         text :city
-        text :country
       end
     end
   end

@@ -26,7 +26,7 @@ class OnboardingTest < ActionDispatch::IntegrationTest
 
     assert_difference -> { Developers::Profile.count }, 1 do
       assert_no_difference -> { Company.count } do
-        post "/onboarding", params: {onboarding: {developer: "1", name: "Grace Hopper", handle: "grace", hiring: "0", company_name: "Ignored"}}
+        post "/onboarding", params: {onboarding: {developer: "1", first_name: "Grace", other_names: "Hopper", handle: "grace", hiring: "0", company_name: "Ignored"}}
       end
     end
 
@@ -37,7 +37,7 @@ class OnboardingTest < ActionDispatch::IntegrationTest
     login_user(@user)
 
     assert_no_difference -> { Developers::Profile.count } do
-      post "/onboarding", params: {onboarding: {developer: "0", name: "", handle: "", hiring: "1", company_name: "Acme Labs"}}
+      post "/onboarding", params: {onboarding: {developer: "0", first_name: "", handle: "", hiring: "1", company_name: "Acme Labs"}}
     end
 
     company = Company.find_by!(name: "Acme Labs")
@@ -52,7 +52,7 @@ class OnboardingTest < ActionDispatch::IntegrationTest
   test "creates both" do
     login_user(@user)
 
-    post "/onboarding", params: {onboarding: {developer: "1", name: "Grace Hopper", handle: "grace", hiring: "1", company_name: "Acme Labs"}}
+    post "/onboarding", params: {onboarding: {developer: "1", first_name: "Grace", other_names: "Hopper", handle: "grace", hiring: "1", company_name: "Acme Labs"}}
 
     assert_redirected_to "/dashboard/"
     assert @user.reload.developer_profile.present?
@@ -73,7 +73,7 @@ class OnboardingTest < ActionDispatch::IntegrationTest
     login_user(@user)
 
     assert_no_difference ["Developers::Profile.count", "Company.count"] do
-      post "/onboarding", params: {onboarding: {developer: "1", name: "Grace Hopper", handle: "grace", hiring: "1", company_name: ""}}
+      post "/onboarding", params: {onboarding: {developer: "1", first_name: "Grace", other_names: "Hopper", handle: "grace", hiring: "1", company_name: ""}}
     end
 
     assert_response :unprocessable_entity
@@ -105,7 +105,7 @@ class OnboardingTest < ActionDispatch::IntegrationTest
     get "/setup/developer/new"
     assert_response :success
 
-    post "/setup/developer", params: {developers_profile: {name: "Grace Hopper", handle: "grace"}}
+    post "/setup/developer", params: {developers_profile: {first_name: "Grace", other_names: "Hopper", handle: "grace"}}
     assert_redirected_to "/developer/grace"
 
     get "/setup/developer/new"
