@@ -128,6 +128,8 @@ GEM
     concurrent-ruby (1.3.8)
     connection_pool (3.0.2)
     content_disposition (1.0.0)
+    countries (8.1.0)
+      unaccent (~> 0.3)
     crass (1.0.7)
     cssbundling-rails (1.4.3)
       railties (>= 6.0.0)
@@ -212,7 +214,7 @@ GEM
     letter_opener (1.10.0)
       launchy (>= 2.2, < 4)
     lint_roller (1.1.0)
-    listen (3.10.0)
+    listen (3.10.1)
       logger
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -387,7 +389,7 @@ GEM
       phlexi-display
       phlexi-field (~> 0.2.0)
       zeitwerk
-    plutonium (0.64.0)
+    plutonium (0.65.0)
       action_policy (~> 0.7.0)
       csv
       listen (~> 3.8)
@@ -638,6 +640,7 @@ GEM
       railties (>= 7.1.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
+    unaccent (0.4.0)
     unicode-display_width (3.3.0)
       unicode-emoji (~> 4.3)
     unicode-emoji (4.3.0)
@@ -680,6 +683,7 @@ DEPENDENCIES
   brakeman
   bundler-audit
   capybara
+  countries (~> 8.1)
   cssbundling-rails
   debug
   dotenv
@@ -692,7 +696,7 @@ DEPENDENCIES
   mission_control-jobs (~> 1.3)
   omniauth-github (~> 2.0)
   omniauth-google-oauth2 (~> 1.2)
-  plutonium (~> 0.64.0)
+  plutonium
   propshaft
   puma (>= 5.0)
   rails (~> 8.1.4)
@@ -754,6 +758,7 @@ CHECKSUMS
   concurrent-ruby (1.3.8) sha256=b2f1be836e968ccc78ccfce277ea79c72a88633f22306782c16ff23fb415d1e1
   connection_pool (3.0.2) sha256=33fff5ba71a12d2aa26cb72b1db8bba2a1a01823559fb01d29eb74c286e62e0a
   content_disposition (1.0.0) sha256=aa153da9c1543a45413a3f5f281d8dd50384bb0fba864fe1bd42ba80d88da516
+  countries (8.1.0) sha256=4d6b318b8e906f1f769d5c021c13a418d33e917dc96ceb625a91d8e7ab2d192e
   crass (1.0.7) sha256=94868719948664c89ddcaf0a37c65048413dfcb1c869470a5f7a7ceb5390b295
   cssbundling-rails (1.4.3) sha256=53aecd5a7d24ac9c8fcd92975acd0e830fead4ee4583d3d3d49bb64651946e41
   csv (3.3.6) sha256=aba61e7e507a66f03d45cb1f3c4b6359861c3504038b422962875dce099e4456
@@ -795,7 +800,7 @@ CHECKSUMS
   launchy (3.1.1) sha256=72b847b5cc961589dde2c395af0108c86ff0119f42d4648d25b5440ebb10059e
   letter_opener (1.10.0) sha256=2ff33f2e3b5c3c26d1959be54b395c086ca6d44826e8bf41a14ff96fdf1bdbb2
   lint_roller (1.1.0) sha256=2c0c845b632a7d172cb849cc90c1bce937a28c5c8ccccb50dfd46a485003cc87
-  listen (3.10.0) sha256=c6e182db62143aeccc2e1960033bebe7445309c7272061979bb098d03760c9d2
+  listen (3.10.1) sha256=4c3f32855657f348747da4dd2372ff3790d90a6b1d3e4f21a3706adb2d04783c
   litestream (0.14.0) sha256=4698881d02ab88306eae79e47fab4881c0a4424899ff5c768606c9cf5dafedf6
   litestream (0.14.0-aarch64-linux) sha256=bcf9199a665e673e27f929a0941011e50fb8ebf441d9754247686b514fba60d5
   litestream (0.14.0-arm64-darwin) sha256=507bbb7ee99b3398304c5ef4a9bae835761359ffc72850f25708477805313d07
@@ -848,7 +853,7 @@ CHECKSUMS
   phlexi-form (0.14.3) sha256=47d69c4a49ba22279ba541b9b110e81d62acc4602513f21bb5c3d29fa9c8d5ca
   phlexi-menu (0.4.1) sha256=f6eeb1eb9597caadeee33a53f1520b3613a6ac616cf1e395e9d734a412895fb2
   phlexi-table (0.2.0) sha256=73bee135adbe73fcdb6fdd2672444373556dd9e6bba61e7b5b20ca8b7a1f822c
-  plutonium (0.64.0) sha256=9ef863b20e5e0d66d76d3820c9b64f1392660f9d91d304a50e2b050bba1864e0
+  plutonium (0.65.0) sha256=5ef9f03ae8a35da4442914ef050c8943a2172a8089ea95f8040461c02585c9cf
   pp (0.6.4) sha256=dfcb0fce700c41456265922884f9fe195d7fbb0674a3578e6c0f69588e82b570
   prettyprint (0.2.0) sha256=2bc9e15581a94742064a3cc8b0fb9d45aae3d03a1baa6ef80922627a0766f193
   prism (1.9.0) sha256=7b530c6a9f92c24300014919c9dcbc055bf4cdf51ec30aed099b06cd6674ef85
@@ -938,6 +943,7 @@ CHECKSUMS
   tty-screen (0.8.2) sha256=c090652115beae764336c28802d633f204fb84da93c6a968aa5d8e319e819b50
   turbo-rails (2.0.23) sha256=ee0d90733aafff056cf51ff11e803d65e43cae258cc55f6492020ec1f9f9315f
   tzinfo (2.0.6) sha256=8daf828cc77bcf7d63b0e3bdb6caa47e2272dcfaf4fbfe46f8c3a9df087a829b
+  unaccent (0.4.0) sha256=d9278230016edc5317c053f8e84c1e1dea6827dec028e5481e2294a4e11e7333
   unicode-display_width (3.3.0) sha256=4b7aa66a4b11db50f6f7e98411215cd0dd10eaecb665d36eec5bcacb3fa0b613
   unicode-emoji (4.3.0) sha256=11c02fa73290378c066bb0562cd4c87d8e1b706fbbe0059ca12746a4244de8ce
   uri (1.1.1) sha256=379fa58d27ffb1387eaada68c749d1426738bd0f654d812fcc07e7568f5c57c6

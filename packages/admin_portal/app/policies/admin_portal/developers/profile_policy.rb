@@ -14,7 +14,7 @@ module AdminPortal
       end
 
       def permitted_attributes_for_read
-        [:user, *permitted_attributes_for_update]
+        [:user, *super]
       end
     end
   end

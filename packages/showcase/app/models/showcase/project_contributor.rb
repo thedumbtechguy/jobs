@@ -1,3 +1,26 @@
+# == Schema Information
+#
+# Table name: showcase_project_contributors
+#
+#  id           :integer          not null, primary key
+#  confirmed_at :datetime
+#  role         :string
+#  status       :integer          default("pending"), not null
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  profile_id   :integer          not null
+#  project_id   :integer          not null
+#
+# Indexes
+#
+#  idx_on_project_id_profile_id_42ba9b7f27            (project_id,profile_id) UNIQUE
+#  index_showcase_project_contributors_on_profile_id  (profile_id)
+#
+# Foreign Keys
+#
+#  profile_id  (profile_id => developers_profiles.id) ON DELETE => cascade
+#  project_id  (project_id => showcase_projects.id) ON DELETE => cascade
+#
 require_relative "../showcase"
 
 # Someone the owner credits on a project. The owner adds them by handle and

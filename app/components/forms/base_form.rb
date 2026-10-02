@@ -29,13 +29,24 @@ module Forms
       end
     end
 
+    # `required:` only drives the label's asterisk. The browser's own required
+    # check is left off because some fields sit in sections that can be hidden;
+    # the models validate them.
     def text(name, span: false, **options)
-      render field(name, **options).wrapped(class: (span ? "sm:col-span-2" : nil)) { |f| render f.input_tag }
+      render field(name, **options).wrapped(class: span_class(span)) { |f| render f.input_tag(required: false) }
     end
 
-    def url(name, **options)
-      render field(name, **options).wrapped { |f| render f.url_tag(placeholder: "https://") }
+    def url(name, span: false, **options)
+      render field(name, **options).wrapped(class: span_class(span)) { |f| render f.url_tag(placeholder: "https://", required: false) }
     end
+
+    def country(name, **options)
+      render field(name, placeholder: "Choose a country", **options).wrapped do |f|
+        render f.slim_select_tag(choices: World.country_names)
+      end
+    end
+
+    def span_class(span) = span ? "sm:col-span-2" : nil
 
     def section(**attributes, &)
       div(**attributes, class: tokens("space-y-4", attributes[:class]), &)

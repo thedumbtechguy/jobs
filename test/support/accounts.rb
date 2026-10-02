@@ -3,8 +3,9 @@ module AccountsTestHelper
     User.create!(email:, status: :verified, password_hash: BCrypt::Password.create("password123"))
   end
 
-  def create_profile!(user: create_user!, **attributes)
-    user.create_developer_profile!(name: "Ada Lovelace", handle: "ada-#{SecureRandom.hex(3)}", **attributes)
+  def create_profile!(user: create_user!, name: "Ada Lovelace", **attributes)
+    first_name, other_names = name.split(" ", 2)
+    user.create_developer_profile!(first_name:, other_names:, handle: "ada-#{SecureRandom.hex(3)}", **attributes)
   end
 
   def create_company!(owner: nil, name: "Company #{SecureRandom.hex(3)}")

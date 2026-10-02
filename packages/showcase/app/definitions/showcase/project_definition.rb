@@ -15,7 +15,7 @@ module Showcase
     input :summary, placeholder: "One line on what it is", hint: "Shown on cards and in search. 200 characters max."
     input :body, hint: "What it does, how you built it, what you learned. Markdown supported."
     field :skills, label: "Stack"
-    input :skills, hint: "Languages, frameworks and tools it uses."
+    input :skills, hint: "Languages, frameworks and tools it uses.", wrapper: {class: "col-span-full"}
     input :repo_url, placeholder: "https://github.com/you/project"
     input :demo_url, placeholder: "https://"
     input :ended_on, hint: "Leave blank if you're still working on it"
@@ -23,6 +23,8 @@ module Showcase
       choices: [["Everyone who can see your profile", "everyone"], ["Signed-in members only", "members"], ["Hidden: only you", "hidden"]]
 
     display :body, wrapper: {class: "col-span-full"}
+    display :summary, wrapper: {class: "col-span-full"}
+    display :skills, wrapper: {class: "col-span-full"}
     column :visibility, as: :badge
     display :visibility, as: :badge
 
@@ -37,8 +39,17 @@ module Showcase
     form_layout do
       section :basics, :title, :summary, label: "Project"
       section :writeup, :body, label: "Write-up"
-      section :details, :skills, :repo_url, :demo_url, :started_on, :ended_on, label: "Details", columns: 2
+      section :stack, :skills, label: "Stack"
+      section :links, :repo_url, :demo_url, label: "Links", columns: 2
+      section :dates, :started_on, :ended_on, label: "Dates", columns: 2
       section :privacy, :visibility, label: "Privacy"
+      ungrouped label: "Other"
+    end
+
+    display_layout do
+      section :basics, :title, :summary, :skills, label: "Project"
+      section :writeup, :body, label: "Write-up"
+      section :details, :repo_url, :demo_url, :started_on, :ended_on, :visibility, label: "Details"
       ungrouped label: "Other"
     end
   end

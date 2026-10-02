@@ -10,7 +10,7 @@ class Developers::ProfileTest < ActiveSupport::TestCase
   end
 
   test "rejects badly formed and reserved handles" do
-    profile = Developers::Profile.new(name: "Ada", user: create_user!)
+    profile = Developers::Profile.new(first_name: "Ada", user: create_user!)
 
     ["a", "has space", "-leading", "admin", "developer"].each do |handle|
       profile.handle = handle
@@ -21,7 +21,7 @@ class Developers::ProfileTest < ActiveSupport::TestCase
 
   test "allows one profile per user" do
     profile = create_profile!
-    duplicate = Developers::Profile.new(user: profile.user, name: "Again", handle: "again")
+    duplicate = Developers::Profile.new(user: profile.user, first_name: "Again", handle: "again")
 
     assert_not duplicate.valid?
     assert_includes duplicate.errors[:user], "already has a developer profile"

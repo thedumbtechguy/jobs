@@ -34,10 +34,11 @@ class SocialSignInTest < ActionDispatch::IntegrationTest
 
     follow_redirect! while response.redirect?
     assert_equal "/onboarding", path
-    assert_select "input[value='Octo Cat']"
+    assert_select "input[name='onboarding[first_name]'][value='Octo']"
+    assert_select "input[name='onboarding[other_names]'][value='Cat']"
     assert_select "input[value='octocat']"
 
-    post "/onboarding", params: {onboarding: {developer: "1", name: "Octo Cat", handle: "octocat", hiring: "0"}}
+    post "/onboarding", params: {onboarding: {developer: "1", first_name: "Octo", other_names: "Cat", handle: "octocat", hiring: "0"}}
     assert_equal "https://github.com/octocat", user.reload.developer_profile.github_url
   end
 

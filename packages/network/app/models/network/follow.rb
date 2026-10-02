@@ -1,3 +1,23 @@
+# == Schema Information
+#
+# Table name: network_follows
+#
+#  id          :integer          not null, primary key
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  followee_id :integer          not null
+#  follower_id :integer          not null
+#
+# Indexes
+#
+#  index_network_follows_on_followee_id                  (followee_id)
+#  index_network_follows_on_follower_id_and_followee_id  (follower_id,followee_id) UNIQUE
+#
+# Foreign Keys
+#
+#  followee_id  (followee_id => developers_profiles.id) ON DELETE => cascade
+#  follower_id  (follower_id => developers_profiles.id) ON DELETE => cascade
+#
 require_relative "../network"
 
 # One developer following another. Two follows in opposite directions make a

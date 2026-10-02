@@ -1,3 +1,31 @@
+# == Schema Information
+#
+# Table name: showcase_projects
+#
+#  id         :integer          not null, primary key
+#  body       :text
+#  demo_url   :string
+#  ended_on   :date
+#  repo_url   :string
+#  slug       :string           not null
+#  started_on :date
+#  summary    :string
+#  title      :string           not null
+#  visibility :integer          default("everyone"), not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  owner_id   :integer          not null
+#
+# Indexes
+#
+#  index_showcase_projects_on_owner_id                   (owner_id)
+#  index_showcase_projects_on_slug                       (slug) UNIQUE
+#  index_showcase_projects_on_visibility_and_updated_at  (visibility,updated_at)
+#
+# Foreign Keys
+#
+#  owner_id  (owner_id => developers_profiles.id) ON DELETE => cascade
+#
 require_relative "../showcase"
 
 # Something a developer built, with the stack it used and the other

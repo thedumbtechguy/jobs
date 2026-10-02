@@ -41,7 +41,7 @@ class Skill < ::ResourceRecord
   # add validations above.
 
   normalizes :name, with: ->(name) { name.squish }
-  before_validation { self.slug = name.to_s.parameterize if slug.blank? }
+  before_validation { self.slug = self.class.slug_for(name) if slug.blank? }
 
   # add callbacks above.
 
@@ -51,6 +51,11 @@ class Skill < ::ResourceRecord
 
   def to_label
     name
+  end
+
+  # Keeps C, C++ and C# (and .NET vs NET) apart: "c", "c-plus-plus", "c-sharp", "dot-net".
+  def self.slug_for(name)
+    name.to_s.gsub("+", " plus ").gsub("#", " sharp ").sub(/\A\./, "dot ").parameterize
   end
 
   # add methods above. add private methods below.

@@ -1,3 +1,23 @@
+# == Schema Information
+#
+# Table name: network_endorsements
+#
+#  id               :integer          not null, primary key
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  endorser_id      :integer          not null
+#  profile_skill_id :integer          not null
+#
+# Indexes
+#
+#  index_network_endorsements_on_endorser_id                       (endorser_id)
+#  index_network_endorsements_on_profile_skill_id_and_endorser_id  (profile_skill_id,endorser_id) UNIQUE
+#
+# Foreign Keys
+#
+#  endorser_id       (endorser_id => developers_profiles.id) ON DELETE => cascade
+#  profile_skill_id  (profile_skill_id => developers_profile_skills.id) ON DELETE => cascade
+#
 require_relative "../network"
 
 # A connection vouching for one of a developer's skills. Only connected

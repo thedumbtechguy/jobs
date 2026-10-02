@@ -500,7 +500,7 @@ The URL template is built off `current_page_path` (not `request.path`) so a post
 
 **Accessibility.** Focus the grip and use <kbd>↑</kbd>/<kbd>↓</kbd> — deliberately linear even on a wrapped grid, since one position attribute stores a 1-D order. Focus is restored onto the same record's grip after a stream replaces the collection. ⚠️ Native HTML5 drag does **not** fire on touch devices (inherited from kanban); there is no automatic fallback.
 
-Components: `lib/plutonium/ui/table/components/drag_handle.rb`, `lib/plutonium/ui/component/positionable.rb`, `src/js/controllers/positioned_controller.js`. Reference: `docs/reference/positioning.md`.
+Components: `lib/plutonium/ui/table/components/drag_handle.rb`, `lib/plutonium/ui/component/positionable.rb`, `src/js/controllers/positioned_controller.js`. Reference: `docs/reference/resource/positioning.md`.
 
 ---
 
@@ -547,6 +547,21 @@ Avatar(src: avatar_url)           # bare image, no subject/fallback
 - **Config**: `config.navii_host_url` (default `https://api.navii.dev`); the component appends `/avatar/:seed`.
 
 🚨 Ejected shells: `Avatar` only shows a Navii avatar when `NavUser` is passed `record:`. The gem's `_resource_header.html.erb` passes `record: (current_user if current_user.respond_to?(:id))`; portals that **ejected** the header before this must re-eject (`rails g pu:eject:shell --dest=<portal>`) or add the `record:` line, otherwise they keep the icon fallback. Pass a record only — a String `current_user` (e.g. a guest) would otherwise be seeded as a literal identity.
+
+## Translating component text
+
+Every `Plutonium::UI::Component::Base` subclass (pages included) has a protected `t(key, **opts)` that reads Rails I18n with a full key; components that subclass Phlexi classes call `Plutonium::Translation.t`. Put new user-facing text in a locale file, never a literal:
+
+```ruby
+def view_template
+  button { t("my_app.cards.expand") }
+  span { t("my_app.cards.more", count: hidden_count) }   # one:/other: in YAML
+end
+```
+
+Rules: one key per sentence with `%{name}` placeholders (never concatenate fragments around a value), `count:` for plurals, no `.downcase`/`.pluralize` on translated nouns. The gem's own keys live under `plutonium.*` in its `config/locales/en/*.yml` and any can be overridden from the app.
+
+Stimulus controllers bundled with Plutonium read `plutonium.js.*` from a `<meta name="pu-i18n">` JSON blob the layout renders; host JS can call `window.Plutonium.t("plutonium.js.turbo_confirm.confirm")`. Library locales (Slim Select, flatpickr, Uppy, intl-tel-input) pass through `plutonium.js.libraries.*`. See `docs/reference/i18n.md`.
 
 ## Custom Phlex components
 
@@ -758,6 +773,8 @@ rails generate pu:core:assets
 ```
 
 This installs npm packages, creates `tailwind.config.js` extending Plutonium's config, imports Plutonium CSS, registers Stimulus controllers, and points the Plutonium config at your asset files.
+
+Packages install with the app's package manager, detected from the lockfile (`bun.lock`/`bun.lockb` → bun, `pnpm-lock.yaml` → pnpm, `package-lock.json` → npm, `yarn.lock` → yarn), else the first of bun, yarn, pnpm, npm on PATH. A yarn app stays yarn even with bun installed. Do not run `yarn add` by hand in a bun app: that leaves two lockfiles. Yarn 2+ needs `nodeLinker: node-modules` in `.yarnrc.yml` (the generator writes it); Tailwind's PostCSS plugin does not load under Plug'n'Play.
 
 ## Tailwind config (generated)
 
@@ -1120,6 +1137,10 @@ end
 - **Tokens are CSS variables, not Tailwind keys** — `bg-[var(--pu-surface)]`, not `bg-pu-surface`.
 - **`render_actions` is mandatory in custom `form_template`** — otherwise no submit button.
 - **Dropdowns (`resource-drop-down`) teleport their menu to `<body>` while open.** popper's `fixed` strategy alone is still clipped by a transformed + `overflow:hidden` ancestor (e.g. grid cards, app shells), so the controller reparents the open menu to `<body>` and restores it on close. Don't rely on the menu being a DOM child of its trigger while open.
+- **`DisplaysValue` components stringify the value and loop per item.** `render_value` receives `normalize_value(value)`, which is `value.to_s`, and for a `field.multiple?` (has_many) field it is called once per element (`field.value.each`). So a custom component that inherits `DisplaysValue` only ever sees the stringified value, per item, never the record. When you need `f.object` or whole-collection rendering, use the block-form display (`display :x do |f| … end`), which is `instance_exec`ed in Phlex once and can emit markup directly.
+- **Blocks run in a Phlex context on every surface.** A `display`, `input`, or `column` block emits `span`/`div` directly, or returns a String or a component. All three are `instance_exec`ed by the resource page rendering them (`self` is the page, not the definition): `display`/`input` blocks receive the field `f`, a `column` block receives the record. Phlex renders the return value too, so a block that emits markup must end with a tag call or `nil`. Most columns need no block at all, because `display :x, as: …` already flows to the table column.
+- **A component reads its attributes from the surface declaration, not from `field`.** Options on `field` go to the Phlexi field builder, which consumes the field-level keys (`:label`, `:description` for displays, `:hint` for forms, `:placeholder`) and ignores the rest. Component options (`colors:`, `unit:`, …) belong on `input`/`display`/`column`. The four field-level help keys are stripped on every surface (the union), so a form key on a display or vice versa is dropped rather than leaked. Any *other* unknown key on a surface whose component does not consume it still renders as a raw HTML attribute, so keep each option on a surface whose component uses it. The table inherits the display's `as:` and attributes unless a `column` declares its own rendering (an `as:`, a component attribute, or a block); a `column` that only sets the header keys (`align:`, `label:`, `condition:`) keeps the display's rendering. `align:` and `label:` may also be declared on `field`.
+- **`as: :phlexi_render, with:` is deprecated** (see [[plutonium-resource]] › Custom Rendering). Use a block-form display. This covers only the display option; the internal `phlexi_render` helper (`Component::Behaviour`) stays.
 
 ---
 

@@ -6,7 +6,8 @@ class Onboarding
   include ActiveModel::Attributes
 
   attribute :developer, :boolean, default: true
-  attribute :name, :string
+  attribute :first_name, :string
+  attribute :other_names, :string
   attribute :handle, :string
   attribute :headline, :string
   attribute :city, :string
@@ -16,6 +17,8 @@ class Onboarding
   attribute :hiring, :boolean, default: false
   attribute :company_name, :string
   attribute :company_website, :string
+  attribute :company_country, :string
+  attribute :company_city, :string
 
   validate :developer_or_hiring
 
@@ -29,8 +32,8 @@ class Onboarding
   end
 
   def save
-    @profile = user.build_developer_profile(name:, handle:, headline:, city:, country:, github_url:) if developer
-    @company = Company.new(name: company_name, website: company_website) if hiring
+    @profile = user.build_developer_profile(first_name:, other_names:, handle:, headline:, city:, country:, github_url:) if developer
+    @company = Company.new(name: company_name, website: company_website, country: company_country, city: company_city) if hiring
 
     return false unless valid? & records_valid?
 
@@ -46,7 +49,7 @@ class Onboarding
 
   private
 
-  COMPANY_ERROR_ATTRIBUTES = {name: :company_name, website: :company_website}.freeze
+  COMPANY_ERROR_ATTRIBUTES = {name: :company_name, website: :company_website, country: :company_country, city: :company_city}.freeze
 
   def developer_or_hiring
     errors.add(:base, "Choose a developer profile, a company, or both") unless developer || hiring
@@ -70,7 +73,9 @@ class Onboarding
     info = user.identities.order(:id).map(&:info).compact.reduce({}) { |merged, i| merged.merge(i.compact_blank) }
     return if info.empty?
 
-    self.name ||= info["name"]
+    given, *others = info["name"].to_s.squish.split(" ")
+    self.first_name ||= info["first_name"].presence || given
+    self.other_names ||= info["last_name"].presence || others.join(" ").presence
     nickname = info["nickname"].to_s.downcase
     self.handle ||= nickname if nickname.match?(Developers::Profile::HANDLE_FORMAT)
     self.github_url ||= info.dig("urls", "GitHub")

@@ -13,8 +13,10 @@ module Forms
           choice :hiring, "I'm hiring for a company", "Set up a company to post jobs and invite recruiters."
           div(data: {reveal_target: "item"}, class: tokens("space-y-4", object.hiring ? nil : "hidden")) do
             fields_wrapper do
-              text :company_name, label: "Company name"
-              url :company_website, label: "Company website"
+              text :company_name, label: "Company name", required: true, span: true
+              url :company_website, label: "Company website", span: true
+              country :company_country, label: "Country"
+              text :company_city, label: "City"
             end
           end
         end
