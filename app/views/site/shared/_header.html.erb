@@ -1,9 +1,9 @@
 <% signed_in = current_user.present? %>
 <header class="sticky top-0 z-20 border-b-2 border-[#111] bg-[#f5f2e8]/95 backdrop-blur">
   <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-    <a href="<%= root_path %>" class="flex items-center gap-3" aria-label="Dev Registry home">
+    <a href="<%= root_path %>" class="flex items-center gap-3" aria-label="DevCongress Connect home">
       <%= image_tag "brand/devcongress-wordmark.png", alt: "DevCongress", class: "h-6 w-auto sm:h-7" %>
-      <span class="hidden rounded-full border-2 border-[#111] px-2 py-0.5 font-mono text-xs font-bold sm:inline">registry</span>
+      <span class="hidden rounded-full border-2 border-[#111] px-2 py-0.5 font-mono text-xs font-bold sm:inline">connect</span>
     </a>
     <nav class="hidden items-center gap-6 text-sm font-medium text-[#555] md:flex" aria-label="Main">
       <%= link_to "Developers", developers_directory_path, class: class_names("hover:text-[#111]", "text-[#111] underline decoration-[#e8117f] decoration-2 underline-offset-8" => current_page?(developers_directory_path)) %>

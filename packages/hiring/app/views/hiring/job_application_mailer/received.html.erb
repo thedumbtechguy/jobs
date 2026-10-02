@@ -1,4 +1,4 @@
-<% content_for :preheader, "#{@profile.name} applied through Dev Registry." %>
+<% content_for :preheader, "#{@profile.name} applied through DevCongress Connect." %>
 <%= email_heading "New applicant" %>
 <%= email_paragraph do %>
   <strong><%= @profile.name %></strong> applied for <strong><%= @job.title %></strong>.
@@ -15,4 +15,4 @@
 <%= email_paragraph do %>
   Or see their <%= email_link "full profile", @profile_url %>. Move them along from the application page and they'll get an update.
 <% end %>
-<% content_for :footer_note, @company.personal? ? "You're getting this because you posted on Dev Registry." : "You're getting this because you're a member of #{@company.display_name} on Dev Registry." %>
+<% content_for :footer_note, @company.personal? ? "You're getting this because you posted on DevCongress Connect." : "You're getting this because you're a member of #{@company.display_name} on DevCongress Connect." %>

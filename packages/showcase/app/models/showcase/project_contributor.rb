@@ -69,7 +69,7 @@ class Showcase::ProjectContributor < Showcase::ResourceRecord
 
   def profile_present
     if @handle_not_found
-      errors.add(:handle, "doesn't match a developer on Dev Registry")
+      errors.add(:handle, "doesn't match a developer on DevCongress Connect")
     elsif profile.nil?
       errors.add(:handle, "can't be blank")
     end

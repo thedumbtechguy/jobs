@@ -8,4 +8,4 @@
   <%= simple_format @reason, {style: "margin:0 0 8px;"}, wrapper_tag: "div" %>
 <% end %>
 <%= email_button "Edit and publish again", @edit_url %>
-<% content_for :footer_note, @company.personal? ? "You're getting this because you posted on Dev Registry." : "You're getting this because you're a member of #{@company.display_name} on Dev Registry." %>
+<% content_for :footer_note, @company.personal? ? "You're getting this because you posted on DevCongress Connect." : "You're getting this because you're a member of #{@company.display_name} on DevCongress Connect." %>

@@ -1,7 +1,7 @@
 <% project = @project %>
 <% owner = project.owner %>
 <% content_for :title, "#{project.title} by #{owner.name}" %>
-<% content_for :description, project.summary.presence || "#{project.title}, a project by #{owner.name} on Dev Registry" %>
+<% content_for :description, project.summary.presence || "#{project.title}, a project by #{owner.name} on DevCongress Connect" %>
 <% content_for :noindex, true unless project.visible_to_everyone? && owner.visible_to_everyone? %>
 
 <div class="mx-auto max-w-5xl px-4 py-10">
