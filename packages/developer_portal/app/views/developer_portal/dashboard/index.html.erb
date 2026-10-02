@@ -23,7 +23,7 @@
 
 <div class="mx-auto max-w-6xl space-y-6">
   <section class="dc-card overflow-hidden">
-    <div class="dc-highlight flex h-24 items-start justify-end border-b-2 border-[var(--dc-ink)] px-5 py-3 font-mono text-sm font-semibold">dev:profile{};</div>
+    <div class="dc-highlight flex h-24 items-start justify-end border-b-2 border-[var(--dc-ink)] px-5 py-3 font-mono text-sm font-semibold"><%= dev_mark("profile") %></div>
     <div class="px-6 pb-6">
       <div class="-mt-10 flex items-end justify-between gap-4">
         <%= render InitialsAvatar.new(name: profile.name, seed: profile.handle, size: :xl, class: "ring-4 ring-[var(--pu-card-bg)]") %>

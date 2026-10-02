@@ -3,27 +3,27 @@
 <% content_for :description, "Jobs at #{company.display_name} on DevCongress Connect." %>
 <% location = [company.city, company.country].compact_blank.join(", ") %>
 
-<div class="mx-auto max-w-5xl px-4 py-10">
+<div class="dc-container max-w-5xl py-10">
   <section class="flex flex-col gap-5 rounded-2xl border-2 border-[#111] bg-white p-6 shadow-[8px_8px_0_#e8117f] sm:flex-row sm:items-center">
     <%= render InitialsAvatar.new(name: company.display_name, seed: company.slug, size: :xl, shape: :square) %>
     <div class="min-w-0">
-      <h1 class="font-display text-4xl"><%= company.display_name %></h1>
+      <h1 class="dc-heading text-4xl"><%= company.display_name %></h1>
       <p class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-[#555]">
         <% if location.present? %><span class="flex items-center gap-1"><%= render Phlex::TablerIcons::MapPin.new(class: "h-4 w-4") %> <%= location %></span><% end %>
-        <% if company.website.present? %><%= link_to company.website.sub(%r{\Ahttps?://(www\.)?}, ""), company.website, target: "_blank", rel: "nofollow noopener", class: "text-[#d10f72] hover:underline" %><% end %>
+        <% if company.website.present? %><%= link_to company.website.sub(%r{\Ahttps?://(www\.)?}, ""), company.website, target: "_blank", rel: "nofollow noopener", class: "text-[#e8117f] hover:underline" %><% end %>
       </p>
     </div>
   </section>
 
   <% if company.description.present? %>
     <section class="mt-10">
-      <h2 class="font-display text-3xl">About</h2>
-      <div class="prose mt-4 max-w-none prose-a:text-[#d10f72]"><%= render_markdown(company.description) %></div>
+      <h2 class="dc-heading text-3xl">About</h2>
+      <div class="prose mt-4 max-w-none prose-a:text-[#e8117f]"><%= render_markdown(company.description) %></div>
     </section>
   <% end %>
 
   <section class="mt-10">
-    <h2 class="font-display text-3xl">Open jobs</h2>
+    <h2 class="dc-heading text-3xl">Open jobs</h2>
     <% if @jobs.any? %>
       <ul class="mt-6 space-y-3">
         <% @jobs.each do |job| %><li><%= render "site/jobs/job_card", job: %></li><% end %>

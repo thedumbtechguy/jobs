@@ -16,14 +16,14 @@ module SiteHelper
   end
 
   AVAILABILITY = {
-    "looking" => ["Open to work", "bg-[#dcfce7] text-[#166534]"],
-    "open" => ["Open to offers", "bg-[#e0f2fe] text-[#075985]"],
-    "not_looking" => ["Not looking", "bg-[#efebdd] text-[#555]"]
+    "looking" => ["Open to work", "text-[#059669]"],
+    "open" => ["Open to offers", "text-[#0284c7]"],
+    "not_looking" => ["Not looking", "text-[#888]"]
   }.freeze
 
   def availability_pill(profile)
     label, classes = AVAILABILITY.fetch(profile.availability)
-    tag.span(label, class: "shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold #{classes}")
+    tag.span(label, class: "dc-badge shrink-0 #{classes}")
   end
 
   # Who posted a job: the company, or for personal posts the person.

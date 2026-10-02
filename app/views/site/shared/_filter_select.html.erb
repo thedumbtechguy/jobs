@@ -1,6 +1,6 @@
 <label class="block">
-  <span class="mb-1 block text-xs font-semibold uppercase tracking-wide text-[#555]"><%= label %></span>
-  <select name="<%= name %>" class="w-full rounded-lg border-2 border-[#111] bg-white px-3 py-2 text-sm" onchange="this.form.requestSubmit()">
+  <span class="dc-label"><%= label %></span>
+  <select name="<%= name %>" class="dc-input" onchange="this.form.requestSubmit()">
     <option value=""><%= all %></option>
     <%= options_for_select(choices, params[name]) %>
   </select>

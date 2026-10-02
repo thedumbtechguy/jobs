@@ -129,8 +129,331 @@ body {
   to { transform: translateX(-50%); }
 }
 .dc-marquee {
-  animation: dc-marquee 40s linear infinite;
+  animation: dc-marquee 35s linear infinite;
 }
+.dc-marquee:hover { animation-play-state: paused; }
+.dc-marquee:hover .dc-pill { background: var(--dc-pink); border-color: var(--dc-pink); color: #fff; }
 @media (prefers-reduced-motion: reduce) {
   .dc-marquee { animation: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   Public site components, ported from devcongress.org's own stylesheet so the
+   marketing pages share its tokens, buttons, cards, nav and footer. In the
+   components layer, so Tailwind utilities can still adjust them per use.
+   ------------------------------------------------------------------------- */
+:root {
+  --dc-bg: #f5f2e8;
+  --dc-white: #ffffff;
+  --dc-black: #111111;
+  --dc-pink-light: #fce7f3;
+  --dc-yellow-bg: #fefce8;
+  --dc-border-light: #e0ddd4;
+  --dc-text-mid: #555555;
+  --dc-text-muted: #888888;
+  --dc-max-w: 1200px;
+  --dc-pad: clamp(1.25rem, 5vw, 4rem);
+  --dc-section: clamp(4rem, 8vw, 7rem);
+  --dc-shadow: 3px 3px 0 var(--dc-black);
+}
+
+@layer components {
+  .dc-container {
+    width: 100%;
+    max-width: var(--dc-max-w);
+    padding-inline: var(--dc-pad);
+    margin-inline: auto;
+  }
+  .dc-section { padding-block: var(--dc-section); }
+
+  .dc-eyebrow {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dc-text-muted);
+  }
+  .dc-heading {
+    font-family: "DM Serif Display", Georgia, serif;
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--dc-black);
+  }
+  .dc-h2 { font-size: clamp(2.5rem, 5vw, 3.5rem); }
+
+  /* Buttons: thick ink outline, lift with a hard shadow on hover. */
+  .dc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 2rem;
+    border: 3px solid var(--dc-black);
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s, background-color 0.15s;
+  }
+  .dc-btn:not(:disabled):hover { box-shadow: var(--dc-shadow); transform: translate(-2px, -2px); }
+  .dc-btn:not(:disabled):active { box-shadow: none; transform: translate(0); }
+  .dc-btn-primary { background: var(--dc-pink); color: #fff; }
+  .dc-btn-yellow { background: var(--dc-yellow); color: var(--dc-black); }
+  .dc-btn-outline { background: transparent; color: var(--dc-black); }
+  .dc-btn-outline:hover { background: var(--dc-white); }
+  .dc-btn-white { background: var(--dc-white); color: var(--dc-black); }
+  .dc-btn-sm { padding-inline: 1rem; }
+  .dc-btn-lg { padding: 1rem 4rem; font-size: 1.125rem; }
+  .dc-btn-xl { padding: 1.5rem 6rem; font-size: 1.125rem; }
+  @media (width <= 640px) {
+    .dc-btn-lg, .dc-btn-xl { width: min(100%, 19rem); min-height: 46px; padding: 0.75rem 2rem; font-size: 1rem; }
+  }
+
+  /* Cards: white, ink border; linked cards lift on hover. */
+  .dc-box {
+    background: var(--dc-white);
+    border: 2px solid var(--dc-black);
+    border-radius: 8px;
+    transition: transform 0.12s, box-shadow 0.12s;
+  }
+  a.dc-box:hover { box-shadow: var(--dc-shadow); transform: translate(-2px, -2px); }
+  .dc-empty {
+    border: 2px dashed #c9c5b8;
+    border-radius: 8px;
+    text-align: center;
+    color: var(--dc-text-mid);
+  }
+
+  /* Small status badge with a leading dot. */
+  .dc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 3px 0.75rem;
+    border: 1.5px solid;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .dc-badge::before { content: "●"; font-size: 6px; }
+
+  /* Outlined pill: role band, skill chips, kind tabs. */
+  .dc-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1.5rem;
+    border: 2px solid var(--dc-black);
+    border-radius: 9999px;
+    background: var(--dc-white);
+    color: var(--dc-black);
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  }
+  a.dc-pill:hover { background: var(--dc-yellow); }
+  .dc-pill-sm { padding: 0.35rem 1rem; }
+  .dc-pill[aria-current="page"] { background: var(--dc-black); border-color: var(--dc-black); color: #fff; }
+
+  /* "Learn more →" style text link. */
+  .dc-link { color: var(--dc-pink); font-size: 0.875rem; font-weight: 600; transition: opacity 0.15s; }
+  .dc-link:hover { opacity: 0.7; }
+
+  .dc-input {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 2px solid var(--dc-black);
+    border-radius: 8px;
+    background: var(--dc-white);
+    font-size: 0.875rem;
+  }
+  .dc-input:focus { outline: 2px solid var(--dc-pink); outline-offset: 1px; }
+  .dc-label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dc-text-muted);
+  }
+
+  /* Numbered list with ink rules, as in the site's mission list. */
+  .dc-numbered { border-top: 2px solid var(--dc-black); }
+  .dc-numbered > li {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 1.5rem;
+    padding-block: 2rem;
+    border-bottom: 2px solid var(--dc-black);
+    transition: background-color 0.15s;
+  }
+  .dc-numbered > li:hover { background: var(--dc-yellow-bg); }
+  /* The site sets these in the serif at bold, with a pink keyword. */
+  .dc-numbered-title {
+    font-family: "DM Serif Display", Georgia, serif;
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--dc-black);
+  }
+  .dc-numbered-num {
+    padding-top: 2px;
+    font-family: "DM Serif Display", Georgia, serif;
+    font-size: 1.375rem;
+    line-height: 1.2;
+    color: var(--dc-pink);
+  }
+
+  /* Navbar */
+  .dc-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--dc-bg);
+    border-bottom: 2px solid var(--dc-black);
+  }
+  .dc-navbar-inner { display: flex; align-items: center; gap: 1.5rem; height: 68px; }
+  .dc-nav-links { display: flex; align-items: center; gap: 2rem; margin-left: 1rem; margin-right: auto; }
+  .dc-nav-link { position: relative; font-size: 0.875rem; font-weight: 500; color: var(--dc-text-mid); transition: color 0.15s; }
+  .dc-nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -3px;
+    height: 2px;
+    background: var(--dc-pink);
+    transform: scaleX(0);
+    transform-origin: 0;
+    transition: transform 0.2s;
+  }
+  .dc-nav-link:hover, .dc-nav-link[aria-current="page"] { color: var(--dc-black); }
+  .dc-nav-link:hover::after, .dc-nav-link[aria-current="page"]::after { transform: scaleX(1); }
+  .dc-nav-actions { display: flex; align-items: center; gap: 0.75rem; }
+  .dc-burger {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: 42px;
+    height: 42px;
+    margin-left: auto;
+    padding: 0.5rem;
+  }
+  .dc-burger span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--dc-black);
+    transition: opacity 0.12s, transform 0.15s;
+  }
+  .dc-burger[aria-expanded="true"] span:first-child { transform: translateY(7px) rotate(45deg); }
+  .dc-burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .dc-burger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .dc-mobile-menu { display: none; padding: 1.5rem var(--dc-pad); background: var(--dc-white); border-top: 2px solid var(--dc-black); }
+  .dc-mobile-menu nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--dc-border-light);
+  }
+  .dc-mobile-menu nav a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    font-weight: 600;
+  }
+  .dc-mobile-menu nav a::after { content: "→"; color: var(--dc-pink); font-size: 1.125rem; font-weight: 700; }
+  .dc-mobile-actions { display: flex; flex-direction: column; gap: 0.75rem; }
+  .dc-mobile-actions .dc-btn { width: 100%; }
+  @media (width <= 960px) {
+    .dc-nav-links, .dc-nav-actions { display: none; }
+    .dc-burger { display: flex; }
+    .dc-mobile-menu {
+      display: block;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-8px);
+      transition: opacity 0.2s cubic-bezier(.16, 1, .3, 1), transform 0.2s cubic-bezier(.16, 1, .3, 1), visibility 0s linear 0.2s;
+    }
+    .dc-mobile-menu.is-open {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+      transition-delay: 0s;
+      box-shadow: 0 14px 24px #11111129;
+    }
+  }
+
+  /* Footer: near-black with a warm glow, yellow labels, pill links. */
+  .dc-footer {
+    position: relative;
+    overflow: hidden;
+    color: #f5f5f5;
+    background: radial-gradient(1200px 320px at 20% -10%, #ffd96624, #0000 60%), linear-gradient(#0f0f11 0%, #070708 100%);
+    border-top: 2px solid var(--dc-black);
+  }
+  .dc-footer-body { display: grid; grid-template-columns: 1fr; gap: 3rem; padding-block: 6rem; }
+  @media (width >= 860px) {
+    .dc-footer-body { grid-template-columns: 1.15fr 1.75fr 1.1fr; column-gap: 2rem; }
+  }
+  .dc-footer-brand { display: flex; flex-direction: column; gap: 1.5rem; max-width: 40ch; }
+  .dc-footer-brand img { border-radius: 4px; box-shadow: 0 8px 18px #00000059; }
+  .dc-footer-tagline { color: #b6bbc5; line-height: 1.65; }
+  .dc-footer-label {
+    margin-bottom: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dc-yellow);
+  }
+  .dc-footer-links { display: flex; flex-wrap: wrap; gap: 10px; }
+  .dc-footer-chip {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    min-height: 36px;
+    padding: 8px 14px;
+    border: 1px solid #303236;
+    border-radius: 9999px;
+    background: #ffffff08;
+    color: #b4bac6;
+    font-size: 0.75rem;
+    transition: color 0.16s, border-color 0.16s, background-color 0.16s, transform 0.16s;
+  }
+  .dc-footer-chip:hover { color: #fff; background: #ffd96624; border-color: #8a6f2d; transform: translateY(-1px); }
+  .dc-footer-chip:focus-visible { outline: 2px solid var(--dc-yellow); outline-offset: 2px; }
+  .dc-footer-bottom { padding-block: 1rem; background: #0000003d; border-top: 1px solid #22252b; }
+  .dc-footer-bottom-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    color: #8a8f99;
+  }
+  .dc-footer-bottom-inner a { color: #8a8f99; transition: color 0.15s; }
+  .dc-footer-bottom-inner a:hover { color: #d7dbe2; }
 }

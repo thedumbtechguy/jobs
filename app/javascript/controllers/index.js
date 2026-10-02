@@ -16,5 +16,8 @@ application.register("dismissable", DismissableController)
 import ClipboardController from "./clipboard_controller"
 application.register("clipboard", ClipboardController)
 
+import SiteMenuController from "./site_menu_controller"
+application.register("site-menu", SiteMenuController)
+
 import { registerControllers } from "@radioactive-labs/plutonium"
 registerControllers(application)
