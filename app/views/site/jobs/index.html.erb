@@ -5,22 +5,21 @@
 <% noun = {"gigs" => "gig", "internships" => "internship", "jobs" => "job"}.fetch(@kind, "post") %>
 
 <section class="border-b-2 border-[#111]">
-  <div class="mx-auto max-w-6xl px-4 py-12">
-    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#555]">Hiring now</p>
-    <div class="mt-3 flex flex-wrap items-end justify-between gap-4">
-      <h1 class="font-display text-5xl"><%= kind_titles.fetch(@kind) %></h1>
+  <div class="dc-container py-16 sm:py-20">
+    <p class="dc-eyebrow">Hiring now</p>
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <h1 class="dc-heading text-[clamp(2.5rem,6vw,4rem)]"><%= kind_titles.fetch(@kind) %></h1>
       <%= link_to "Post a job or gig", (current_user ? home_dashboard_path : rodauth(:user).create_account_path),
-            class: "rounded-full border-2 border-[#111] bg-white px-5 py-2 text-sm font-semibold hover:bg-[#f5e642]" %>
+            class: "dc-btn dc-btn-white dc-btn-sm" %>
     </div>
-    <p class="mt-3 max-w-2xl text-[#555]">
+    <p class="mt-4 max-w-2xl text-[#555]">
       Roles, freelance gigs and internships from companies and people in the community.<%= " Sign in to see members-only posts too." unless current_user %>
     </p>
 
     <nav class="mt-6 flex flex-wrap gap-2" aria-label="Kind of post">
       <% kind_titles.each do |kind, title| %>
         <%= link_to (kind ? title : "All"), public_jobs_path(filter_params(kind:, type: nil)),
-              class: class_names("rounded-full border-2 border-[#111] px-4 py-1.5 text-sm font-semibold",
-                "bg-[#111] text-white" => @kind == kind, "bg-white hover:bg-[#f5e642]" => @kind != kind),
+              class: "dc-pill dc-pill-sm",
               aria: {current: (@kind == kind ? "page" : nil)} %>
       <% end %>
     </nav>
@@ -28,26 +27,26 @@
     <%= form_with url: public_jobs_path, method: :get, class: "mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_auto] lg:items-end", data: {turbo_action: "advance"} do %>
       <% if @kind %><input type="hidden" name="kind" value="<%= @kind %>"><% end %>
       <label class="block sm:col-span-2 lg:col-span-1">
-        <span class="mb-1 block text-xs font-semibold uppercase tracking-wide text-[#555]">Search</span>
-        <input type="search" name="q" value="<%= params[:q] %>" placeholder="Title, company or city" class="w-full rounded-lg border-2 border-[#111] bg-white px-3 py-2 text-sm">
+        <span class="dc-label">Search</span>
+        <input type="search" name="q" value="<%= params[:q] %>" placeholder="Title, company or city" class="dc-input">
       </label>
       <%= render "site/shared/filter_select", name: :type, label: "Type", all: "Any type", choices: (@kind ? Hiring::JobPost::KINDS.fetch(@kind) : Hiring::JobPost::TYPE_LABELS.keys).map { [Hiring::JobPost::TYPE_LABELS.fetch(_1), _1] } %>
       <%= render "site/shared/filter_select", name: :seniority, label: "Seniority", all: "Any level", choices: Hiring::JobPost.seniorities.keys.map { [_1.humanize, _1] } %>
       <%= render "site/shared/filter_select", name: :country, label: "Country", all: "Anywhere", choices: @countries %>
       <div class="flex items-center gap-4 lg:pb-2">
         <label class="flex items-center gap-2 text-sm font-medium">
-          <input type="checkbox" name="remote" value="1" <%= "checked" if params[:remote] == "1" %> onchange="this.form.requestSubmit()" class="h-4 w-4 accent-[#d10f72]"> Remote
+          <input type="checkbox" name="remote" value="1" <%= "checked" if params[:remote] == "1" %> onchange="this.form.requestSubmit()" class="h-4 w-4 accent-[#e8117f]"> Remote
         </label>
-        <button type="submit" class="rounded-full border-2 border-[#111] bg-[#d10f72] px-5 py-2 text-sm font-semibold text-white">Search</button>
+        <button type="submit" class="dc-btn dc-btn-primary dc-btn-sm">Search</button>
       </div>
     <% end %>
   </div>
 </section>
 
-<section class="mx-auto max-w-4xl px-4 py-10">
+<section class="dc-container max-w-4xl py-10">
   <div class="mb-6 flex items-center justify-between gap-4 text-sm text-[#555]">
     <p><%= pluralize(@total, "open #{noun}") %><%= " match" if filtered %></p>
-    <% if filtered %><%= link_to "Clear filters", public_jobs_path, class: "font-semibold text-[#d10f72] hover:underline" %><% end %>
+    <% if filtered %><%= link_to "Clear filters", public_jobs_path, class: "dc-link" %><% end %>
   </div>
 
   <% if @jobs.any? %>
@@ -58,8 +57,8 @@
     </ul>
     <%= render "site/shared/pagination" %>
   <% else %>
-    <div class="rounded-xl border-2 border-dashed border-[#c9c5b8] p-12 text-center">
-      <p class="font-display text-3xl">No open <%= noun.pluralize %> match.</p>
+    <div class="dc-empty p-12">
+      <p class="dc-heading text-3xl">No open <%= noun.pluralize %> match.</p>
       <p class="mt-2 text-[#555]">Try fewer filters, or check back soon.</p>
     </div>
   <% end %>
