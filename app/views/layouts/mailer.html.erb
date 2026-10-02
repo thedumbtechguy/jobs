@@ -31,14 +31,14 @@
             <tr>
               <td style="padding:24px 4px 0;font-family:<%= EmailHelper::FONT %>;font-size:12px;line-height:1.6;color:<%= EmailHelper::MUTED %>;">
                 <p style="margin:0 0 8px;">
-                  <%= content_for?(:footer_note) ? yield(:footer_note) : "You're getting this email because of activity on your Dev Registry account." %>
+                  <%= content_for?(:footer_note) ? yield(:footer_note) : "You're getting this email because of activity on your DevCongress Connect account." %>
                 </p>
                 <p style="margin:0;">
-                  <a href="<%= root_url %>" style="color:<%= EmailHelper::MUTED %>;">Dev Registry</a> ·
+                  <a href="<%= root_url %>" style="color:<%= EmailHelper::MUTED %>;">DevCongress Connect</a> ·
                   <a href="<%= public_jobs_url %>" style="color:<%= EmailHelper::MUTED %>;">Jobs</a> ·
                   <a href="<%= developers_directory_url %>" style="color:<%= EmailHelper::MUTED %>;">Developers</a> ·
                   <a href="<%= public_projects_url %>" style="color:<%= EmailHelper::MUTED %>;">Projects</a>
-                  <br>The developer registry of the DevCongress community.
+                  <br>Where the DevCongress community connects.
                 </p>
               </td>
             </tr>

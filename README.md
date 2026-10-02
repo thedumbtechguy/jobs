@@ -1,4 +1,4 @@
-# Dev Registry
+# DevCongress Connect
 
 A catalogue of our developers, what they've built, who they know, and where
 they can work next. It grew out of the DevCongress Jobs app.
@@ -83,7 +83,7 @@ machine that runs `kamal deploy`; `.kamal/secrets` passes the secret ones throug
 | `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY` | yes | As above |
 | `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` | yes | As above |
 | `SMTP_ADDRESS`, `SMTP_USERNAME`, `SMTP_PASSWORD` | yes | Outgoing mail (`SMTP_PORT` defaults to 587) |
-| `MAIL_FROM` | yes | Sender for app emails, e.g. `Dev Registry <no-reply@devcongress.org>` |
+| `MAIL_FROM` | yes | Sender for app emails, e.g. `DevCongress Connect <no-reply@devcongress.org>` |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | no | "Continue with Google". Callback: `https://<APP_HOST>/users/auth/google/callback` |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | no | "Continue with GitHub". Callback: `https://<APP_HOST>/users/auth/github/callback` |
 | `LITESTREAM_REPLICA_BUCKET`, `LITESTREAM_ACCESS_KEY_ID`, `LITESTREAM_SECRET_ACCESS_KEY` | yes | Litestream S3 replica |

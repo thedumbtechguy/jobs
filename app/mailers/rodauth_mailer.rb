@@ -54,7 +54,7 @@ class RodauthMailer < ApplicationMailer
     @reset_request_url = @rodauth.reset_password_request_url
   end
 
-  def product_name = @admin ? "Dev Registry admin" : "Dev Registry"
+  def product_name = @admin ? "DevCongress Connect admin" : "DevCongress Connect"
 
   def first_name
     @account.try(:developer_profile)&.name.to_s.split.first

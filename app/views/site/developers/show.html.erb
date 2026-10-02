@@ -1,6 +1,6 @@
 <% profile = @profile %>
 <% content_for :title, "#{profile.name} (@#{profile.handle})" %>
-<% content_for :description, [profile.headline, profile.location].compact_blank.join(" · ").presence || "#{profile.name} on Dev Registry" %>
+<% content_for :description, [profile.headline, profile.location].compact_blank.join(" · ").presence || "#{profile.name} on DevCongress Connect" %>
 <% content_for :noindex, true unless profile.visible_to_everyone? %>
 <% contact_visible = profile.contact_visible_to?(current_user) %>
 <% links = [

@@ -18,7 +18,7 @@ module Invites
     private
 
     def invitation_subject
-      "You're invited to join #{@invite.entity.to_label} on Dev Registry"
+      "You're invited to join #{@invite.entity.to_label} on DevCongress Connect"
     end
 
     def invitation_template_name

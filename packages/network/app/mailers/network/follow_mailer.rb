@@ -14,7 +14,7 @@ module Network
       @follower_url = absolute_url(Rails.application.routes.url_helpers.developer_page_path(handle: @follower.handle))
       @network_url = absolute_url(developer_portal_network_path(@followee, tab: @connected ? "connections" : "followers"))
 
-      subject = @connected ? "You're now connected with #{@follower.name}" : "#{@follower.name} followed you on Dev Registry"
+      subject = @connected ? "You're now connected with #{@follower.name}" : "#{@follower.name} followed you on DevCongress Connect"
       mail to: @followee.user.email, subject:
     end
   end

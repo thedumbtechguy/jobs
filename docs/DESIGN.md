@@ -1,4 +1,4 @@
-# Dev Registry — Design
+# DevCongress Connect — Design
 
 A catalogue of our developers, what they've built, who they know, and where
 they can work next. Built on [Plutonium](https://github.com/radioactive-labs/plutonium-core),

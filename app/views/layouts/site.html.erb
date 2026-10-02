@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title><%= [content_for(:title), "Dev Registry · DevCongress"].compact.join(" · ") %></title>
+    <title><%= [content_for(:title), "DevCongress Connect"].compact.join(" · ") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="application-name" content="Dev Registry">
+    <meta name="application-name" content="DevCongress Connect">
     <% if content_for?(:description) %><meta name="description" content="<%= content_for(:description) %>"><% end %>
     <% if content_for?(:noindex) %><meta name="robots" content="noindex"><% end %>
     <%= csrf_meta_tags %>
