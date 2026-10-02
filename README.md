@@ -113,13 +113,15 @@ the only place migrations run, so `--skip-hooks` deploys none.
 The very first deploy has no secrets file on the server for the hook to use,
 so it takes two runs: `bin/deploy --skip-hooks`, then `bin/deploy`.
 
-One-time server setup: the container runs as uid 1000 (`stefan` on the host),
-and Docker creates a missing bind-mount directory as root, so grant write access
-the same way as the other apps' directories under `/storage`:
+One-time server setup: the container runs as uid 1000, and Docker creates a
+missing bind-mount directory as root, so hand it to uid 1000 before the first
+deploy. Mode 700 keeps the databases unreadable to other accounts on the host,
+whatever mode SQLite gives the files inside:
 
 ```sh
 sudo mkdir -p /storage/devcongress_connect
-sudo setfacl -m u:stefan:rwx,u:kamal:rwx /storage/devcongress_connect
+sudo chown 1000:1000 /storage/devcongress_connect
+sudo chmod 700 /storage/devcongress_connect
 ```
 
 ## Working with Claude
