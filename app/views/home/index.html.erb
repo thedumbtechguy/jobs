@@ -29,9 +29,13 @@
       <span class="text-xs font-semibold tracking-[0.06em] text-[var(--dc-pink)]">● Live</span>
     </div>
     <div class="space-y-3 bg-[var(--dc-bg)] p-5">
-      <% if @developers.any? %>
-        <% @developers.first(3).each do |developer| %>
-          <%= render "home/developer_card", developer: %>
+      <% if @newest.any? %>
+        <% @newest.each do |developer| %>
+          <% if developer.visible_to?(current_user) %>
+            <%= render "home/developer_card", developer: %>
+          <% else %>
+            <%= render "home/private_developer_card", developer: %>
+          <% end %>
         <% end %>
       <% else %>
         <p class="py-10 text-center text-[var(--dc-text-mid)]">Be the first builder on Connect.</p>
