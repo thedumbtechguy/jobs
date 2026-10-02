@@ -9,7 +9,11 @@ required_env_vars = %w[
 ]
 
 if Rails.env.production?
+  # RAILS_MASTER_KEY decrypts config/credentials.yml.enc, which holds
+  # secret_key_base. Checked here rather than with config.require_master_key,
+  # which would also fail the keyless assets:precompile in the Docker build.
   required_env_vars += %w[
+    RAILS_MASTER_KEY
     ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY
     ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY
     ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT
