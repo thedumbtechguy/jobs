@@ -113,6 +113,15 @@ the only place migrations run, so `--skip-hooks` deploys none.
 The very first deploy has no secrets file on the server for the hook to use,
 so it takes two runs: `bin/deploy --skip-hooks`, then `bin/deploy`.
 
+One-time server setup: the container runs as uid 1000 (`stefan` on the host),
+and Docker creates a missing bind-mount directory as root, so grant write access
+the same way as the other apps' directories under `/storage`:
+
+```sh
+sudo mkdir -p /storage/devcongress_connect
+sudo setfacl -m u:stefan:rwx,u:kamal:rwx /storage/devcongress_connect
+```
+
 ## Working with Claude
 
 The Plutonium skills are synced into `.claude/skills`. Refresh them after
