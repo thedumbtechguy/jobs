@@ -2,6 +2,11 @@
 <% content_for :title, "#{profile.name} (@#{profile.handle})" %>
 <% content_for :description, [profile.headline, profile.location].compact_blank.join(" · ").presence || "#{profile.name} on DevCongress Connect" %>
 <% content_for :noindex, true unless profile.visible_to_everyone? %>
+<% if profile.visible_to?(nil) %>
+  <% content_for :og_type, "profile" %>
+  <% og_card OgCard::Developer.new(profile) %>
+  <% structured_data StructuredData::DeveloperProfile.new(profile, view: self).to_h %>
+<% end %>
 <% contact_visible = profile.contact_visible_to?(current_user) %>
 <% links = [
      [Phlex::TablerIcons::BrandGithub, profile.github_url],

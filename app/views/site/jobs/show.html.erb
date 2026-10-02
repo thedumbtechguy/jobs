@@ -4,6 +4,10 @@
 <% content_for :description, [job.type_label, job.location.presence, job.pay, job.timing].compact.join(" · ") %>
 <% poster_link = poster_path(job) %>
 <% content_for :noindex, true unless job.visible_to_everyone? %>
+<% if job.visible_to?(nil) %>
+  <% og_card OgCard::Job.new(job) %>
+  <% structured_data StructuredData::JobPosting.new(job, view: self).to_h %>
+<% end %>
 
 <div class="dc-container max-w-5xl py-10">
   <%= link_to "← All jobs & gigs", public_jobs_path, class: "text-sm font-semibold text-[#555] hover:text-[#111]" %>

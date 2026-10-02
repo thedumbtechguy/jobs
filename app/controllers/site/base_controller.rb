@@ -8,6 +8,7 @@ module Site
 
     helper PortalPathsHelper
     helper SiteHelper
+    helper SeoHelper
     layout "site"
 
     PER_PAGE = 24

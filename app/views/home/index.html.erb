@@ -1,3 +1,5 @@
+<% content_for :description, "Developers, jobs and the people behind them in the DevCongress community. Find developers, post jobs and gigs, and share what you've built." %>
+<% structured_data StructuredData::Site.new(view: self).to_h %>
 <% signed_in = current_user.present? %>
 <% join_path = signed_in ? "/dashboard" : rodauth(:user).create_account_path %>
 <% roles = ["Backend Engineer", "Frontend Developer", "Mobile Developer", "Product Designer", "Data Scientist", "DevOps Engineer", "Tech Lead", "QA Engineer", "Founder", "Product Manager", "ML Engineer", "Security Engineer"] %>
