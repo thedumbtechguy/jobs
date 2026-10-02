@@ -57,7 +57,26 @@ class UserRodauthPlugin < RodauthPlugin
       def social_profile_info
         omniauth_info.to_h.slice("name", "nickname", "image", "urls")
       end
+
+      def send_welcome_email
+        db.after_commit { Rodauth::UserMailer.welcome(self.class.configuration_name, account_id).deliver_later }
+      end
+
+      private
+
+      def omniauth_verify_account
+        transaction do
+          super
+          send_welcome_email
+        end
+      end
     end
+
+    # Welcome users once their email is confirmed: by the verify link, by
+    # social sign-in creating the account (created verified), or by social
+    # sign-in verifying an existing unverified account with the same email.
+    after_verify_account { send_welcome_email }
+    after_omniauth_create_account { send_welcome_email }
 
     # ==> General
 

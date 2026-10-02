@@ -2,6 +2,7 @@ require "test_helper"
 
 class SocialSignInTest < ActionDispatch::IntegrationTest
   include AccountsTestHelper
+  include ActionMailer::TestHelper
 
   setup { OmniAuth.config.test_mode = true }
 
@@ -30,6 +31,7 @@ class SocialSignInTest < ActionDispatch::IntegrationTest
 
     user = User.find_by!(email: "octo@example.com")
     assert user.verified?
+    assert_enqueued_email_with Rodauth::UserMailer, :welcome, args: [:user, user.id]
     assert_equal %w[github 42], [user.identities.sole.provider, user.identities.sole.uid]
 
     follow_redirect! while response.redirect?
@@ -47,9 +49,19 @@ class SocialSignInTest < ActionDispatch::IntegrationTest
     mock(:google, uid: "g-1", email: "ada@example.com", info: {name: "Ada"}, extra: {raw_info: {email_verified: true}})
 
     assert_no_difference -> { User.count } do
-      sign_in_with(:google)
+      assert_no_enqueued_emails { sign_in_with(:google) }
     end
     assert_equal user.id, User::Identity.find_by!(provider: "google", uid: "g-1").user_id
+  end
+
+  test "social sign-in that verifies an unverified account welcomes the user" do
+    user = User.create!(email: "grace@example.com", status: :unverified)
+    mock(:github, uid: "7", email: "grace@example.com")
+
+    sign_in_with(:github)
+
+    assert user.reload.verified?
+    assert_enqueued_email_with Rodauth::UserMailer, :welcome, args: [:user, user.id]
   end
 
   test "an unverified Google email is refused" do
