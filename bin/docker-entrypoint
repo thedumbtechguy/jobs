@@ -2,6 +2,14 @@
 
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
+  # Cold start: pull the primary database back from the Litestream replica
+  # before db:prepare would create an empty one over it. Guarded on the file so
+  # ordinary deploys don't pay for the extra Rails boot. -if-replica-exists
+  # makes the very first deploy, with nothing replicated yet, a no-op.
+  if [ ! -f /rails/storage/production.sqlite3 ]; then
+    ./bin/rails litestream:restore -- -if-db-not-exists -if-replica-exists -database=/rails/storage/production.sqlite3
+  fi
+
   ./bin/rails db:prepare
 fi
 

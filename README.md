@@ -70,26 +70,40 @@ use your development records.
 
 ## Deploy
 
-Kamal, configured in `config/deploy.yml`. All configuration comes from
-environment variables; Rails credentials are not used. Export these on the
-machine that runs `kamal deploy`; `.kamal/secrets` passes the secret ones through.
+Kamal, configured in `config/deploy.yml`, to the shared Hetzner box
+(95.216.244.221) at <https://connect.devcongress.org>. Rails credentials are not
+used. Deploy with `bin/deploy`, not `bin/kamal deploy`: it loads
+`.env.production`, checks nothing required is missing, then builds and rolls out.
+
+```sh
+cp .env.production.template .env.production   # once, then fill it in
+bin/deploy
+```
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `DEPLOY_HOST` | yes | Server to deploy to |
-| `APP_HOST` | yes | Public hostname, for TLS and `RAILS_DEFAULT_URL` |
+| `KAMAL_REGISTRY_PASSWORD` | yes | ghcr.io token for `devcongress/connect` |
 | `SECRET_KEY_BASE` | yes | `bin/rails secret` |
 | `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY` | yes | From `bin/rails db:encryption:init`. Encrypts invite tokens |
 | `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY` | yes | As above |
 | `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` | yes | As above |
-| `SMTP_ADDRESS`, `SMTP_USERNAME`, `SMTP_PASSWORD` | yes | Outgoing mail (`SMTP_PORT` defaults to 587) |
-| `MAIL_FROM` | yes | Sender for app emails, e.g. `DevCongress Connect <no-reply@devcongress.org>` |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | no | "Continue with Google". Callback: `https://<APP_HOST>/users/auth/google/callback` |
-| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | no | "Continue with GitHub". Callback: `https://<APP_HOST>/users/auth/github/callback` |
+| `RESEND_API_KEY` | yes | Outgoing mail through Resend. `devcongress.org` must be verified there |
 | `LITESTREAM_REPLICA_BUCKET`, `LITESTREAM_ACCESS_KEY_ID`, `LITESTREAM_SECRET_ACCESS_KEY` | yes | Litestream S3 replica |
+| `LITESTREAM_REPLICA_REGION` | unless us-east-1 | Bucket region |
+| `LITESTREAM_REPLICA_ENDPOINT` | no | For S3-compatible stores that aren't AWS |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | no | "Continue with Google". Callback: `https://connect.devcongress.org/users/auth/google/callback` |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | no | "Continue with GitHub". Callback: `https://connect.devcongress.org/users/auth/github/callback` |
 
-The app refuses to boot in production if a required variable is missing; the
-list lives in `config/initializers/001_ensure_required_env.rb`.
+The host, URL and mail sender are fixed in `config/deploy.yml`. The app refuses
+to boot in production if a required variable is missing; the list lives in
+`config/initializers/001_ensure_required_env.rb`.
+
+Three roles run on the one host and share `/storage/devcongress_connect`: `web`,
+`job` (Solid Queue) and `litestream`. Litestream replicates only the primary
+database to `devcongress_connect/production.sqlite3` in the bucket; queue, cache, cable,
+errors and Rails Pulse are reconstructible. On a cold start (no database on the
+volume) `bin/docker-entrypoint` restores from the replica before `db:prepare`.
+Uploads (`storage/uploads`) are not replicated.
 
 ## Working with Claude
 
