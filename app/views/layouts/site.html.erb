@@ -6,6 +6,19 @@
     <meta name="application-name" content="DevCongress Connect">
     <% if content_for?(:description) %><meta name="description" content="<%= content_for(:description) %>"><% end %>
     <% if content_for?(:noindex) %><meta name="robots" content="noindex"><% end %>
+    <link rel="canonical" href="<%= canonical_url %>">
+    <meta property="og:site_name" content="<%= SeoHelper::SITE_NAME %>">
+    <meta property="og:title" content="<%= content_for(:title).presence || SeoHelper::SITE_NAME %>">
+    <% if content_for?(:description) %><meta property="og:description" content="<%= content_for(:description) %>"><% end %>
+    <meta property="og:url" content="<%= canonical_url %>">
+    <meta property="og:type" content="<%= content_for(:og_type).presence || "website" %>">
+    <meta property="og:image" content="<%= content_for(:og_image).presence || og_image_url(OgCard::Site.new) %>">
+    <meta property="og:image:width" content="<%= OgCard::Base::WIDTH %>">
+    <meta property="og:image:height" content="<%= OgCard::Base::HEIGHT %>">
+    <meta property="og:image:alt" content="<%= content_for(:title).presence || SeoHelper::SITE_NAME %>">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@devcongress">
+    <% if content_for?(:structured_data) %><script type="application/ld+json"><%= content_for(:structured_data) %></script><% end %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <link rel="icon" href="/icon.png" type="image/png">

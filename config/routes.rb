@@ -15,6 +15,16 @@ Rails.application.routes.draw do
   get "files/:token", to: "private_files#show", as: :private_file
 
   # Public site: developer directory, profiles, jobs and companies.
+  # Link-preview images and the sitemap for the public site.
+  scope "og", controller: :og_images, format: false do
+    get "site.png", action: :site, as: :og_site_image
+    get "devs/:handle.png", action: :developer, as: :og_developer_image, constraints: {handle: /[A-Za-z0-9_-]+/}
+    get "companies/:slug.png", action: :company, as: :og_company_image, constraints: {slug: /[a-z0-9-]+/}
+    get "jobs/:id.png", action: :job, as: :og_job_image, constraints: {id: /\d+/}
+    get "projects/:slug.png", action: :project, as: :og_project_image, constraints: {slug: /[a-z0-9-]+/}
+  end
+  get "sitemap.xml", to: "sitemaps#show", as: :sitemap, format: false, defaults: {format: :xml}
+
   scope module: :site do
     get "devs", to: "developers#index", as: :developers_directory
     get "@:handle", to: "developers#show", as: :developer_page, constraints: {handle: /[A-Za-z0-9_-]+/}

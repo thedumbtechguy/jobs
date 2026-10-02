@@ -7,6 +7,12 @@ module World
     @country_names ||= ISO3166::Country.all.map(&:common_name).sort.freeze
   end
 
+  # "Ghana" -> "GH", for structured data that wants ISO 3166 codes.
+  def self.country_code(name)
+    @country_codes ||= ISO3166::Country.all.to_h { |country| [country.common_name, country.alpha2] }.freeze
+    @country_codes[name]
+  end
+
   # The common ones first, then every other ISO 4217 code in use.
   def self.currency_codes
     @currency_codes ||= (COMMON_CURRENCIES + ISO3166::Country.all.filter_map(&:currency_code).uniq.sort).uniq.freeze

@@ -8,10 +8,23 @@ class InitialsAvatar < Plutonium::UI::Component::Base
     xl: "h-20 w-20 text-2xl"
   }.freeze
 
-  COLORS = %w[
-    bg-primary-600 bg-sky-600 bg-emerald-600 bg-amber-600
-    bg-rose-600 bg-violet-600 bg-teal-600 bg-fuchsia-600
-  ].freeze
+  # Tailwind class and its hex value, for places without Tailwind (OG cards).
+  PALETTE = {
+    "bg-primary-600" => "#D10F72", "bg-sky-600" => "#0284C7", "bg-emerald-600" => "#059669", "bg-amber-600" => "#D97706",
+    "bg-rose-600" => "#E11D48", "bg-violet-600" => "#7C3AED", "bg-teal-600" => "#0D9488", "bg-fuchsia-600" => "#C026D3"
+  }.freeze
+  COLORS = PALETTE.keys.freeze
+
+  def self.initials_for(name)
+    name = name.to_s
+    words = name.split(/\s+/).reject(&:blank?)
+    letters = (words.size > 1) ? words.first(2).map { |w| w[0] } : name.first(2).chars
+    letters.join.upcase.presence || "?"
+  end
+
+  def self.color_for(seed) = COLORS[Zlib.crc32(seed.to_s) % COLORS.size]
+
+  def self.hex_for(seed) = PALETTE.fetch(color_for(seed))
 
   def initialize(name:, seed: name, size: :md, shape: :circle, **attributes)
     @name = name.to_s
@@ -37,13 +50,7 @@ class InitialsAvatar < Plutonium::UI::Component::Base
 
   private
 
-  def initials
-    words = @name.split(/\s+/).reject(&:blank?)
-    letters = (words.size > 1) ? words.first(2).map { |w| w[0] } : @name.first(2).chars
-    letters.join.upcase.presence || "?"
-  end
+  def initials = self.class.initials_for(@name)
 
-  def color
-    COLORS[Zlib.crc32(@seed) % COLORS.size]
-  end
+  def color = self.class.color_for(@seed)
 end
