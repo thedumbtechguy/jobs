@@ -40,6 +40,12 @@ class RodauthMailer < ApplicationMailer
     mail subject: "Unlock your #{product_name} account"
   end
 
+  def welcome(name, account_id)
+    setup(name, account_id)
+    @url = absolute_url("/onboarding")
+    mail subject: "Welcome to #{product_name}"
+  end
+
   private
 
   def setup(name, account_id, &block)

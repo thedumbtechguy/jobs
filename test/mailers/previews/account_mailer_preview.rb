@@ -11,6 +11,8 @@ class AccountMailerPreview < ActionMailer::Preview
 
   def reset_password_notify = Rodauth::UserMailer.reset_password_notify(:user, user.id)
 
+  def welcome = Rodauth::UserMailer.welcome(:user, user.id)
+
   def admin_verify_account = Rodauth::AdminMailer.verify_account(:admin, admin.id, "preview-key")
 
   def admin_unlock_account = Rodauth::AdminMailer.unlock_account(:admin, admin.id, "preview-key")
