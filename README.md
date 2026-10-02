@@ -71,9 +71,10 @@ use your development records.
 ## Deploy
 
 Kamal, configured in `config/deploy.yml`, to the shared Hetzner box
-(95.216.244.221) at <https://connect.devcongress.org>. Rails credentials are not
-used. Deploy with `bin/deploy`, not `bin/kamal deploy`: it loads
-`.env.production`, checks nothing required is missing, then builds and rolls out.
+(95.216.244.221) at <https://connect.devcongress.org>. Rails credentials hold only
+`secret_key_base`; everything else is an environment variable. Deploy with
+`bin/deploy`, not `bin/kamal deploy`: it loads `.env.production` and
+`config/master.key`, checks nothing required is missing, then builds and rolls out.
 
 ```sh
 cp .env.production.template .env.production   # once, then fill it in
@@ -83,14 +84,13 @@ bin/deploy
 | Variable | Required | Purpose |
 |---|---|---|
 | `KAMAL_REGISTRY_PASSWORD` | yes | ghcr.io token for `devcongress/connect` |
-| `SECRET_KEY_BASE` | yes | `bin/rails secret` |
+| `RAILS_MASTER_KEY` | yes | Decrypts `config/credentials.yml.enc`, which holds only `secret_key_base`. Read from `config/master.key` (gitignored) |
 | `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY` | yes | From `bin/rails db:encryption:init`. Encrypts invite tokens |
 | `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY` | yes | As above |
 | `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` | yes | As above |
 | `RESEND_API_KEY` | yes | Outgoing mail through Resend. `devcongress.org` must be verified there |
 | `LITESTREAM_REPLICA_BUCKET`, `LITESTREAM_ACCESS_KEY_ID`, `LITESTREAM_SECRET_ACCESS_KEY` | yes | Litestream S3 replica |
-| `LITESTREAM_REPLICA_REGION` | unless us-east-1 | Bucket region |
-| `LITESTREAM_REPLICA_ENDPOINT` | no | For S3-compatible stores that aren't AWS |
+| `LITESTREAM_REPLICA_REGION`, `LITESTREAM_REPLICA_ENDPOINT` | yes | Backblaze B2 region and S3 endpoint, e.g. `eu-central-003` and `https://s3.eu-central-003.backblazeb2.com` |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | no | "Continue with Google". Callback: `https://connect.devcongress.org/users/auth/google/callback` |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | no | "Continue with GitHub". Callback: `https://connect.devcongress.org/users/auth/github/callback` |
 
@@ -101,9 +101,17 @@ to boot in production if a required variable is missing; the list lives in
 Three roles run on the one host and share `/storage/devcongress_connect`: `web`,
 `job` (Solid Queue) and `litestream`. Litestream replicates only the primary
 database to `devcongress_connect/production.sqlite3` in the bucket; queue, cache, cable,
-errors and Rails Pulse are reconstructible. On a cold start (no database on the
-volume) `bin/docker-entrypoint` restores from the replica before `db:prepare`.
-Uploads (`storage/uploads`) are not replicated.
+errors and Rails Pulse are reconstructible. Uploads (`storage/uploads`) are not
+replicated.
+
+`.kamal/hooks/pre-deploy` runs once per deploy, before the new version boots:
+it checks the server's secrets file, restores any database missing from the
+volume (`bin/rails litestream:restore_missing`), then runs `db:prepare` and the
+idempotent `db:seed`. It is
+the only place migrations run, so `--skip-hooks` deploys none.
+
+The very first deploy has no secrets file on the server for the hook to use,
+so it takes two runs: `bin/deploy --skip-hooks`, then `bin/deploy`.
 
 ## Working with Claude
 

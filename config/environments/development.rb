@@ -83,4 +83,6 @@ Rails.application.configure do
   config.active_record.encryption.primary_key = "dev-primary-key-not-secret-000000"
   config.active_record.encryption.deterministic_key = "dev-deterministic-key-not-secret-0"
   config.active_record.encryption.key_derivation_salt = "dev-key-derivation-salt-not-secret"
+
+  config.hosts << "bitremit.me"
 end
