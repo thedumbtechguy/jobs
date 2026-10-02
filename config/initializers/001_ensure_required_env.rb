@@ -10,7 +10,6 @@ required_env_vars = %w[
 
 if Rails.env.production?
   required_env_vars += %w[
-    SECRET_KEY_BASE
     ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY
     ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY
     ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT
@@ -21,9 +20,13 @@ if Rails.env.production?
     RESEND_API_KEY
   ]
 
-  # Backups: the Litestream accessory replicates the SQLite files to this bucket.
+  # Backups: the litestream role replicates the primary database to this
+  # Backblaze B2 bucket. Region and endpoint too: without them Litestream
+  # targets AWS and the restore in .kamal/hooks/pre-deploy fails.
   required_env_vars += %w[
     LITESTREAM_REPLICA_BUCKET
+    LITESTREAM_REPLICA_REGION
+    LITESTREAM_REPLICA_ENDPOINT
     LITESTREAM_ACCESS_KEY_ID
     LITESTREAM_SECRET_ACCESS_KEY
   ]

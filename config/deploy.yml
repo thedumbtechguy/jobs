@@ -6,9 +6,13 @@ service: devcongress_connect
 # Name of the container image.
 image: radioactive-labs/devcongress_connect
 
-# A cold start restores the database from the Litestream replica and then runs
-# db:prepare before the server listens (bin/docker-entrypoint), which can outlast
-# the 30s default.
+# The job and litestream roles sit behind no proxy healthcheck, so Kamal calls
+# them booted once they have stayed up this long (default 7s). A worker that dies
+# while Rails is still loading has to fail the deploy, not slip past it.
+readiness_delay: 60
+
+# Headroom over the 30s default for an eager-loaded boot on a busy shared host.
+# Restore and db:prepare run before boot, in .kamal/hooks/pre-deploy.
 deploy_timeout: 60
 
 # Deploy to these servers. Every role shares the SQLite files on the storage
@@ -73,7 +77,7 @@ env:
     # Log everything from Rails
     # RAILS_LOG_LEVEL: debug
   secret:
-    - SECRET_KEY_BASE
+    - RAILS_MASTER_KEY
     - ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY
     - ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY
     - ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT

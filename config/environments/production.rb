@@ -3,6 +3,10 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  # secret_key_base lives in config/credentials.yml.enc; refuse to boot without
+  # the key that decrypts it (RAILS_MASTER_KEY in production).
+  config.require_master_key = true
+
   # Code is not reloaded between requests.
   config.enable_reloading = false
 
