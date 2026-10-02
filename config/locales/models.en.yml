@@ -17,6 +17,9 @@ en:
         one: Skill
         other: Skills
     attributes:
+      developers/profile:
+        experiences: Experience
+        profile_skills: Skills
       hiring/job_post:
         employment_type: Type
         pay_period: Pay is
