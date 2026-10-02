@@ -153,9 +153,11 @@
       <div class="pu-card-body space-y-4">
         <div class="flex items-center justify-between">
           <h2 class="font-semibold text-[var(--pu-text)]">Team</h2>
-          <a href="<%= resource_url_for(Invites::CompanyUserInvite, parent: nil, action: :new) %>" class="pu-btn pu-btn-sm pu-btn-outline">
-            <%= render Phlex::TablerIcons::UserPlus.new(class: "mr-1 h-4 w-4") %> Invite
-          </a>
+          <% if allowed_to?(:invite_user?, company) %>
+            <a href="<%= resource_url_for(company, parent: nil, interaction: :invite_user) %>" class="pu-btn pu-btn-sm pu-btn-outline">
+              <%= render Phlex::TablerIcons::UserPlus.new(class: "mr-1 h-4 w-4") %> Invite
+            </a>
+          <% end %>
         </div>
         <ul class="divide-y divide-[var(--pu-border-muted)]">
           <% memberships.each do |membership| %>
