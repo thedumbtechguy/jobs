@@ -170,9 +170,9 @@
         <h2 class="dc-heading dc-h2">More builders</h2>
         <%= link_to "All developers →", developers_directory_path, class: "dc-link" %>
       </div>
-      <% if @developers.size > 3 %>
+      <% if @more_developers.any? %>
         <div class="mt-10 space-y-4">
-          <% @developers.drop(3).each do |developer| %>
+          <% @more_developers.each do |developer| %>
             <%= render "home/developer_card", developer: %>
           <% end %>
         </div>
