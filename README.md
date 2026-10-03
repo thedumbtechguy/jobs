@@ -1,88 +1,130 @@
-[![Build Status](https://travis-ci.org/devcongress/jobs.svg?branch=master)](https://travis-ci.org/devcongress/jobs)
-[![View performance data on Skylight](https://badges.skylight.io/problem/H0Z1ot94WfYy.svg?token=aEuput--iL0JhxpDYjv25vjvdh3cZcO4gb5gPYZIDKg)](https://www.skylight.io/app/applications/H0Z1ot94WfYy)
-[![View performance data on Skylight](https://badges.skylight.io/typical/H0Z1ot94WfYy.svg?token=aEuput--iL0JhxpDYjv25vjvdh3cZcO4gb5gPYZIDKg)](https://www.skylight.io/app/applications/H0Z1ot94WfYy)
-[![View performance data on Skylight](https://badges.skylight.io/rpm/H0Z1ot94WfYy.svg?token=aEuput--iL0JhxpDYjv25vjvdh3cZcO4gb5gPYZIDKg)](https://www.skylight.io/app/applications/H0Z1ot94WfYy)
-[![View performance data on Skylight](https://badges.skylight.io/status/H0Z1ot94WfYy.svg?token=aEuput--iL0JhxpDYjv25vjvdh3cZcO4gb5gPYZIDKg)](https://www.skylight.io/app/applications/H0Z1ot94WfYy)
+# DevCongress Connect
 
-# DevCongress Jobs
+A catalogue of our developers, what they've built, who they know, and where
+they can work next. It grew out of the DevCongress Jobs app.
 
-This is the code which runs the DevCongress Jobs website, which lives at [jobs.devcongress.org](http://jobs.devcongress.org)
+Built on [Plutonium](https://github.com/radioactive-labs/plutonium-core),
+Rails 8.1 and SQLite, and deployed with Kamal. See [docs/DESIGN.md](docs/DESIGN.md)
+for the domain model and roadmap.
 
-## Docker setup
+## Requirements
 
-### Requirements
+- Ruby 3.3+ (see `.ruby-version`)
+- Node 22.22.3+ or 24.15+, and Yarn 1.x
 
-[Install Docker and Docker Compose](https://docs.docker.com/v17.09/engine/installation/#supported-platforms) (Docker Compose comes with Docker on Windows and MacOS)
+## Setup
 
-### Build
+```sh
+bin/setup      # installs gems and JS packages, prepares the databases
+bin/dev        # web server plus JS/CSS watchers, at http://localhost:3000
+bin/rails test
+bundle exec standardrb
+```
 
-On first install, you will need to run a build to setup any dependencies and get you started.
+## Where things are
 
-Any application code changes are automatically reloaded, however, changes to certain files e.g. [Dockerfile](./Dockerfile) require a build.
+| Path | What |
+|---|---|
+| `/` | Public pages (main app) |
+| `/users/login`, `/users/create-account` | User accounts |
+| `/onboarding` | First step after signup: creates a developer profile, a company, or both |
+| `/setup/developer/new`, `/setup/company/new` | Create whichever was skipped, or another company |
+| `/dashboard` | Signed-in user's home (`packages/dashboard_portal`) |
+| `/developer/:handle` | Developer portal, scoped to the user's own profile (`packages/developer_portal`); models in `packages/developers` |
+| `/company/:slug` | Company portal, scoped to one company (`packages/company_portal`) |
+| `/admins/login`, `/admin` | Admin accounts (TOTP available, not yet enforced) and admin portal (`packages/admin_portal`) |
+| `/devs`, `/@handle` | Public developer directory and profile pages |
+| `/jobs`, `/jobs/:id`, `/companies/:slug` | Public jobs board, job and company pages |
+| `/projects`, `/projects/:slug` | Public projects and project pages (`packages/showcase`) |
+| `/developer/:handle/network` | Connections, followers, following and people you may know (`packages/network`) |
+| `/manage/*` | Jobs, errors, Litestream and performance dashboards (admins only) |
 
-#### Linux/Mac
+Admins can't sign up. Create the first one with:
 
-- `./scripts/build.sh`
+```sh
+EMAIL=you@example.com bin/rails rodauth:admin
+```
 
-#### Others
+In development, emails open in the browser through letter_opener.
 
-- `docker-compose build --no-cache`: rebuild containers
-- `docker-compose run --rm web bundle exec rails db:migrate db:seed`: apply migrations and seed the database
+## Emails
 
-### Run
+Every email uses the branded layout in `app/views/layouts/mailer.{html,text}.erb`
+and the building blocks in `app/helpers/email_helper.rb` (inline styles only,
+since mail clients drop stylesheets). Preview them all at
+<http://localhost:3000/rails/mailers>; the previews in `test/mailers/previews`
+use your development records.
 
-#### Linux/Mac
+| Email | Sent to | When |
+|---|---|---|
+| Confirm email, reset password, confirm new email, password changed/reset | The account | Account activity (Rodauth, `app/views/rodauth_mailer`) |
+| Unlock account | Admin | Too many failed admin sign-ins |
+| Review needed | All admins | A company or individual publishes their first post |
+| Post live / changes needed | The poster | An admin approves or declines that post |
+| New applicant | Company members | Someone applies in the app |
+| Application update | Applicant | Status moves to reviewing, shortlisted, rejected or hired, with the team's optional message |
+| Company invite | Invitee | A member invites someone |
+| New follower / you're connected | The person followed | Someone follows them (at most once a week per pair) |
+| Credited on a project | Contributor | A project's owner adds them; they confirm or decline |
+| Credit confirmed | Project owner | A contributor confirms |
 
-- `./scripts/start.sh`
+## Deploy
 
-#### Others
+Kamal, configured in `config/deploy.yml`, to the shared Hetzner box
+(95.216.244.221) at <https://connect.devcongress.org>. Rails credentials hold only
+`secret_key_base`; everything else is an environment variable. Deploy with
+`bin/deploy`, not `bin/kamal deploy`: it loads `.env.production` and
+`config/master.key`, checks nothing required is missing, then builds and rolls out.
 
-- `docker-compose up --build`: build and start containers
+```sh
+cp .env.production.template .env.production   # once, then fill it in
+bin/deploy
+```
 
-If you'd rather run it in the background,
+| Variable | Required | Purpose |
+|---|---|---|
+| `KAMAL_REGISTRY_PASSWORD` | yes | ghcr.io token for `devcongress/connect` |
+| `RAILS_MASTER_KEY` | yes | Decrypts `config/credentials.yml.enc`, which holds only `secret_key_base`. Read from `config/master.key` (gitignored) |
+| `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY` | yes | From `bin/rails db:encryption:init`. Encrypts invite tokens |
+| `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY` | yes | As above |
+| `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` | yes | As above |
+| `RESEND_API_KEY` | yes | Outgoing mail through Resend. `devcongress.org` must be verified there |
+| `LITESTREAM_REPLICA_BUCKET`, `LITESTREAM_ACCESS_KEY_ID`, `LITESTREAM_SECRET_ACCESS_KEY` | yes | Litestream S3 replica |
+| `LITESTREAM_REPLICA_REGION`, `LITESTREAM_REPLICA_ENDPOINT` | yes | Backblaze B2 region and S3 endpoint, e.g. `eu-central-003` and `https://s3.eu-central-003.backblazeb2.com` |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | no | "Continue with Google". Callback: `https://connect.devcongress.org/users/auth/google/callback` |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | no | "Continue with GitHub". Callback: `https://connect.devcongress.org/users/auth/github/callback` |
 
-- `docker-compose up --build -d`: build and start containers in detached mode
+The host, URL and mail sender are fixed in `config/deploy.yml`. The app refuses
+to boot in production if a required variable is missing; the list lives in
+`config/initializers/001_ensure_required_env.rb`.
 
-## Develop
+Three roles run on the one host and share `/storage/devcongress_connect`: `web`,
+`job` (Solid Queue) and `litestream`. Litestream replicates only the primary
+database to `devcongress_connect/production.sqlite3` in the bucket; queue, cache, cable,
+errors and Rails Pulse are reconstructible. Uploads (`storage/uploads`) are not
+replicated.
 
-The application runs at http://localhost:3000/
+`.kamal/hooks/pre-deploy` runs once per deploy, before the new version boots:
+it checks the server's secrets file, restores any database missing from the
+volume (`bin/rails litestream:restore_missing`), then runs `db:prepare` and the
+idempotent `db:seed`. It is
+the only place migrations run, so `--skip-hooks` deploys none.
 
-> You can login with the default user created during seeding
->
-> - email: test@example.com
-> - password: password1
+The very first deploy has no secrets file on the server for the hook to use,
+so it takes two runs: `bin/deploy --skip-hooks`, then `bin/deploy`.
 
-### Helpful Commands
+One-time server setup: the container runs as uid 1000, and Docker creates a
+missing bind-mount directory as root, so hand it to uid 1000 before the first
+deploy. Mode 700 keeps the databases unreadable to other accounts on the host,
+whatever mode SQLite gives the files inside:
 
-- `docker-compose stop`: stop the running containers.
-- `docker-compose start`: start stopped containers.
-- `docker-compose down`: stop and remove containers and networks. you will need to recreate them using `up`
+```sh
+sudo mkdir -p /storage/devcongress_connect
+sudo chown 1000:1000 /storage/devcongress_connect
+sudo chmod 700 /storage/devcongress_connect
+```
 
-> **NOTE**: all `docker-compose` commands should be run from the project directory
+## Working with Claude
 
-> **TIP**: To remove any persisted data, delete the [.volumes](./.volumes) directory.
-
-### Migrations
-
-- `docker-compose stop`: stop any running containers to prevent contention over database files
-- `docker-compose run --rm web bundle exec rails db:migrate`: apply migrations
-
-### Seeding
-
-- `docker-compose stop`: stop any running containers to prevent contention over database files
-- `docker-compose run --rm web bundle exec rails db:seed`: seed database
-
-## Testing
-
-- `docker-compose stop`: stop any running containers to prevent contention over database files
-- `docker-compose run --rm web bundle exec rails test`: run tests
-
-## Troubleshooting
-
-For consistency sake, be using the latest stable versions of `docker-compose` and `docker`
-
-**Linux**
-
-Scenario: `ERROR: Couldn't connect to Docker daemon at http+docker://localhost - is it running?`
-
-Solution: Run `sudo usermod -aG docker ${USER}`. [More details](https://medium.com/@ibrahimgunduz34/if-you-faced-an-issue-like-couldnt-connect-to-docker-daemon-at-http-docker-localunixsocket-is-27b35f17d09d)
+The Plutonium skills are synced into `.claude/skills`. Refresh them after
+upgrading the gem with `bin/rails g pu:skills:sync`.
