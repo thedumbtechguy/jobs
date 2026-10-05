@@ -23,6 +23,20 @@ class DeveloperPortalTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "the dashboard shows who can see the profile" do
+    get "/developer/ada"
+    assert_select "[data-visibility-banner=members]", /signed-in members only/
+    assert_select "[data-visibility-banner] a[href=?]", "/developer/ada/developers_profile/edit#developers_profile_#{@profile.id}_visibility"
+
+    @profile.update!(visibility: :hidden)
+    get "/developer/ada"
+    assert_select "[data-visibility-banner=hidden]", /Only you can see it/
+
+    @profile.update!(visibility: :everyone)
+    get "/developer/ada"
+    assert_select "[data-visibility-banner=everyone]", /public/
+  end
+
   test "cannot open someone else's profile portal" do
     get "/developer/grace"
     assert_includes [403, 404], response.status

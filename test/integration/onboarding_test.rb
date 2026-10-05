@@ -21,6 +21,28 @@ class OnboardingTest < ActionDispatch::IntegrationTest
     assert_select "input[name='onboarding[handle]'][value='grace-hopper']"
   end
 
+  test "asks who can see the profile, defaulting to public" do
+    login_user(@user)
+    assert_select "input[type=radio][name='onboarding[visibility]']", 3
+    assert_select "input[type=radio][name='onboarding[visibility]'][value=everyone][checked]"
+  end
+
+  test "creates the profile with the chosen visibility" do
+    login_user(@user)
+
+    post "/onboarding", params: {onboarding: {developer: "1", first_name: "Grace", handle: "grace", visibility: "members", hiring: "0"}}
+
+    assert_predicate @user.reload.developer_profile, :visible_to_members?
+  end
+
+  test "profiles are public when no visibility is given" do
+    login_user(@user)
+
+    post "/onboarding", params: {onboarding: {developer: "1", first_name: "Grace", handle: "grace", hiring: "0"}}
+
+    assert_predicate @user.reload.developer_profile, :visible_to_everyone?
+  end
+
   test "creates just a developer profile" do
     login_user(@user)
 
@@ -104,9 +126,11 @@ class OnboardingTest < ActionDispatch::IntegrationTest
 
     get "/setup/developer/new"
     assert_response :success
+    assert_select "input[type=radio][name='developers_profile[visibility]'][value=everyone][checked]"
 
-    post "/setup/developer", params: {developers_profile: {first_name: "Grace", other_names: "Hopper", handle: "grace"}}
+    post "/setup/developer", params: {developers_profile: {first_name: "Grace", other_names: "Hopper", handle: "grace", visibility: "hidden"}}
     assert_redirected_to "/developer/grace"
+    assert_predicate @user.reload.developer_profile, :visible_to_hidden?
 
     get "/setup/developer/new"
     assert_redirected_to "/developer/grace"
