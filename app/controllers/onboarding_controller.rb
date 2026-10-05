@@ -36,7 +36,7 @@ class OnboardingController < ApplicationController
 
   def onboarding_params
     params.require(:onboarding)
-      .permit(:developer, :first_name, :other_names, :handle, :headline, :country, :city,
+      .permit(:developer, :first_name, :other_names, :handle, :headline, :country, :city, :visibility,
         :hiring, :company_name, :company_website, :company_country, :company_city)
       .to_h.symbolize_keys
   end

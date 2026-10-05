@@ -121,6 +121,7 @@ class Developers::Profile < Developers::ResourceRecord
   validates :remote_ok, inclusion: {in: [true, false]}
   validates :open_to_relocation, inclusion: {in: [true, false]}
   validates :availability, presence: true
+  validates :visibility, presence: true
   validates :contact_visibility, presence: true
   # add validations above.
 

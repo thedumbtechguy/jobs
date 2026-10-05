@@ -6,7 +6,7 @@ class DeveloperProfileSetupsController < ::PlutoniumController
   before_action :redirect_if_profile_exists
 
   def new
-    @profile = current_user.build_developer_profile(handle: Onboarding.new(user: current_user).handle)
+    @profile = current_user.build_developer_profile(handle: Onboarding.new(user: current_user).handle, visibility: :everyone)
   end
 
   def create
@@ -26,6 +26,6 @@ class DeveloperProfileSetupsController < ::PlutoniumController
   end
 
   def profile_params
-    params.require(:developers_profile).permit(:first_name, :other_names, :handle, :headline, :country, :city)
+    params.require(:developers_profile).permit(:first_name, :other_names, :handle, :headline, :country, :city, :visibility)
   end
 end

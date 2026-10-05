@@ -13,6 +13,7 @@ class Onboarding
   attribute :city, :string
   attribute :country, :string
   attribute :github_url, :string
+  attribute :visibility, :string, default: "everyone"
 
   attribute :hiring, :boolean, default: false
   attribute :company_name, :string
@@ -32,7 +33,7 @@ class Onboarding
   end
 
   def save
-    @profile = user.build_developer_profile(first_name:, other_names:, handle:, headline:, city:, country:, github_url:) if developer
+    @profile = user.build_developer_profile(first_name:, other_names:, handle:, headline:, city:, country:, github_url:, visibility:) if developer
     @company = Company.new(name: company_name, website: company_website, country: company_country, city: company_city) if hiring
 
     return false unless valid? & records_valid?
