@@ -17,6 +17,9 @@
 # bucket names.
 #
 # For more details, see: https://litestream.io/reference/config/
+# Each replica keeps seven days of history, so the database can be restored to
+# any moment in the last week, with a snapshot a day so a restore replays at
+# most a day of changes.
 dbs:
   - path: /rails/storage/production.sqlite3
     replicas:
@@ -28,3 +31,5 @@ dbs:
         force-path-style: true
         access-key-id: $LITESTREAM_ACCESS_KEY_ID
         secret-access-key: $LITESTREAM_SECRET_ACCESS_KEY
+        retention: 168h
+        snapshot-interval: 24h
