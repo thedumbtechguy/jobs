@@ -63,7 +63,7 @@ builder:
 env:
   clear:
     RAILS_DEFAULT_URL: "https://connect.devcongress.org"
-    MAIL_FROM: "DevCongress Connect <connect@updates.devcongress.org>"
+    MAIL_FROM: "DevCongress Connect <no-reply@connect.devcongress.org>"
 
     LITESTREAM_REPLICA_BUCKET: "<%= ENV["LITESTREAM_REPLICA_BUCKET"] %>"
     LITESTREAM_REPLICA_REGION: "<%= ENV["LITESTREAM_REPLICA_REGION"] %>"
