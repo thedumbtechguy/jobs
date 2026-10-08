@@ -22,7 +22,7 @@
         <% if Slack.invite_url %>
           <%= link_to "Join Slack", Slack.invite_url, target: "_blank", rel: "noopener", class: "pu-btn pu-btn-sm pu-btn-outline" %>
         <% end %>
-        <% if rodauth(:user).omniauth_providers.include?(:slack) %>
+        <% if slack_sign_in? %>
           <%= button_to "Connect Slack", rodauth(:user).omniauth_request_path(:slack), method: :post, data: {turbo: false}, class: "pu-btn pu-btn-sm pu-btn-primary" %>
         <% end %>
       <% end %>

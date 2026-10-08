@@ -12,6 +12,7 @@ module DashboardPortal
 
       included do
         helper PortalPathsHelper
+        helper SlackHelper
       end
     end
   end
