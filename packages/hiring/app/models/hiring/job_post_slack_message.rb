@@ -11,9 +11,9 @@ module Hiring
 
     def text
       if @closed_as
-        "#{CLOSED_LABELS.fetch(@closed_as)}: #{@job.title} at #{@job.poster_name}"
+        "#{CLOSED_LABELS.fetch(@closed_as)}: #{Slack.escape(@job.title)} at #{Slack.escape(@job.poster_name)}"
       else
-        "New #{@job.kind_noun} at #{@job.poster_name}: #{@job.title}"
+        "New #{@job.kind_noun} at #{Slack.escape(@job.poster_name)}: #{Slack.escape(@job.title)}"
       end
     end
 
