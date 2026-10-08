@@ -11,6 +11,7 @@ module Hiring
     discard_on Slack::Error do |job, error|
       Rails.logger.error { "#jobs sync for job post #{job.arguments.first.id} failed: #{error.code}" }
     end
+    # rescue_from RateLimited must come after discard_on Slack::Error so it takes precedence.
     rescue_from(Slack::RateLimited) { |error| retry_job(wait: error.retry_after.seconds) }
     retry_on(*Slack::NETWORK_ERRORS, wait: :polynomially_longer, attempts: 5)
 
@@ -30,14 +31,18 @@ module Hiring
     def post_message
       message = JobPostSlackMessage.new(@job)
       ts = client.post_message(channel:, text: message.text, blocks: message.blocks).fetch("ts")
-      @job.update_columns(slack_message_ts: ts, slack_message_url: client.permalink(channel:, ts:), slack_posted_status: "active")
+      # Save the ts first so a permalink failure and retry can't post twice.
+      @job.update_columns(slack_message_ts: ts, slack_posted_status: "active")
+      @job.update_columns(slack_message_url: client.permalink(channel:, ts:))
     end
 
     def update_message
       edit(JobPostSlackMessage.new(@job))
+      @job.update_columns(slack_message_url: client.permalink(channel:, ts: @job.slack_message_ts)) if @job.slack_message_url.blank? && @job.slack_message_ts
     end
 
     def close_message(closed_as)
+      # edit returns false when the message was gone, so the status isn't written.
       edit(JobPostSlackMessage.new(@job, closed_as:)) && @job.update_columns(slack_posted_status: closed_as)
     end
 

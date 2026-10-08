@@ -50,6 +50,11 @@ class SlackClientTest < ActiveSupport::TestCase
     assert_equal 30, error.retry_after
   end
 
+  test "a 5xx with an HTML body raises Unavailable" do
+    client = client_returning(code: "503", body: "<html>Service Unavailable</html>")
+    assert_raises(Slack::Unavailable) { client.post_message(channel: "C1", text: "Hi") }
+  end
+
   test "configuration" do
     Slack.client = nil
     Slack.jobs_channel = nil
