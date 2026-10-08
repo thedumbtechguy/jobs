@@ -270,18 +270,18 @@ a change made after enqueueing still applies. It discards the DM when a
 record no longer exists (`ActiveJob::DeserializationError`). Otherwise it calls
 `chat.postMessage(channel: identity.uid, text:, blocks:)`.
 
-| DM class                              | Mirrors                         | Recipient |
-|---------------------------------------|---------------------------------|-----------|
-| `Network::FollowedDm`                 | `FollowMailer#followed`         | followee |
-| `Hiring::ApplicationReceivedDm`       | `JobApplicationMailer#received` | each verified company user |
-| `Hiring::ApplicationStatusChangedDm`  | `#status_changed`               | applicant (including the optional message) |
-| `Showcase::CreditInvitedDm`           | `ContributorMailer#invited`     | credited profile's user |
-| `Showcase::CreditConfirmedDm`         | `ContributorMailer#confirmed`   | project owner |
+| DM class                              | Mirrors                         | Recipient | Button |
+|---------------------------------------|---------------------------------|-----------|--------|
+| `Network::FollowedDm`                 | `FollowMailer#followed`         | followee | "View <first name>'s profile" |
+| `Hiring::ApplicationReceivedDm`       | `JobApplicationMailer#received` | each verified company user | "Review application" |
+| `Hiring::ApplicationStatusChangedDm`  | `#status_changed`               | applicant (including the optional message) | "View your application", or "Browse open jobs" when rejected |
+| `Showcase::CreditInvitedDm`           | `ContributorMailer#invited`     | credited profile's user | "Confirm or decline" |
+| `Showcase::CreditConfirmedDm`         | `ContributorMailer#confirmed`   | project owner | "View the project" |
 
 Each call site that enqueues the mailer also enqueues the matching DM.
 
-Each DM has a short headline, one or two lines of context, a button (View
-application / View profile / View project), and a context block: "Turn off
+Each DM has a short headline, one or two lines of context, a button (see
+the table above), and a context block: "Turn off
 Slack DMs for <label> · Notification settings". The first link is a
 Slack-channel unsubscribe link.
 
