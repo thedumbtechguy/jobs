@@ -16,12 +16,12 @@ module Showcase
     def invited
       @confirm_url = absolute_url(developer_portal_credit_path(@profile, @contributor))
       @owner_url = absolute_url(Rails.application.routes.url_helpers.developer_page_path(handle: @owner.handle))
-      mail to: @profile.user.email, subject: "#{@owner.name} credited you on #{@project.title}"
+      categorized_mail :project_credits, to: @profile.user, subject: "#{@owner.name} credited you on #{@project.title}"
     end
 
     def confirmed
       @project_url = absolute_url(developer_portal_project_path(@owner, @project))
-      mail to: @owner.user.email, subject: "#{@profile.name} confirmed they worked on #{@project.title}"
+      categorized_mail :project_credits, to: @owner.user, subject: "#{@profile.name} confirmed they worked on #{@project.title}"
     end
   end
 end

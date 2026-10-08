@@ -18,6 +18,10 @@ module PortalPathsHelper
     PortalPathsHelper.routes.dashboard_portal.root_path
   end
 
+  def email_settings_dashboard_path
+    PortalPathsHelper.routes.dashboard_portal.email_settings_path
+  end
+
   def developer_portal_home_path(profile)
     PortalPathsHelper.routes.developer_portal.developers_profile_scoped_root_path(developers_profile_scoped: profile)
   end

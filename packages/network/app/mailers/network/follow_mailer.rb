@@ -15,7 +15,7 @@ module Network
       @network_url = absolute_url(developer_portal_network_path(@followee, tab: @connected ? "connections" : "followers"))
 
       subject = @connected ? "You're now connected with #{@follower.name}" : "#{@follower.name} followed you on DevCongress Connect"
-      mail to: @followee.user.email, subject:
+      categorized_mail :network, to: @followee.user, subject:
     end
   end
 end

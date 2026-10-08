@@ -22,6 +22,9 @@
           section.with_link(label: "Change password", href: rodauth(:user).change_password_path) do |link|
             link.with_leading { render Phlex::TablerIcons::Settings.new(class: "mr-2 text-[var(--pu-text-subtle)] w-4 h-4") }
           end
+          section.with_link(label: "Email notifications", href: email_settings_dashboard_path) do |link|
+            link.with_leading { render Phlex::TablerIcons::Mail.new(class: "mr-2 text-[var(--pu-text-subtle)] w-4 h-4") }
+          end
         end
 
         nav.with_section do |section|

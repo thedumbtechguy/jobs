@@ -33,6 +33,12 @@
                 <p style="margin:0 0 8px;">
                   <%= content_for?(:footer_note) ? yield(:footer_note) : "You're getting this email because of activity on your DevCongress Connect account." %>
                 </p>
+                <% if @unsubscribe_url %>
+                  <p style="margin:0 0 8px;">
+                    <a href="<%= @unsubscribe_url %>" style="color:<%= EmailHelper::MUTED %>;">Turn off <%= @email_category[:label].downcase %> emails</a> ·
+                    <a href="<%= @email_settings_url %>" style="color:<%= EmailHelper::MUTED %>;">Email settings</a>
+                  </p>
+                <% end %>
                 <p style="margin:0;">
                   <a href="<%= root_url %>" style="color:<%= EmailHelper::MUTED %>;">DevCongress Connect</a> ·
                   <a href="<%= public_jobs_url %>" style="color:<%= EmailHelper::MUTED %>;">Jobs</a> ·

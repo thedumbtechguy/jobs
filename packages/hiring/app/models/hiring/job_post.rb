@@ -151,13 +151,13 @@ class Hiring::JobPost < Hiring::ResourceRecord
       update!(approved_at: Time.current, published_at: Time.current, expires_at: VALIDITY_PERIOD.from_now)
       company.update!(jobs_trusted_at: Time.current) unless company.jobs_trusted?
     end
-    Hiring::JobReviewMailer.with(job_post: self).approved.deliver_later
+    notify_company(:approved)
   end
 
   # Admin sends the job back to draft with a reason for the company.
   def decline!(reason)
     update!(published_at: nil, approved_at: nil, expires_at: nil)
-    Hiring::JobReviewMailer.with(job_post: self, reason:).declined.deliver_later
+    notify_company(:declined, reason:)
   end
 
   def renew!
@@ -218,6 +218,12 @@ class Hiring::JobPost < Hiring::ResourceRecord
   end
 
   private
+
+  def notify_company(email, **params)
+    company.users.verified.find_each do |recipient|
+      Hiring::JobReviewMailer.with(job_post: self, recipient:, **params).public_send(email).deliver_later
+    end
+  end
 
   # Applicants and the board rely on what kind of post this is, so it can't
   # change after creation. Post a new one instead.

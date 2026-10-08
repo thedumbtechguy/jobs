@@ -26,7 +26,7 @@ class Hiring::JobReviewTest < ActiveSupport::TestCase
   test "approval makes the job live, trusts the company and emails it" do
     job = create_job!(company: @company, review: true)
 
-    assert_enqueued_email_with Hiring::JobReviewMailer, :approved, params: {job_post: job} do
+    assert_enqueued_email_with Hiring::JobReviewMailer, :approved, params: {job_post: job, recipient: @owner} do
       job.approve!
     end
 
@@ -42,7 +42,7 @@ class Hiring::JobReviewTest < ActiveSupport::TestCase
   test "declining sends the job back to draft with a note" do
     job = create_job!(company: @company, review: true)
 
-    assert_enqueued_email_with Hiring::JobReviewMailer, :declined, params: {job_post: job, reason: "Add a salary range"} do
+    assert_enqueued_email_with Hiring::JobReviewMailer, :declined, params: {job_post: job, recipient: @owner, reason: "Add a salary range"} do
       job.decline!("Add a salary range")
     end
 
@@ -59,11 +59,14 @@ class Hiring::JobReviewTest < ActiveSupport::TestCase
     assert_match "/admin/hiring/job_posts/#{job.to_param}", email.text_part.body.to_s
 
     job.approve!
-    email = Hiring::JobReviewMailer.with(job_post: job).approved
+    @owner.opt_out_of_email!(:applications)
+    email = Hiring::JobReviewMailer.with(job_post: job, recipient: @owner).approved
     assert_equal [@owner.email], email.to
     assert_match "/jobs/#{job.to_param}", email.text_part.body.to_s
+    assert_nil email["List-Unsubscribe"]
 
-    email = Hiring::JobReviewMailer.with(job_post: job, reason: "Needs a salary").declined
+    email = Hiring::JobReviewMailer.with(job_post: job, recipient: @owner, reason: "Needs a salary").declined
+    assert_equal [@owner.email], email.to
     assert_match "Needs a salary", email.text_part.body.to_s
   end
 end

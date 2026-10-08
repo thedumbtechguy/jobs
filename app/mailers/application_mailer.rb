@@ -2,6 +2,7 @@ class ApplicationMailer < ActionMailer::Base
   default from: ENV.fetch("MAIL_FROM", "DevCongress Connect <no-reply@example.com>")
   layout "mailer"
   helper EmailHelper
+  include CategorizedEmail
 
   private
 

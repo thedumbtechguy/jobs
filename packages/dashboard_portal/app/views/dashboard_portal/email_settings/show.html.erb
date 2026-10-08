@@ -1,0 +1,24 @@
+<% content_for :title, "Email notifications" %>
+
+<div class="mx-auto max-w-2xl space-y-6">
+  <header>
+    <h1 class="font-display text-3xl text-[var(--pu-text)]">Email notifications</h1>
+    <p class="mt-1 text-[var(--pu-text-muted)]">Choose what we email <%= current_user.email %> about. Account and security emails, and updates on jobs you post, always come through.</p>
+  </header>
+
+  <%= form_with url: email_settings_path, method: :patch, class: "dc-card" do |form| %>
+    <div class="pu-card-body space-y-5">
+      <%= hidden_field_tag "email_settings[categories][]", "", id: nil %>
+      <% EmailOptOut::CATEGORIES.each do |key, category| %>
+        <label class="flex items-start gap-3">
+          <%= check_box_tag "email_settings[categories][]", key, current_user.wants_email?(key), id: "email_category_#{key}", class: "mt-1 h-4 w-4 accent-primary-600" %>
+          <span>
+            <span class="block font-semibold text-[var(--pu-text)]"><%= category[:label] %></span>
+            <span class="block text-sm text-[var(--pu-text-muted)]"><%= category[:description] %></span>
+          </span>
+        </label>
+      <% end %>
+      <%= form.submit "Save", class: "pu-btn pu-btn-md pu-btn-primary" %>
+    </div>
+  <% end %>
+</div>

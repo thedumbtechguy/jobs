@@ -13,20 +13,18 @@ module Hiring
       @profile = @application.profile
     end
 
+    # Sent to each company user separately, so each can turn it off.
     def received
-      recipients = @company.users.where(status: :verified).pluck(:email)
-      return if recipients.empty?
-
       @application_url = absolute_url(company_portal_application_path(@company, @application))
       @profile_url = absolute_url(Rails.application.routes.url_helpers.developer_page_path(handle: @profile.handle))
-      mail to: recipients, subject: "New applicant for #{@job.title}: #{@profile.name}"
+      categorized_mail :applications, to: params[:recipient], subject: "New applicant for #{@job.title}: #{@profile.name}"
     end
 
     def status_changed
       @message = params[:message]
       @application_url = absolute_url(developer_portal_application_path(@profile, @application))
       @jobs_url = absolute_url(Rails.application.routes.url_helpers.public_jobs_path)
-      mail to: @profile.user.email, subject: status_subject
+      categorized_mail :applications, to: @profile.user, subject: status_subject
     end
 
     private
