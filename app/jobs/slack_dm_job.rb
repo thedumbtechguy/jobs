@@ -4,6 +4,8 @@
 class SlackDmJob < ApplicationJob
   queue_as :default
 
+  # The record was deleted before sending (e.g. an unfollow).
+  discard_on ActiveJob::DeserializationError
   discard_on Slack::Error do |job, error|
     Rails.logger.warn { "#{job.arguments.first} not sent: #{error.code}" }
   end

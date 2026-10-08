@@ -24,17 +24,7 @@ module Hiring
       @message = params[:message]
       @application_url = absolute_url(developer_portal_application_path(@profile, @application))
       @jobs_url = absolute_url(Rails.application.routes.url_helpers.public_jobs_path)
-      categorized_mail :applications, to: @profile.user, subject: status_subject
-    end
-
-    private
-
-    def status_subject
-      case @application.status
-      when "shortlisted" then "You're on the shortlist for #{@job.title}"
-      when "hired" then "#{@company.display_name} wants to hire you"
-      else "An update on your application to #{@company.display_name}"
-      end
+      categorized_mail :applications, to: @profile.user, subject: @application.status_update_subject
     end
   end
 end
