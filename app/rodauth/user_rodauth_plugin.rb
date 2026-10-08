@@ -44,12 +44,12 @@ class UserRodauthPlugin < RodauthPlugin
       if logged_in?
         if omniauth_identity && omniauth_identity_account_id != session_value
           set_redirect_error_flash "That #{omniauth_provider.to_s.titleize} account is connected to another DevCongress Connect account."
-          redirect "/dashboard/settings/notifications"
+          redirect notification_settings_path
         end
         # One Slack account per user, so slack_identity stays unambiguous.
         if omniauth_provider.to_s == "slack" && !omniauth_identity && !omniauth_account_identities_ds(session_value).where(omniauth_identities_provider_column => "slack").empty?
           set_redirect_error_flash "Disconnect your current Slack account first."
-          redirect "/dashboard/settings/notifications"
+          redirect notification_settings_path
         end
         account_from_session
       end
@@ -70,6 +70,9 @@ class UserRodauthPlugin < RodauthPlugin
         set_redirect_error_flash "We couldn't confirm your email with #{omniauth_provider.to_s.titleize}. Verify it there, or sign up with email and password."
         redirect login_path
       end
+
+      # Connected while signed in: back to settings, not /welcome then /dashboard.
+      set_session_value(login_redirect_session_key, notification_settings_path) if logged_in?
     end
 
     # Keep the provider's public profile on the identity; onboarding uses it
@@ -82,6 +85,10 @@ class UserRodauthPlugin < RodauthPlugin
     end
 
     auth_class_eval do
+      def notification_settings_path
+        PortalPathsHelper.routes.dashboard_portal.notification_settings_path
+      end
+
       def social_profile_info
         omniauth_info.to_h.slice("name", "nickname", "image", "urls")
       end

@@ -10,7 +10,7 @@ module CategorizedEmail
 
     @email_category = NotificationOptOut::CATEGORIES.fetch(category.to_s)
     @unsubscribe_url = unsubscribe_url(token: NotificationOptOut.token_for(to, category, via: :email))
-    @email_settings_url = absolute_url(PortalPathsHelper.routes.dashboard_portal.email_settings_path)
+    @notification_settings_url = absolute_url(PortalPathsHelper.routes.dashboard_portal.notification_settings_path)
     headers["List-Unsubscribe"] = "<#{@unsubscribe_url}>"
     headers["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
     mail(to: to.email, **)
