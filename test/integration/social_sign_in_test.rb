@@ -127,6 +127,29 @@ class SocialSignInTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/users/login"
   end
 
+  test "Slack sign-in can't add a second Slack account by email" do
+    user = create_user!(email: "ama@example.com")
+    user.identities.create!(provider: "slack", uid: "U1")
+    mock_slack(uid: "U2", email: "ama@example.com")
+
+    assert_no_difference -> { User::Identity.count } do
+      sign_in_with(:slack)
+    end
+    assert_redirected_to "/users/login"
+    follow_redirect!
+    assert_select "#pu-flash", text: /That email's account is already connected to a different Slack account\./
+  end
+
+  test "Slack sign-in links by email when the account has no Slack account" do
+    user = create_user!(email: "ama@example.com")
+    user.identities.create!(provider: "github", uid: "42")
+    mock_slack(uid: "U2", email: "ama@example.com")
+
+    assert_difference -> { user.identities.where(provider: "slack").count } => 1 do
+      sign_in_with(:slack)
+    end
+  end
+
   private
 
   def mock(provider, uid:, email:, info: {}, extra: {})

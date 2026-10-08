@@ -71,6 +71,15 @@ class UserRodauthPlugin < RodauthPlugin
         redirect login_path
       end
 
+      # Signed out with a new Slack account: rodauth-omniauth links it to the
+      # account with the same email. Keep that to one Slack account per user too.
+      # (Looking the account up here means the callback reuses it.)
+      if !logged_in? && omniauth_provider.to_s == "slack" && !omniauth_identity && account_from_omniauth &&
+          !omniauth_account_identities_ds.where(omniauth_identities_provider_column => "slack").empty?
+        set_redirect_error_flash "That email's account is already connected to a different Slack account."
+        redirect login_path
+      end
+
       # Connected while signed in: back to settings, not /welcome then /dashboard.
       set_session_value(login_redirect_session_key, notification_settings_path) if logged_in? && omniauth_provider.to_s == "slack"
     end
