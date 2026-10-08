@@ -8,10 +8,12 @@
   <% structured_data StructuredData::DeveloperProfile.new(profile, view: self).to_h %>
 <% end %>
 <% contact_visible = profile.contact_visible_to?(current_user) %>
+<% slack_identity = profile.user.slack_identity %>
 <% links = [
      [Phlex::TablerIcons::BrandGithub, profile.github_url],
      [Phlex::TablerIcons::BrandLinkedin, profile.linkedin_url],
      [Phlex::TablerIcons::BrandX, profile.x_url],
+     [Phlex::TablerIcons::BrandSlack, (slack_identity && Slack.workspace_url && "#{Slack.workspace_url}/team/#{slack_identity.uid}")],
      [Phlex::TablerIcons::World, profile.website_url]
    ].select { |_, url| url.present? } %>
 

@@ -72,7 +72,7 @@ class UserRodauthPlugin < RodauthPlugin
       end
 
       # Connected while signed in: back to settings, not /welcome then /dashboard.
-      set_session_value(login_redirect_session_key, notification_settings_path) if logged_in?
+      set_session_value(login_redirect_session_key, notification_settings_path) if logged_in? && omniauth_provider.to_s == "slack"
     end
 
     # Keep the provider's public profile on the identity; onboarding uses it

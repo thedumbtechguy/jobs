@@ -2,7 +2,7 @@ DashboardPortal::Engine.routes.draw do
   root to: "dashboard#index"
 
   resource :notification_settings, only: %i[show update], path: "settings/notifications"
-  get "settings/email", to: redirect("/dashboard/settings/notifications")
+  get "settings/email", to: redirect("settings/notifications")
   resource :slack_connection, only: %i[destroy], path: "settings/slack"
 
   # register resources above.

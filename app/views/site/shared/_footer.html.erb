@@ -1,11 +1,12 @@
 <% socials = {
+     "slack" => Slack.invite_url,
      "linkedin" => "https://www.linkedin.com/company/devcongress",
      "x" => "https://x.com/devcongress",
      "github" => "https://github.com/devcongress",
      "youtube" => "https://youtube.com/devcongress",
      "facebook" => "https://facebook.com/devcongress",
      "instagram" => "https://www.instagram.com/devcongress/"
-   } %>
+   }.compact %>
 <footer class="dc-footer">
   <div class="dc-container dc-footer-body">
     <div class="dc-footer-brand">
