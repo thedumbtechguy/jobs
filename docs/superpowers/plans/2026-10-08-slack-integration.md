@@ -113,7 +113,7 @@ module Slack
 
     def permalink(channel:, ts:)
       record(:permalink, {channel:, ts:})
-      "https://devcongress.slack.com/archives/#{channel}/p#{ts.delete(".")}"
+      "https://devcongress-community.slack.com/archives/#{channel}/p#{ts.delete(".")}"
     end
 
     def calls_to(method) = calls.select { _1.method == method }
@@ -566,7 +566,7 @@ class Hiring::SlackJobPostSyncJobTest < ActiveJob::TestCase
     @job.reload
     assert_equal "active", @job.slack_posted_status
     assert_equal "1700000000.000001", @job.slack_message_ts
-    assert_equal "https://devcongress.slack.com/archives/C0JOBS/p1700000000000001", @job.slack_message_url
+    assert_equal "https://devcongress-community.slack.com/archives/C0JOBS/p1700000000000001", @job.slack_message_url
   end
 
   test "edits to a live job update the message" do
@@ -840,9 +840,9 @@ class SlackJobsTest < ActionDispatch::IntegrationTest
   end
 
   test "a job posted to Slack links to its thread" do
-    @job.update_columns(slack_message_ts: "1.1", slack_message_url: "https://devcongress.slack.com/archives/C0JOBS/p11")
+    @job.update_columns(slack_message_ts: "1.1", slack_message_url: "https://devcongress-community.slack.com/archives/C0JOBS/p11")
     get "/jobs/#{@job.to_param}"
-    assert_select "a[href='https://devcongress.slack.com/archives/C0JOBS/p11']", /Discuss in #jobs/
+    assert_select "a[href='https://devcongress-community.slack.com/archives/C0JOBS/p11']", /Discuss in #jobs/
   end
 
   test "no Slack link without a message" do
@@ -1256,7 +1256,7 @@ Append to `.env.test.local`:
 SLACK_CLIENT_ID=test-slack-id
 SLACK_CLIENT_SECRET=test-slack-secret
 SLACK_TEAM_ID=T0DEVCON
-SLACK_WORKSPACE_URL=https://devcongress.slack.com
+SLACK_WORKSPACE_URL=https://devcongress-community.slack.com
 ```
 
 - [ ] **Step 2: Write the failing tests**
@@ -1438,7 +1438,7 @@ Update the comment above it to "(... Slack sends an email_verified claim, like G
 # SLACK_BOT_TOKEN=
 # SLACK_JOBS_CHANNEL_ID=
 # SLACK_INVITE_URL=
-# SLACK_WORKSPACE_URL=https://devcongress.slack.com
+# SLACK_WORKSPACE_URL=https://devcongress-community.slack.com
 ```
 
 `.env.production.template`: add the same block, with the callback `https://connect.devcongress.org/users/auth/slack/callback`.
@@ -1468,7 +1468,7 @@ SLACK_BOT_TOKEN=$SLACK_BOT_TOKEN
 ```markdown
 | `SLACK_CLIENT_ID`, `SLACK_CLIENT_SECRET`, `SLACK_TEAM_ID` | no | "Continue with Slack", limited to the DevCongress workspace. Callback: `https://connect.devcongress.org/users/auth/slack/callback` |
 | `SLACK_BOT_TOKEN`, `SLACK_JOBS_CHANNEL_ID` | no | Bot token (scope `chat:write`) for `#jobs` cross-posts and notification DMs. Invite the bot to `#jobs` |
-| `SLACK_INVITE_URL`, `SLACK_WORKSPACE_URL` | no | "Join Slack" links, and profile links such as `https://devcongress.slack.com` |
+| `SLACK_INVITE_URL`, `SLACK_WORKSPACE_URL` | no | "Join Slack" links, and profile links such as `https://devcongress-community.slack.com` |
 ```
 
 - [ ] **Step 8: Run the tests**
@@ -2085,7 +2085,7 @@ class SlackPromptsTest < ActionDispatch::IntegrationTest
   test "linked profiles show a Slack badge" do
     @user.identities.create!(provider: "slack", uid: "U123")
     get "/@#{@profile.handle}"
-    assert_select "a[href='https://devcongress.slack.com/team/U123']"
+    assert_select "a[href='https://devcongress-community.slack.com/team/U123']"
   end
 end
 ```

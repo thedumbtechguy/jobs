@@ -8,9 +8,9 @@ class SlackJobsTest < ActionDispatch::IntegrationTest
   end
 
   test "a job posted to Slack links to its thread" do
-    @job.update_columns(slack_message_ts: "1.1", slack_message_url: "https://devcongress.slack.com/archives/C0JOBS/p11")
+    @job.update_columns(slack_message_ts: "1.1", slack_message_url: "https://devcongress-community.slack.com/archives/C0JOBS/p11")
     get "/jobs/#{@job.to_param}"
-    assert_select "a[href='https://devcongress.slack.com/archives/C0JOBS/p11']", /Discuss in #jobs/
+    assert_select "a[href='https://devcongress-community.slack.com/archives/C0JOBS/p11']", /Discuss in #jobs/
   end
 
   test "no Slack link without a message" do

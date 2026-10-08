@@ -95,7 +95,7 @@ bin/deploy
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | no | "Continue with GitHub". Callback: `https://connect.devcongress.org/users/auth/github/callback` |
 | `SLACK_CLIENT_ID`, `SLACK_CLIENT_SECRET`, `SLACK_TEAM_ID` | no | "Continue with Slack", limited to the DevCongress workspace. Callback: `https://connect.devcongress.org/users/auth/slack/callback` |
 | `SLACK_BOT_TOKEN`, `SLACK_JOBS_CHANNEL_ID` | no | Bot token (scope `chat:write`) for `#jobs` cross-posts and notification DMs. Invite the bot to `#jobs` |
-| `SLACK_INVITE_URL`, `SLACK_WORKSPACE_URL` | no | "Join Slack" links, and profile links such as `https://devcongress.slack.com` |
+| `SLACK_INVITE_URL`, `SLACK_WORKSPACE_URL` | no | "Join Slack" links, and profile links such as `https://devcongress-community.slack.com` |
 
 The host, URL and mail sender are fixed in `config/deploy.yml`. The app refuses
 to boot in production if a required variable is missing; the list lives in

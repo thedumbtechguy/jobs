@@ -61,6 +61,6 @@ class SlackPromptsTest < ActionDispatch::IntegrationTest
   test "linked profiles show a Slack badge" do
     @user.identities.create!(provider: "slack", uid: "U123")
     get "/@#{@profile.handle}"
-    assert_select "a[href='https://devcongress.slack.com/team/U123']"
+    assert_select "a[href='https://devcongress-community.slack.com/team/U123']"
   end
 end
