@@ -25,7 +25,8 @@ module Slack
       params[:blocks] = params[:blocks].to_json if params[:blocks]
       response = http_post(URI("#{BASE_URL}#{method}"), URI.encode_www_form(params.compact),
         "Authorization" => "Bearer #{@token}", "Content-Type" => "application/x-www-form-urlencoded")
-      raise RateLimited.new(response["Retry-After"].to_i) if response.code == "429"
+      raise RateLimited.new((response["Retry-After"] || 30).to_i) if response.code == "429"
+      raise Unavailable, "Slack returned #{response.code}" if response.code.start_with?("5")
 
       body = JSON.parse(response.body)
       raise Error.new(body["error"]) unless body["ok"]

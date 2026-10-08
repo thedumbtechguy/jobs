@@ -96,6 +96,19 @@ class Hiring::SlackJobPostSyncJobTest < ActiveJob::TestCase
     assert_nil @job.slack_posted_status
   end
 
+  test "a permalink failure doesn't cause a duplicate post" do
+    @slack.fail_next(:permalink, "internal_error")
+    sync
+    assert_equal "1700000000.000001", @job.reload.slack_message_ts
+    assert_nil @job.slack_message_url
+    assert_equal 1, @slack.calls_to(:post_message).size
+
+    @job.update!(title: "Lead Engineer")
+    sync
+    assert_equal 1, @slack.calls_to(:post_message).size
+    assert_equal "https://devcongress.slack.com/archives/C0JOBS/p1700000000000001", @job.reload.slack_message_url
+  end
+
   test "config errors are discarded" do
     @slack.fail_next(:post_message, "channel_not_found")
     assert_nothing_raised { sync }

@@ -4,7 +4,7 @@
 # UserRodauthPlugin), SLACK_INVITE_URL and SLACK_WORKSPACE_URL for links.
 module Slack
   # Connection failures worth retrying.
-  NETWORK_ERRORS = [Net::OpenTimeout, Net::ReadTimeout, Errno::ECONNRESET, Errno::ECONNREFUSED, SocketError].freeze
+  NETWORK_ERRORS = [Net::OpenTimeout, Net::ReadTimeout, Errno::ECONNRESET, Errno::ECONNREFUSED, SocketError, Unavailable].freeze
 
   class << self
     attr_writer :client, :jobs_channel
