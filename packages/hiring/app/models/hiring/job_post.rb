@@ -55,6 +55,12 @@ require_relative "../hiring"
 class Hiring::JobPost < Hiring::ResourceRecord
   VALIDITY_PERIOD = ENV.fetch("JOB_VALIDITY_DAYS", 30).to_i.days
 
+  # Changes to these show in the #jobs message (see Hiring::SlackJobPostSyncJob).
+  SLACK_FIELDS = %w[
+    published_at approved_at expires_at filled_at archived_at title description employment_type seniority
+    salary_min salary_max salary_currency pay_period paid city country remote_ok duration starts_on
+  ].freeze
+
   # What kind of post this is. Freelance posts are "gigs"; the board groups
   # types into kinds (see KINDS).
   enum :employment_type, {full_time: 0, part_time: 1, contract: 2, internship: 3, freelance: 4}
@@ -108,6 +114,8 @@ class Hiring::JobPost < Hiring::ResourceRecord
   validate :type_unchanged, on: :update
 
   normalizes :salary_currency, with: ->(currency) { currency.strip.upcase }
+
+  after_commit :sync_to_slack, on: %i[create update], if: -> { Slack.posts_jobs? && saved_changes.keys.intersect?(SLACK_FIELDS) }
 
   # Only internships can be unpaid; permanent roles have no duration or start.
   before_validation do
@@ -221,6 +229,10 @@ class Hiring::JobPost < Hiring::ResourceRecord
   end
 
   private
+
+  def sync_to_slack
+    Hiring::SlackJobPostSyncJob.perform_later(self)
+  end
 
   def notify_company(email, **params)
     company.users.verified.find_each do |recipient|
