@@ -72,12 +72,74 @@ class SlackConnectionTest < ActionDispatch::IntegrationTest
     assert_match "Set a password first", response.body
   end
 
+  test "a second Slack account can't be connected" do
+    @user.identities.create!(provider: "slack", uid: "U123")
+    login_user(@user)
+    mock_slack(uid: "U456", email: @user.email)
+
+    assert_no_difference -> { User::Identity.count } do
+      post "/users/auth/slack"
+      follow_redirect!
+    end
+
+    assert_redirected_to "/dashboard/settings/notifications"
+    assert_equal "U123", @user.reload.slack_identity.uid
+    assert @user.wants_notification?(:applications, via: :email)
+    assert_equal "Disconnect your current Slack account first.", flash[:alert]
+  end
+
+  test "connecting Slack from another workspace while signed in is refused" do
+    login_user(@user)
+    mock_slack(uid: "U123", email: @user.email, team: "T0OTHER")
+
+    post "/users/auth/slack"
+    follow_redirect!
+
+    assert_nil @user.reload.slack_identity
+    assert @user.wants_notification?(:applications, via: :email)
+  end
+
+  test "connecting Slack with an unverified email while signed in is refused" do
+    login_user(@user)
+    mock_slack(uid: "U123", email: @user.email, email_verified: false)
+
+    post "/users/auth/slack"
+    follow_redirect!
+
+    assert_nil @user.reload.slack_identity
+    assert @user.wants_notification?(:applications, via: :email)
+  end
+
+  test "reconnecting your own Slack account changes nothing" do
+    @user.identities.create!(provider: "slack", uid: "U123")
+    login_user(@user)
+    mock_slack(uid: "U123", email: @user.email)
+
+    assert_no_difference -> { User::Identity.count } do
+      post "/users/auth/slack"
+      follow_redirect!
+    end
+
+    assert_equal "U123", @user.reload.slack_identity.uid
+    assert @user.wants_notification?(:applications, via: :email)
+    assert_nil flash[:alert]
+  end
+
+  test "disconnecting when Slack isn't connected" do
+    login_user(@user)
+
+    delete "/dashboard/settings/slack"
+
+    assert_response :redirect
+    assert_equal "Slack isn't connected.", flash[:notice]
+  end
+
   private
 
-  def mock_slack(uid:, email:)
+  def mock_slack(uid:, email:, team: "T0DEVCON", email_verified: true)
     OmniAuth.config.mock_auth[:slack] = OmniAuth::AuthHash.new(
       provider: "slack", uid:, info: {email:, name: "Ama Mensah"},
-      extra: {raw_info: {"https://slack.com/team_id" => "T0DEVCON", "email_verified" => true}}
+      extra: {raw_info: {"https://slack.com/team_id" => team, "email_verified" => email_verified}}
     )
   end
 end
