@@ -115,6 +115,13 @@ class Hiring::SlackJobPostSyncJobTest < ActiveJob::TestCase
     assert_nil @job.reload.slack_message_ts
   end
 
+  test "a job deleted before the sync runs is discarded" do
+    Hiring::SlackJobPostSyncJob.perform_later(@job)
+    @job.delete
+    assert_nothing_raised { perform_enqueued_jobs(only: Hiring::SlackJobPostSyncJob) }
+    assert_empty @slack.calls
+  end
+
   test "saving a job enqueues a sync when relevant fields change" do
     assert_enqueued_with(job: Hiring::SlackJobPostSyncJob, args: [@job]) { @job.update!(title: "New title") }
     assert_no_enqueued_jobs(only: Hiring::SlackJobPostSyncJob) { @job.update!(apply_url: "https://acme.example/jobs") }

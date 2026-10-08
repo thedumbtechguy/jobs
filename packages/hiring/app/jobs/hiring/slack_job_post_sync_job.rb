@@ -6,6 +6,8 @@ module Hiring
     queue_as :default
     limits_concurrency to: 1, key: ->(job_post) { job_post }
 
+    # The job was deleted before the sync ran (SlackJobPostCloseJob closes it).
+    discard_on ActiveJob::DeserializationError
     # Config problems (bad token, bot not in the channel...) won't fix
     # themselves.
     discard_on Slack::Error do |job, error|

@@ -116,6 +116,10 @@ class Hiring::JobPost < Hiring::ResourceRecord
   normalizes :salary_currency, with: ->(currency) { currency.strip.upcase }
 
   after_commit :sync_to_slack, on: %i[create update], if: -> { Slack.posts_jobs? && saved_changes.keys.intersect?(SLACK_FIELDS) }
+  # Deleting a live job closes its #jobs message. The record is gone by the
+  # time a job runs, so the closed message is rendered now and sent after commit.
+  before_destroy :render_slack_close, if: -> { Slack.posts_jobs? && slack_posted_status == "active" && slack_message_ts.present? }
+  after_destroy_commit :close_slack_message, if: -> { @slack_close }
 
   # Only internships can be unpaid; permanent roles have no duration or start.
   before_validation do
@@ -232,6 +236,15 @@ class Hiring::JobPost < Hiring::ResourceRecord
 
   def sync_to_slack
     Hiring::SlackJobPostSyncJob.perform_later(self)
+  end
+
+  def render_slack_close
+    message = Hiring::JobPostSlackMessage.new(self, closed_as: "archived")
+    @slack_close = {ts: slack_message_ts, text: message.text, blocks: message.blocks}
+  end
+
+  def close_slack_message
+    Hiring::SlackJobPostCloseJob.perform_later(**@slack_close)
   end
 
   def notify_company(email, **params)
