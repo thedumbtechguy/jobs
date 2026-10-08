@@ -6,7 +6,7 @@ module DashboardPortal
 
     def update
       enabled = params.fetch(:email_settings, {}).permit(categories: [])[:categories].to_a
-      current_user.update_email_opt_outs!(EmailOptOut::CATEGORIES.keys - enabled)
+      current_user.update_opt_outs!(NotificationOptOut::CATEGORIES.keys - enabled, via: :email)
       redirect_to email_settings_path, notice: "Email settings saved."
     end
   end

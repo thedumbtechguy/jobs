@@ -31,7 +31,7 @@ class Hiring::JobApplicationMailerTest < ActionMailer::TestCase
 
   test "company users who turned off application emails aren't told about applicants" do
     application = @job.job_applications.create!(profile: @profile)
-    @recruiter.opt_out_of_email!(:applications)
+    @recruiter.opt_out!(:applications, via: :email)
 
     assert_emails(0) { Hiring::JobApplicationMailer.with(job_application: application, recipient: @recruiter).received.deliver_now }
   end

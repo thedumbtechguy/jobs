@@ -21,13 +21,13 @@ class EmailSettingsTest < ActionDispatch::IntegrationTest
   end
 
   test "saving turns off unticked categories and back on ticked ones" do
-    @user.opt_out_of_email!(:project_credits)
+    @user.opt_out!(:project_credits, via: :email)
     login_user(@user)
 
     patch "/dashboard/settings/email", params: {email_settings: {categories: ["", "network", "project_credits"]}}
 
     assert_redirected_to "/dashboard/settings/email"
-    assert_equal ["applications"], @user.email_opt_outs.pluck(:category)
+    assert_equal ["applications"], @user.notification_opt_outs.where(channel: "email").pluck(:category)
   end
 
   test "the user menu links to the page" do

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_08_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_08_150100) do
   create_table "active_shrine_attachments", force: :cascade do |t|
     t.string "record_type"
     t.bigint "record_id"
@@ -203,13 +203,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_150000) do
     t.index ["visibility", "availability"], name: "index_developers_profiles_on_visibility_and_availability"
   end
 
-  create_table "email_opt_outs", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.string "category", null: false
-    t.datetime "created_at", null: false
-    t.index ["user_id", "category"], name: "index_email_opt_outs_on_user_id_and_category", unique: true
-  end
-
   create_table "hiring_application_notes", force: :cascade do |t|
     t.integer "job_application_id", null: false
     t.integer "author_id"
@@ -290,6 +283,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_150000) do
     t.index ["followee_id"], name: "index_network_follows_on_followee_id"
     t.index ["follower_id", "followee_id"], name: "index_network_follows_on_follower_id_and_followee_id", unique: true
     t.check_constraint "follower_id <> followee_id", name: "network_follows_not_self"
+  end
+
+  create_table "notification_opt_outs", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "category", null: false
+    t.datetime "created_at", null: false
+    t.string "channel", default: "email", null: false
+    t.index ["user_id", "channel", "category"], name: "idx_on_user_id_channel_category_b4bf89541d", unique: true
   end
 
   create_table "showcase_project_contributors", force: :cascade do |t|
@@ -400,7 +401,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_150000) do
   add_foreign_key "developers_profile_skills", "developers_profiles", column: "profile_id"
   add_foreign_key "developers_profile_skills", "skills"
   add_foreign_key "developers_profiles", "users"
-  add_foreign_key "email_opt_outs", "users"
   add_foreign_key "hiring_application_notes", "hiring_job_applications", column: "job_application_id", on_delete: :cascade
   add_foreign_key "hiring_application_notes", "users", column: "author_id", on_delete: :nullify
   add_foreign_key "hiring_job_applications", "developers_profiles", column: "profile_id"
@@ -410,6 +410,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_150000) do
   add_foreign_key "network_endorsements", "developers_profiles", column: "endorser_id", on_delete: :cascade
   add_foreign_key "network_follows", "developers_profiles", column: "followee_id", on_delete: :cascade
   add_foreign_key "network_follows", "developers_profiles", column: "follower_id", on_delete: :cascade
+  add_foreign_key "notification_opt_outs", "users"
   add_foreign_key "showcase_project_contributors", "developers_profiles", column: "profile_id", on_delete: :cascade
   add_foreign_key "showcase_project_contributors", "showcase_projects", column: "project_id", on_delete: :cascade
   add_foreign_key "showcase_project_skills", "showcase_projects", column: "project_id", on_delete: :cascade

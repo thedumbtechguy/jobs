@@ -59,7 +59,7 @@ class Hiring::JobReviewTest < ActiveSupport::TestCase
     assert_match "/admin/hiring/job_posts/#{job.to_param}", email.text_part.body.to_s
 
     job.approve!
-    @owner.opt_out_of_email!(:applications)
+    @owner.opt_out!(:applications, via: :email)
     email = Hiring::JobReviewMailer.with(job_post: job, recipient: @owner).approved
     assert_equal [@owner.email], email.to
     assert_match "/jobs/#{job.to_param}", email.text_part.body.to_s
