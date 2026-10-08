@@ -31,3 +31,9 @@ production:
     queue: default
     schedule: "every day at 3:30am"
     description: "VACUUM + PRAGMA optimize across SQLite databases"
+
+  slack_job_sweep:
+    class: Hiring::SlackJobSweepJob
+    queue: default
+    schedule: every hour at minute 20
+    description: "Close #jobs Slack messages for jobs that have expired"
