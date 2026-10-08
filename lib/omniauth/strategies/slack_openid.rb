@@ -21,7 +21,9 @@ module OmniAuth
       extra { {raw_info:} }
 
       def raw_info
-        @raw_info ||= access_token.post("/api/openid.connect.userInfo").parsed
+        @raw_info ||= access_token.post("/api/openid.connect.userInfo").parsed.tap do |info|
+          raise CallbackError.new(:invalid_credentials, info["error"]) unless info["ok"]
+        end
       end
 
       # Slack matches the redirect URI exactly, so leave off the query string.
