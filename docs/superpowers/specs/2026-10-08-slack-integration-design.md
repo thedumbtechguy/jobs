@@ -29,7 +29,7 @@ is copied from the app config into env.
 | `SLACK_CLIENT_SECRET` | Sign in with Slack (OpenID Connect) |
 | `SLACK_TEAM_ID`       | Locks sign-in to the DevCongress workspace  |
 | `SLACK_INVITE_URL`    | "Join Slack" links                         |
-| `SLACK_WORKSPACE_URL` | e.g. `https://devcongress.slack.com`, for profile links |
+| `SLACK_WORKSPACE_URL` | e.g. `https://devcongress-community.slack.com`, for profile links |
 
 Each piece is off when its env vars aren't set, like the Google and GitHub
 providers today: no bot token means no posts or DMs, and no client

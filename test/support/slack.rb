@@ -28,7 +28,7 @@ module Slack
 
     def permalink(channel:, ts:)
       record(:permalink, {channel:, ts:})
-      "https://devcongress.slack.com/archives/#{channel}/p#{ts.delete(".")}"
+      "https://devcongress-community.slack.com/archives/#{channel}/p#{ts.delete(".")}"
     end
 
     def calls_to(method) = calls.select { _1.method == method }

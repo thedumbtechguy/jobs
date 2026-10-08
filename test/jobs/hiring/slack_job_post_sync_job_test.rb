@@ -20,7 +20,7 @@ class Hiring::SlackJobPostSyncJobTest < ActiveJob::TestCase
     @job.reload
     assert_equal "active", @job.slack_posted_status
     assert_equal "1700000000.000001", @job.slack_message_ts
-    assert_equal "https://devcongress.slack.com/archives/C0JOBS/p1700000000000001", @job.slack_message_url
+    assert_equal "https://devcongress-community.slack.com/archives/C0JOBS/p1700000000000001", @job.slack_message_url
   end
 
   test "edits to a live job update the message" do
@@ -106,7 +106,7 @@ class Hiring::SlackJobPostSyncJobTest < ActiveJob::TestCase
     @job.update!(title: "Lead Engineer")
     sync
     assert_equal 1, @slack.calls_to(:post_message).size
-    assert_equal "https://devcongress.slack.com/archives/C0JOBS/p1700000000000001", @job.reload.slack_message_url
+    assert_equal "https://devcongress-community.slack.com/archives/C0JOBS/p1700000000000001", @job.reload.slack_message_url
   end
 
   test "config errors are discarded" do
