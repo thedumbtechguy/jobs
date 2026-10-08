@@ -29,6 +29,7 @@ class User < ResourceRecord
   # add has_one associations above.
   has_many :company_users, dependent: :destroy
   has_many :companies, through: :company_users
+  has_many :email_opt_outs, dependent: :delete_all
 
   # add has_many associations above.
 
@@ -52,6 +53,24 @@ class User < ResourceRecord
   # Onboarded users have a developer profile, a company, or both.
   def onboarded?
     developer_profile.present? || company_users.exists?
+  end
+
+  # Categorised emails (see EmailOptOut::CATEGORIES) are on until turned off.
+  def wants_email?(category)
+    !email_opt_outs.exists?(category: category.to_s)
+  end
+
+  def opt_out_of_email!(category)
+    email_opt_outs.create_or_find_by!(category: category.to_s)
+  end
+
+  # Turns off exactly these categories and turns the rest back on.
+  def update_email_opt_outs!(categories)
+    transaction do
+      email_opt_outs.where.not(category: categories).delete_all
+      categories.each { opt_out_of_email!(_1) }
+    end
+    email_opt_outs.reset
   end
 
   # add methods above. add private methods below.

@@ -3,13 +3,15 @@
 class HiringMailerPreview < ActionMailer::Preview
   def review_requested = Hiring::JobReviewMailer.with(job_post: job).review_requested
 
-  def job_approved = Hiring::JobReviewMailer.with(job_post: job).approved
+  def job_approved = Hiring::JobReviewMailer.with(job_post: job, recipient: job.company.users.first!).approved
 
   def job_declined
-    Hiring::JobReviewMailer.with(job_post: job, reason: "Please add a salary range and say which city the hybrid days are in.").declined
+    Hiring::JobReviewMailer.with(job_post: job, recipient: job.company.users.first!, reason: "Please add a salary range and say which city the hybrid days are in.").declined
   end
 
-  def application_received = Hiring::JobApplicationMailer.with(job_application: application).received
+  def application_received
+    Hiring::JobApplicationMailer.with(job_application: application, recipient: application.job_post.company.users.first!).received
+  end
 
   Hiring::JobApplication::NOTIFY_STATUSES.each do |status|
     define_method(:"application_#{status}") do

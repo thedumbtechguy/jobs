@@ -1,6 +1,8 @@
 DashboardPortal::Engine.routes.draw do
   root to: "dashboard#index"
 
+  resource :email_settings, only: %i[show update], path: "settings/email"
+
   # register resources above.
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

@@ -1,6 +1,6 @@
 module Hiring
-  # Emails for the first-job review: admins are asked to review, and the
-  # company hears back when its job is approved or declined.
+  # Emails for the first-job review: admins are asked to review, and each
+  # company user hears back when its job is approved or declined.
   class JobReviewMailer < ::ApplicationMailer
     include PortalPathsHelper
 
@@ -22,19 +22,13 @@ module Hiring
     def approved
       @job_url = absolute_url(Rails.application.routes.url_helpers.public_job_path(@job))
       @dashboard_url = absolute_url(company_portal_home_path(@company))
-      mail to: company_emails, subject: "Your #{@job.kind_noun} is live: #{@job.title}"
+      mail to: params[:recipient].email, subject: "Your #{@job.kind_noun} is live: #{@job.title}"
     end
 
     def declined
       @reason = params[:reason]
       @edit_url = absolute_url(PortalPathsHelper.routes.company_portal.company_scoped_hiring_job_post_path(company_scoped: @company, id: @job))
-      mail to: company_emails, subject: "Changes needed before #{@job.title} goes live"
-    end
-
-    private
-
-    def company_emails
-      @company.users.where(status: :verified).pluck(:email)
+      mail to: params[:recipient].email, subject: "Changes needed before #{@job.title} goes live"
     end
   end
 end

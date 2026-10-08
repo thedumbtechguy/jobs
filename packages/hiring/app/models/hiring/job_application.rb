@@ -69,7 +69,7 @@ class Hiring::JobApplication < Hiring::ResourceRecord
 
   before_save { self.status_changed_at = Time.current if will_save_change_to_status? }
   after_update :log_status_change, if: :saved_change_to_status?
-  after_create_commit { Hiring::JobApplicationMailer.with(job_application: self).received.deliver_later }
+  after_create_commit :notify_company
   after_update_commit :notify_applicant, if: -> { saved_change_to_status? && status.in?(NOTIFY_STATUSES) }
 
   # An optional note to the applicant, sent with the status-change email.
@@ -107,6 +107,12 @@ class Hiring::JobApplication < Hiring::ResourceRecord
   def log_status_change
     from, to = saved_change_to_status
     notes.create!(kind: :status_change, from_status: from, to_status: to, author: Current.user, body: status_message.presence)
+  end
+
+  def notify_company
+    job_post.company.users.verified.find_each do |recipient|
+      Hiring::JobApplicationMailer.with(job_application: self, recipient:).received.deliver_later
+    end
   end
 
   def notify_applicant

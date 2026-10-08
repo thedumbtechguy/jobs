@@ -10,18 +10,30 @@ class Hiring::JobApplicationMailerTest < ActionMailer::TestCase
     @profile = create_profile!(name: "Kwame Mensah", handle: "kwame")
   end
 
-  test "applying emails the company" do
+  test "applying emails each verified company user" do
+    teammate = create_user!
+    @company.company_users.create!(user: teammate, role: :recruiter)
+
     application = nil
-    assert_enqueued_email_with Hiring::JobApplicationMailer, :received, params: ->(p) { p[:job_application].is_a?(Hiring::JobApplication) } do
+    assert_enqueued_emails 2 do
       application = @job.job_applications.create!(profile: @profile, cover_note: "Keen to help!")
     end
+    assert_enqueued_email_with Hiring::JobApplicationMailer, :received, params: {job_application: application, recipient: teammate}
 
-    email = Hiring::JobApplicationMailer.with(job_application: application).received
+    email = Hiring::JobApplicationMailer.with(job_application: application, recipient: @recruiter).received
     assert_equal [@recruiter.email], email.to
     assert_equal "New applicant for Rails Engineer: Kwame Mensah", email.subject
     assert_match "Keen to help!", email.text_part.body.to_s
     assert_match "/company/acme-labs/hiring/job_applications/#{application.id}", email.html_part.body.to_s
     assert_match "/@kwame", email.html_part.body.to_s
+    assert_match "/unsubscribe/", email["List-Unsubscribe"].value
+  end
+
+  test "company users who turned off application emails aren't told about applicants" do
+    application = @job.job_applications.create!(profile: @profile)
+    @recruiter.opt_out_of_email!(:applications)
+
+    assert_emails(0) { Hiring::JobApplicationMailer.with(job_application: application, recipient: @recruiter).received.deliver_now }
   end
 
   test "status changes the applicant should know about email them" do

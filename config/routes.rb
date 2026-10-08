@@ -34,6 +34,10 @@ Rails.application.routes.draw do
     get "projects", to: "projects#index", as: :public_projects
     get "projects/:slug", to: "projects#show", as: :public_project
 
+    # Unsubscribe links in emails (no sign-in; the signed token names the user).
+    get "unsubscribe/:token", to: "unsubscribes#show", as: :unsubscribe, format: false
+    post "unsubscribe/:token", to: "unsubscribes#create", format: false
+
     # Follow and endorse buttons (need a developer profile).
     constraints handle: /[A-Za-z0-9_-]+/ do
       post "@:handle/follow", to: "follows#create", as: :follow_developer

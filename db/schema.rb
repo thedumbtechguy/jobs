@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_02_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   create_table "active_shrine_attachments", force: :cascade do |t|
     t.string "record_type"
     t.bigint "record_id"
@@ -203,6 +203,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_090000) do
     t.index ["visibility", "availability"], name: "index_developers_profiles_on_visibility_and_availability"
   end
 
+  create_table "email_opt_outs", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "category", null: false
+    t.datetime "created_at", null: false
+    t.index ["user_id", "category"], name: "index_email_opt_outs_on_user_id_and_category", unique: true
+  end
+
   create_table "hiring_application_notes", force: :cascade do |t|
     t.integer "job_application_id", null: false
     t.integer "author_id"
@@ -390,6 +397,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_090000) do
   add_foreign_key "developers_profile_skills", "developers_profiles", column: "profile_id"
   add_foreign_key "developers_profile_skills", "skills"
   add_foreign_key "developers_profiles", "users"
+  add_foreign_key "email_opt_outs", "users"
   add_foreign_key "hiring_application_notes", "hiring_job_applications", column: "job_application_id", on_delete: :cascade
   add_foreign_key "hiring_application_notes", "users", column: "author_id", on_delete: :nullify
   add_foreign_key "hiring_job_applications", "developers_profiles", column: "profile_id"
