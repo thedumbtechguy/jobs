@@ -9,6 +9,7 @@ class SocialSignInTest < ActionDispatch::IntegrationTest
   teardown do
     OmniAuth.config.mock_auth.delete(:google)
     OmniAuth.config.mock_auth.delete(:github)
+    OmniAuth.config.mock_auth.delete(:slack)
     OmniAuth.config.test_mode = false
   end
 
@@ -74,12 +75,56 @@ class SocialSignInTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/users/login"
   end
 
+  test "login and sign-up pages offer Slack" do
+    get "/users/login"
+    assert_select "form[action='/users/auth/slack'] button", text: /Continue with Slack/
+  end
+
+  test "signing up with Slack creates a verified account" do
+    mock_slack(uid: "U123", email: "ama@example.com", info: {name: "Ama Mensah", image: "https://avatars.slack-edge.com/ama.png"})
+
+    assert_difference -> { User.count } => 1 do
+      sign_in_with(:slack)
+    end
+
+    user = User.find_by!(email: "ama@example.com")
+    assert user.verified?
+    identity = user.identities.sole
+    assert_equal %w[slack U123], [identity.provider, identity.uid]
+    assert_equal "Ama Mensah", identity.info["name"]
+  end
+
+  test "Slack sign-in from another workspace is refused" do
+    mock_slack(uid: "U999", email: "someone@example.com", team: "T0OTHER")
+
+    assert_no_difference -> { User.count } do
+      sign_in_with(:slack)
+    end
+    assert_redirected_to "/users/login"
+    follow_redirect!
+    assert_select "#pu-flash", text: /That isn't the DevCongress Slack workspace\./
+  end
+
+  test "an unverified Slack email is refused" do
+    create_user!(email: "victim@example.com")
+    mock_slack(uid: "U998", email: "victim@example.com", email_verified: false)
+
+    assert_no_difference -> { User::Identity.count } do
+      sign_in_with(:slack)
+    end
+    assert_redirected_to "/users/login"
+  end
+
   private
 
   def mock(provider, uid:, email:, info: {}, extra: {})
     OmniAuth.config.mock_auth[provider] = OmniAuth::AuthHash.new(
       provider: provider.to_s, uid:, info: {email:}.merge(info), extra:
     )
+  end
+
+  def mock_slack(uid:, email:, team: "T0DEVCON", email_verified: true, info: {})
+    mock(:slack, uid:, email:, info:, extra: {raw_info: {"https://slack.com/team_id" => team, "email_verified" => email_verified}})
   end
 
   # Request phase (POST, CSRF-checked) then the provider's callback.

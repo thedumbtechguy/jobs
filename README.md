@@ -93,6 +93,9 @@ bin/deploy
 | `LITESTREAM_REPLICA_REGION`, `LITESTREAM_REPLICA_ENDPOINT` | yes | Backblaze B2 region and S3 endpoint, e.g. `eu-central-003` and `https://s3.eu-central-003.backblazeb2.com` |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | no | "Continue with Google". Callback: `https://connect.devcongress.org/users/auth/google/callback` |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | no | "Continue with GitHub". Callback: `https://connect.devcongress.org/users/auth/github/callback` |
+| `SLACK_CLIENT_ID`, `SLACK_CLIENT_SECRET`, `SLACK_TEAM_ID` | no | "Continue with Slack", limited to the DevCongress workspace. Callback: `https://connect.devcongress.org/users/auth/slack/callback` |
+| `SLACK_BOT_TOKEN`, `SLACK_JOBS_CHANNEL_ID` | no | Bot token (scope `chat:write`) for `#jobs` cross-posts and notification DMs. Invite the bot to `#jobs` |
+| `SLACK_INVITE_URL`, `SLACK_WORKSPACE_URL` | no | "Join Slack" links, and profile links such as `https://devcongress.slack.com` |
 
 The host, URL and mail sender are fixed in `config/deploy.yml`. The app refuses
 to boot in production if a required variable is missing; the list lives in

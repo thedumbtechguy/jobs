@@ -74,6 +74,13 @@ env:
     GOOGLE_CLIENT_ID: "<%= ENV["GOOGLE_CLIENT_ID"] %>"
     GITHUB_CLIENT_ID: "<%= ENV["GITHUB_CLIENT_ID"] %>"
 
+    # Slack. Sign-in needs the id, secret and team; posts and DMs need the bot token.
+    SLACK_CLIENT_ID: "<%= ENV["SLACK_CLIENT_ID"] %>"
+    SLACK_TEAM_ID: "<%= ENV["SLACK_TEAM_ID"] %>"
+    SLACK_JOBS_CHANNEL_ID: "<%= ENV["SLACK_JOBS_CHANNEL_ID"] %>"
+    SLACK_INVITE_URL: "<%= ENV["SLACK_INVITE_URL"] %>"
+    SLACK_WORKSPACE_URL: "<%= ENV["SLACK_WORKSPACE_URL"] %>"
+
     # Log everything from Rails
     # RAILS_LOG_LEVEL: debug
   secret:
@@ -86,6 +93,8 @@ env:
     - LITESTREAM_SECRET_ACCESS_KEY
     - GOOGLE_CLIENT_SECRET
     - GITHUB_CLIENT_SECRET
+    - SLACK_CLIENT_SECRET
+    - SLACK_BOT_TOKEN
 
 # Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
 # "bin/kamal logs -r job" will tail logs from the first server in the job section.

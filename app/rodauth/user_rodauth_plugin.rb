@@ -1,4 +1,5 @@
 require "sequel/core"
+require Rails.root.join("lib/omniauth/strategies/slack_openid").to_s
 
 class UserRodauthPlugin < RodauthPlugin
   configure do
@@ -16,13 +17,18 @@ class UserRodauthPlugin < RodauthPlugin
 
     # ==> Social sign-in (rodauth-omniauth)
     # Each provider is offered only when its credentials are set. Callback URLs
-    # to register with the provider: <RAILS_DEFAULT_URL>/users/auth/google/callback
-    # and <RAILS_DEFAULT_URL>/users/auth/github/callback.
+    # to register with the provider: <RAILS_DEFAULT_URL>/users/auth/google/callback,
+    # <RAILS_DEFAULT_URL>/users/auth/github/callback and
+    # <RAILS_DEFAULT_URL>/users/auth/slack/callback.
     if ENV["GOOGLE_CLIENT_ID"].present? && ENV["GOOGLE_CLIENT_SECRET"].present?
       omniauth_provider :google_oauth2, ENV["GOOGLE_CLIENT_ID"], ENV["GOOGLE_CLIENT_SECRET"], name: :google, scope: "email,profile"
     end
     if ENV["GITHUB_CLIENT_ID"].present? && ENV["GITHUB_CLIENT_SECRET"].present?
       omniauth_provider :github, ENV["GITHUB_CLIENT_ID"], ENV["GITHUB_CLIENT_SECRET"], scope: "read:user,user:email"
+    end
+    # Sign in with Slack, limited to the DevCongress workspace.
+    if ENV["SLACK_CLIENT_ID"].present? && ENV["SLACK_CLIENT_SECRET"].present? && ENV["SLACK_TEAM_ID"].present?
+      omniauth_provider :slack_openid, ENV["SLACK_CLIENT_ID"], ENV["SLACK_CLIENT_SECRET"], name: :slack, team: ENV["SLACK_TEAM_ID"]
     end
 
     omniauth_identities_table :user_identities
@@ -30,11 +36,18 @@ class UserRodauthPlugin < RodauthPlugin
 
     # Social sign-in links to an existing account with the same email, so only
     # trust addresses the provider has verified. (omniauth-github only returns
-    # the primary *verified* address with the user:email scope.)
+    # the primary *verified* address with the user:email scope. Slack sends an
+    # email_verified claim, like Google.)
     before_omniauth_callback_route do
+      if omniauth_provider.to_s == "slack" && omniauth_extra.dig("raw_info", "https://slack.com/team_id") != Slack.team_id
+        set_redirect_error_flash "That isn't the DevCongress Slack workspace."
+        redirect login_path
+      end
+
       verified = case omniauth_provider.to_s
       when "google" then [true, "true"].include?(omniauth_extra.dig("raw_info", "email_verified"))
       when "github" then omniauth_email.present?
+      when "slack" then [true, "true"].include?(omniauth_extra.dig("raw_info", "email_verified"))
       else false
       end
 
