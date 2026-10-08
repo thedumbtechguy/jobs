@@ -47,6 +47,8 @@ class Developers::ProfileSkill < Developers::ResourceRecord
 
   # add attachments above.
 
+  # endorsers also points at Developers::Profile, so name the owning one.
+  scope :associated_with_developers_profile, ->(profile) { where(profile:) }
   # add scopes above.
 
   validates :skill, uniqueness: {scope: :profile_id, message: "is already on this profile"}
