@@ -11,7 +11,7 @@ class CategorizedEmailTest < ActionMailer::TestCase
 
   test "categorised emails carry an unsubscribe link and one-click headers" do
     email = Network::FollowMailer.with(follow: @follow).followed
-    token = EmailOptOut.token_for(@followee.user, :network)
+    token = NotificationOptOut.token_for(@followee.user, :network, via: :email)
 
     assert_match "/unsubscribe/#{token}", email["List-Unsubscribe"].value
     assert_equal "List-Unsubscribe=One-Click", email["List-Unsubscribe-Post"].value
@@ -22,7 +22,7 @@ class CategorizedEmailTest < ActionMailer::TestCase
   end
 
   test "follow emails respect the network setting" do
-    @followee.user.opt_out_of_email!(:network)
+    @followee.user.opt_out!(:network, via: :email)
     assert_emails(0) { Network::FollowMailer.with(follow: @follow).followed.deliver_now }
   end
 
@@ -30,10 +30,10 @@ class CategorizedEmailTest < ActionMailer::TestCase
     project = Showcase::Project.create!(owner: @follower, title: "Trotro Times")
     credit = project.contributors.create!(profile: @followee)
 
-    @followee.user.opt_out_of_email!(:project_credits)
+    @followee.user.opt_out!(:project_credits, via: :email)
     assert_emails(0) { Showcase::ContributorMailer.with(contributor: credit).invited.deliver_now }
 
-    @follower.user.opt_out_of_email!(:project_credits)
+    @follower.user.opt_out!(:project_credits, via: :email)
     assert_emails(0) { Showcase::ContributorMailer.with(contributor: credit).confirmed.deliver_now }
   end
 
@@ -43,7 +43,7 @@ class CategorizedEmailTest < ActionMailer::TestCase
     application = job.job_applications.create!(profile: @followee)
     application.status = :shortlisted
 
-    @followee.user.opt_out_of_email!(:applications)
+    @followee.user.opt_out!(:applications, via: :email)
     assert_emails(0) { Hiring::JobApplicationMailer.with(job_application: application, message: nil).status_changed.deliver_now }
   end
 end

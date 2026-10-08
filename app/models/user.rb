@@ -29,7 +29,7 @@ class User < ResourceRecord
   # add has_one associations above.
   has_many :company_users, dependent: :destroy
   has_many :companies, through: :company_users
-  has_many :email_opt_outs, dependent: :delete_all
+  has_many :notification_opt_outs, dependent: :delete_all
 
   # add has_many associations above.
 
@@ -55,22 +55,23 @@ class User < ResourceRecord
     developer_profile.present? || company_users.exists?
   end
 
-  # Categorised emails (see EmailOptOut::CATEGORIES) are on until turned off.
-  def wants_email?(category)
-    !email_opt_outs.exists?(category: category.to_s)
+  # Categorised notifications (see NotificationOptOut::CATEGORIES) are on in
+  # each channel until turned off.
+  def wants_notification?(category, via:)
+    !notification_opt_outs.exists?(channel: via.to_s, category: category.to_s)
   end
 
-  def opt_out_of_email!(category)
-    email_opt_outs.create_or_find_by!(category: category.to_s)
+  def opt_out!(category, via:)
+    notification_opt_outs.create_or_find_by!(channel: via.to_s, category: category.to_s)
   end
 
-  # Turns off exactly these categories and turns the rest back on.
-  def update_email_opt_outs!(categories)
+  # Turns off exactly these categories in one channel and turns the rest back on.
+  def update_opt_outs!(categories, via:)
     transaction do
-      email_opt_outs.where.not(category: categories).delete_all
-      categories.each { opt_out_of_email!(_1) }
+      notification_opt_outs.where(channel: via.to_s).where.not(category: categories).delete_all
+      categories.each { opt_out!(_1, via:) }
     end
-    email_opt_outs.reset
+    notification_opt_outs.reset
   end
 
   # add methods above. add private methods below.

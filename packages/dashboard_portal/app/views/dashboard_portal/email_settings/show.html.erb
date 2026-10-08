@@ -9,9 +9,9 @@
   <%= form_with url: email_settings_path, method: :patch, class: "dc-card" do |form| %>
     <div class="pu-card-body space-y-5">
       <%= hidden_field_tag "email_settings[categories][]", "", id: nil %>
-      <% EmailOptOut::CATEGORIES.each do |key, category| %>
+      <% NotificationOptOut::CATEGORIES.each do |key, category| %>
         <label class="flex items-start gap-3">
-          <%= check_box_tag "email_settings[categories][]", key, current_user.wants_email?(key), id: "email_category_#{key}", class: "mt-1 h-4 w-4 accent-primary-600" %>
+          <%= check_box_tag "email_settings[categories][]", key, current_user.wants_notification?(key, via: :email), id: "email_category_#{key}", class: "mt-1 h-4 w-4 accent-primary-600" %>
           <span>
             <span class="block font-semibold text-[var(--pu-text)]"><%= category[:label] %></span>
             <span class="block text-sm text-[var(--pu-text-muted)]"><%= category[:description] %></span>
