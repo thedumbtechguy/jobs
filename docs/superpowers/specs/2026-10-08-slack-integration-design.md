@@ -83,6 +83,15 @@ enqueues are harmless.
 | `draft`/`pending_review`  | `ts` present, posted status `active`         | (A live job declined back to draft) `chat.update` to closed, labelled "No longer available"; posted status `withdrawn` |
 | anything else             |                                              | Nothing |
 
+A live job that's deleted (an admin removing it) can't be synced, since the
+record is gone by the time a job runs. Instead `Hiring::JobPost` renders the
+closed message ("No longer available") in a `before_destroy` when the posted
+status is `active` and a `ts` is present, and an `after_destroy_commit`
+enqueues `Hiring::SlackJobPostCloseJob` with the `ts`, text and blocks as plain
+values. That job only calls `chat.update`, with the same failure handling as
+the sync job; `message_not_found` is ignored. A sync enqueued before the
+delete is discarded (`ActiveJob::DeserializationError`).
+
 ### Expiry sweep
 
 Expiry is time-based, so nothing fires when a job expires.
