@@ -3,6 +3,7 @@ require "test_helper"
 class SlackPromptsTest < ActionDispatch::IntegrationTest
   include Plutonium::Testing::AuthHelpers
   include AccountsTestHelper
+  include SlackSignInTestHelper
 
   setup do
     ENV["SLACK_INVITE_URL"] = "https://join.slack.com/t/devcongress/shared_invite/abc"
@@ -30,6 +31,25 @@ class SlackPromptsTest < ActionDispatch::IntegrationTest
     cookies.delete(:slack_prompt_dismissed)
     @user.identities.create!(provider: "slack", uid: "U1")
     get "/dashboard"
+    assert_select "[data-controller='dismiss']", 0
+  end
+
+  test "the card is shown with only an invite link or only Slack sign-in" do
+    login_user(@user)
+    without_slack_sign_in { get "/dashboard" }
+    assert_select "[data-controller='dismiss']", 1
+    assert_select "form[action='/users/auth/slack']", 0
+
+    ENV.delete("SLACK_INVITE_URL")
+    get "/dashboard"
+    assert_select "[data-controller='dismiss'] form[action='/users/auth/slack']", 1
+  end
+
+  test "no card when Slack isn't set up" do
+    ENV.delete("SLACK_INVITE_URL")
+    login_user(@user)
+    without_slack_sign_in { get "/dashboard" }
+    assert_response :success
     assert_select "[data-controller='dismiss']", 0
   end
 

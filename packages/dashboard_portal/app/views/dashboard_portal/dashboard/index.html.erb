@@ -10,7 +10,7 @@
     <p class="mt-1 text-[var(--pu-text-muted)]">Pick up where you left off.</p>
   </header>
 
-  <% if current_user.slack_identity.nil? && cookies[:slack_prompt_dismissed].blank? %>
+  <% if slack_available? && current_user.slack_identity.nil? && cookies[:slack_prompt_dismissed].blank? %>
     <div class="relative" data-controller="dismiss" data-dismiss-cookie-value="slack_prompt_dismissed">
       <%= render "shared/slack_card", user: current_user %>
       <button type="button" data-action="dismiss#dismiss" aria-label="Dismiss" class="absolute right-3 top-3 text-[var(--pu-text-subtle)] hover:text-[var(--pu-text)]">

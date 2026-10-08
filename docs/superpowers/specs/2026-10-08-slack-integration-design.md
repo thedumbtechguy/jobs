@@ -211,6 +211,10 @@ removes the Slack identity.
   the community, then connect your account...", with **Join Slack**
   (`SLACK_INVITE_URL`) and **Connect Slack** buttons. Linked: "Connected as
   <name>", with **Disconnect**.
+- The card is shown only when Slack is usable: `SLACK_INVITE_URL` is set or
+  the `slack` sign-in provider is registered (`SlackHelper#slack_available?`).
+  Each button shows only when its piece is set up. On the settings page a
+  connected user always sees it, so they can disconnect.
 - The dashboard card is shown only to users without a Slack identity and is
   dismissible. Dismissal is stored in the `slack_prompt_dismissed` cookie by
   a registered Stimulus controller (`dismiss_controller`; the existing
@@ -293,6 +297,8 @@ Slack-channel unsubscribe link.
   an Email checkbox and a Slack checkbox.
 - The Slack checkboxes are disabled, with the hint "Connect Slack first",
   until Slack is connected.
+- Without Slack sign-in (no `slack` provider) there's nothing to connect, so
+  the Slack column and hint are hidden, unless the user is already connected.
 - Saving replaces the user's opt-out rows per channel. Slack opt-outs only
   change once Slack is connected.
 - The user-menu link becomes "Notification settings".

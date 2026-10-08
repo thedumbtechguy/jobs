@@ -58,3 +58,16 @@ module SlackTestHelper
     end
   end
 end
+
+# Drops the Slack sign-in provider (registered from .env.test.local) for the
+# block, as when SLACK_CLIENT_ID and friends aren't set.
+module SlackSignInTestHelper
+  def without_slack_sign_in
+    auth = RodauthApp.rodauth(:user)
+    providers = auth.instance_variable_get(:@omniauth_providers)
+    auth.instance_variable_set(:@omniauth_providers, providers.reject { |(_, *args)| args.last.is_a?(Hash) && args.last[:name] == :slack })
+    yield
+  ensure
+    auth.instance_variable_set(:@omniauth_providers, providers)
+  end
+end
