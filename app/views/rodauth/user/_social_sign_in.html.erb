@@ -1,14 +1,17 @@
-<%# "Continue with Google / GitHub", shown only for providers that have credentials configured. %>
-<% providers = rodauth.omniauth_providers.map(&:to_s) & %w[google github] %>
+<%# "Continue with Google / GitHub / Slack", shown only for providers that have credentials configured. %>
+<% providers = rodauth.omniauth_providers.map(&:to_s) & %w[google github slack] %>
 <% if providers.any? %>
   <div class="space-y-3">
     <% providers.each do |provider| %>
       <%= button_to rodauth.omniauth_request_path(provider), method: :post, data: {turbo: false},
             class: "pu-btn pu-btn-md pu-btn-outline flex w-full items-center justify-center gap-2" do %>
-        <% if provider == "google" %>
+        <% case provider %>
+        <% when "google" %>
           <%= render Phlex::TablerIcons::BrandGoogle.new(class: "h-5 w-5") %> Continue with Google
-        <% else %>
+        <% when "github" %>
           <%= render Phlex::TablerIcons::BrandGithub.new(class: "h-5 w-5") %> Continue with GitHub
+        <% when "slack" %>
+          <%= render Phlex::TablerIcons::BrandSlack.new(class: "h-5 w-5") %> Continue with Slack
         <% end %>
       <% end %>
     <% end %>
