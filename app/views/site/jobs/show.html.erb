@@ -63,6 +63,19 @@
         </div>
       </section>
 
+      <% if job.slack_message_url.present? || (Slack.invite_url && !current_user) %>
+        <section class="dc-box space-y-2 p-5">
+          <% if job.slack_message_url.present? %>
+            <%= link_to job.slack_message_url, target: "_blank", rel: "noopener", class: "flex items-center gap-2 text-sm font-semibold hover:text-[#e8117f]" do %>
+              <%= render Phlex::TablerIcons::BrandSlack.new(class: "h-5 w-5") %> Discuss in #jobs
+            <% end %>
+          <% end %>
+          <% if Slack.invite_url && !current_user %>
+            <%= link_to "Join the DevCongress Slack", Slack.invite_url, target: "_blank", rel: "noopener", class: "block text-sm text-[#e8117f] hover:underline" %>
+          <% end %>
+        </section>
+      <% end %>
+
       <section class="dc-box p-5">
         <% if company.personal? %>
           <% poster = company.personal_profile %>
