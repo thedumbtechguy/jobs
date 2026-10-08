@@ -14,7 +14,7 @@ class Hiring::JobPostSlackMessageTest < ActiveSupport::TestCase
     message = Hiring::JobPostSlackMessage.new(@job)
     url = Slack.url(Rails.application.routes.url_helpers.public_job_path(@job))
 
-    assert_equal "New job at Acme & Co: Senior <Rails> Engineer", message.text
+    assert_equal "New job at Acme &amp; Co: Senior &lt;Rails&gt; Engineer", message.text
     header, excerpt, actions = message.blocks
     assert_equal "*<#{url}|Senior &lt;Rails&gt; Engineer>* · Acme &amp; Co\nFull time · Senior · Accra, Ghana · Remote · 5,000 – 8,000 USD per month", header.dig(:text, :text)
     assert_equal "About You'll build the payments platform for West Africa.", excerpt.dig(:text, :text)
@@ -31,7 +31,7 @@ class Hiring::JobPostSlackMessageTest < ActiveSupport::TestCase
   test "closed message" do
     message = Hiring::JobPostSlackMessage.new(@job, closed_as: "filled")
 
-    assert_equal "Filled: Senior <Rails> Engineer at Acme & Co", message.text
+    assert_equal "Filled: Senior &lt;Rails&gt; Engineer at Acme &amp; Co", message.text
     assert_equal 1, message.blocks.size
     assert_equal "~Senior &lt;Rails&gt; Engineer~ · Acme &amp; Co\n*Filled*", message.blocks.first.dig(:text, :text)
 
