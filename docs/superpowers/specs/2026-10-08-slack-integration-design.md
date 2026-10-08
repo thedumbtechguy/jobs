@@ -1,0 +1,305 @@
+# Slack integration
+
+## Goal
+
+DevCongress runs on Slack. Tie the jobs app into it:
+
+1. Cross-post every live job to `#jobs` and keep the message in sync with the
+   job's lifecycle.
+2. Let people sign in with Slack or connect Slack to an existing account, and
+   nudge everyone else to join the workspace.
+3. Send notifications to linked users as Slack DMs, with a per-category
+   Slack toggle next to the email one.
+
+Built in that order. Each phase ships on its own.
+
+## Slack app and configuration
+
+One Slack app ("DevCongress Jobs"), installed in the DevCongress workspace. It
+is a single workspace, so there's no install/OAuth flow for the bot: the token
+is copied from the app config into env.
+
+| Env var               | Used for                                   |
+|-----------------------|--------------------------------------------|
+| `SLACK_BOT_TOKEN`     | `#jobs` posts and DMs (scope `chat:write`)  |
+| `SLACK_JOBS_CHANNEL_ID` | The `#jobs` channel (bot must be a member) |
+| `SLACK_CLIENT_ID`, `SLACK_CLIENT_SECRET` | Sign in with Slack (OpenID Connect) |
+| `SLACK_TEAM_ID`       | Locks sign-in to the DevCongress workspace  |
+| `SLACK_INVITE_URL`    | "Join Slack" links                         |
+| `SLACK_WORKSPACE_URL` | e.g. `https://devcongress.slack.com`, for profile links |
+
+Each piece is off when its env vars aren't set, like the Google and GitHub
+providers today: no bot token means no posts or DMs, and no client
+credentials means no "Continue with Slack" button.
+
+### API client
+
+`Slack::Client` (in `lib/` or `app/models/slack/`) is a thin wrapper over
+`Net::HTTP` for the three endpoints we use: `chat.postMessage`,
+`chat.update` and `chat.getPermalink`. It POSTs JSON with the bearer token
+and returns the parsed body. When `ok` is false it raises `Slack::Error`
+carrying Slack's `error` code. A `ratelimited` error raises
+`Slack::RateLimited` with the `Retry-After` value.
+
+`Slack.client` returns the shared client. `Slack.configured?` is true when
+`SLACK_BOT_TOKEN` is set. Tests swap in `Slack::FakeClient` (see Testing).
+
+## Phase 1: `#jobs` cross-posting
+
+### Data
+
+`hiring_job_posts` gains:
+
+- `slack_message_ts` (string): the current `#jobs` message, if any
+- `slack_posted_status` (string): the status that message last rendered
+  (`active`, `filled`, `expired`, `archived`, `withdrawn`)
+- `slack_message_url` (string): the message permalink, for "Discuss in #jobs"
+
+All jobs are posted, including members-only ones: the workspace is itself
+members-only.
+
+### Trigger
+
+`Hiring::JobPost` gets an `after_commit` that enqueues
+`Hiring::SlackJobPostSyncJob` when any of `published_at`, `approved_at`,
+`expires_at`, `filled_at`, `archived_at`, `title`, `description`,
+`employment_type`, `seniority`, salary, pay or location fields changed, and
+`Slack.configured?`. The job always renders from current state, so duplicate
+enqueues are harmless.
+
+### Sync rules
+
+| Current status            | Message state                                | Action |
+|---------------------------|----------------------------------------------|--------|
+| `active`                  | no `slack_message_ts`                        | `chat.postMessage`; store `ts`, `slack_posted_status = "active"` |
+| `active`                  | `ts` present, posted status `active`         | `chat.update` in place |
+| `active`                  | `ts` present, posted status not `active`     | Repost (renewed or reopened): post a new message, store the new `ts` and `active`. The old message keeps its closed rendering and its thread |
+| `filled`/`expired`/`archived` | `ts` present, posted status `active`     | `chat.update` to the closed rendering; set posted status to the job status |
+| `draft`/`pending_review`  | `ts` present, posted status `active`         | (A live job declined back to draft) `chat.update` to closed, labelled "No longer available"; posted status `withdrawn` |
+| anything else             |                                              | Nothing |
+
+### Expiry sweep
+
+Expiry is time-based, so nothing fires when a job expires.
+`Hiring::SlackJobSweepJob` runs hourly from `config/recurring.yml`. It finds
+posts with `slack_posted_status: "active"` and `expires_at < now`, and
+enqueues a sync for each.
+
+### Message
+
+Block Kit, rendered by `Hiring::JobPostSlackMessage` (`#text`, `#blocks`
+for a given job):
+
+- Live: bold title, linked to the public job URL · company name. A line with
+  type, seniority, location and pay (whatever's present). A two-line plain-text
+  excerpt of the description. A **View & apply** button to the public job URL.
+  The `text` fallback is "New <kind_noun> at <company>: <title>".
+- Closed: struck-through title · company, then a label: "Filled",
+  "Expired", or "No longer available" (archived or withdrawn). No button.
+
+### Discuss in #jobs
+
+When a job has a `slack_message_ts`, the public job page shows a "Discuss in
+#jobs" link to the message permalink. The permalink comes from
+`chat.getPermalink` at post time and is stored in `slack_message_url`, so
+the page never calls Slack.
+
+### Failures
+
+- Network errors and `Slack::RateLimited`: `retry_on` with backoff (rate
+  limits wait `Retry-After`).
+- `message_not_found` on update (someone deleted it in Slack): clear
+  `ts`/url/posted status. If the job is active, post a fresh message.
+  Otherwise stop.
+- Other Slack errors (`channel_not_found`, `not_in_channel`,
+  `invalid_auth`, ...): config problems. `Rails.logger.error { ... }` and
+  discard.
+
+## Phase 2: Sign in and connect with Slack
+
+### Provider
+
+Slack's "Sign in with Slack" is OpenID Connect. Add the
+`omniauth_openid_connect` gem and register it in `UserRodauthPlugin`, next to
+Google and GitHub:
+
+- `omniauth_provider :openid_connect, name: :slack, issuer: "https://slack.com", discovery: true`,
+  scopes `openid email profile`, the client id/secret, and
+  `extra_authorize_params: {team: SLACK_TEAM_ID}` so Slack opens straight
+  to the DevCongress workspace.
+- Only registered when `SLACK_CLIENT_ID`, `SLACK_CLIENT_SECRET` and
+  `SLACK_TEAM_ID` are all set.
+- Callback URL to register with Slack: `<RAILS_DEFAULT_URL>/users/auth/slack/callback`.
+
+### Callback checks
+
+The existing `before_omniauth_callback_route` gains a `slack` branch:
+
+- The `https://slack.com/team_id` claim must equal `SLACK_TEAM_ID`.
+  Otherwise flash "That isn't the DevCongress Slack workspace." and redirect
+  to login. Nothing is linked.
+- `email_verified` must be true (same rule as Google).
+
+The identity is stored in `user_identities` with provider `slack`, `uid` =
+the Slack user id (the DM target), and `info` from `social_profile_info`
+(name, avatar). Onboarding picks up the name and avatar the same way it does
+for Google and GitHub.
+
+`User#slack_identity` returns the Slack identity, or nil.
+
+### Sign-in and connect
+
+- `_social_sign_in.html.erb` gains "Continue with Slack" (Tabler
+  `BrandSlack` icon). Signup, linking by verified email, and onboarding behave
+  exactly as for Google and GitHub.
+- Signed-in users connect with a POST to the same request path.
+  rodauth-omniauth attaches the identity to the current account.
+- If that Slack account is already linked to another user, flash "That Slack
+  account is connected to another DevCongress Jobs account." and change
+  nothing.
+
+### Connecting turns email off
+
+When a Slack identity is created for a user (signup or connect), every
+categorised email is turned off for them: an email opt-out row is inserted for
+each category in `NotificationOptOut::CATEGORIES` (insert, ignoring rows
+that already exist). Slack DMs take over. The user can turn email back on for
+any category from the settings page. The flash after connecting says so:
+"Slack connected. Notifications now come as Slack DMs. You can turn email
+back on in notification settings."
+
+### Disconnect
+
+`DELETE /dashboard/settings/slack` (`DashboardPortal::SlackConnectionsController#destroy`)
+removes the Slack identity.
+
+- Blocked when it is the user's only way to sign in (no password and no
+  other identity): flash "Set a password first so you can still sign in."
+- On disconnect, email is turned back on for every category the user still
+  had on in Slack (delete their email opt-out for each category without a
+  Slack opt-out), so nobody silently stops getting notifications. Slack
+  opt-out rows are kept in case they reconnect.
+
+### Driving people to Slack
+
+- Notification settings page: a Slack card at the top. Unlinked: "Connect
+  Slack to get notifications as DMs", with **Connect Slack** and a **Join the
+  DevCongress Slack** link (`SLACK_INVITE_URL`). Linked: "Connected as
+  <name>", with **Disconnect**.
+- Dashboard: a dismissible card for users without a Slack identity:
+  "DevCongress lives on Slack. Join the community, then connect your
+  account." It has **Join Slack** and **Connect** buttons. Dismissal is
+  stored in a cookie by a registered Stimulus controller
+  (`dismissible_controller`).
+- Public job page: "Discuss in #jobs" (phase 1). For signed-out visitors,
+  also "Join the DevCongress Slack".
+- Footer: a Slack icon linking to `SLACK_INVITE_URL`, next to the existing
+  social links.
+- Developer profiles: a Slack badge for linked users, linking to
+  `<SLACK_WORKSPACE_URL>/team/<uid>`.
+
+## Phase 3: Slack DMs and per-channel settings
+
+### Opt-outs
+
+`email_opt_outs` is renamed to `notification_opt_outs`, and the model to
+`NotificationOptOut`:
+
+- New `channel` string column, not null, default `"email"`; existing rows
+  become `email`. Validated against `NotificationOptOut::CHANNELS`
+  (`email`, `slack`).
+- The unique index becomes `[user_id, channel, category]`.
+- `User#wants_notification?(category, via:)` and
+  `User#opt_out!(category, via:)` replace `wants_email?` and
+  `opt_out_of_email!`. Callers are updated.
+
+Every category is on in both channels until opted out, except that connecting
+Slack turns email off (phase 2). Essential emails (Rodauth, invitations, job
+review) stay email-only, with no DM.
+
+### DM classes
+
+`SlackDm` base class (`app/models/slack_dm.rb`):
+
+- `self.category = :applications`
+- `initialize(**params)`, where `params` are records
+- Subclasses define `recipient`, `text` (notification fallback) and `blocks`
+- `deliver_later` enqueues `SlackDmJob.perform_later(self.class.name, **params)`
+  when `Slack.configured?`. Records serialise through GlobalID, the same as
+  mailers.
+
+`SlackDmJob` rebuilds the DM. At perform time it skips the DM if the
+recipient has no Slack identity or has opted out of the category on Slack, so
+a change made after enqueueing still applies. Otherwise it calls
+`chat.postMessage(channel: identity.uid, text:, blocks:)`.
+
+| DM class                              | Mirrors                         | Recipient |
+|---------------------------------------|---------------------------------|-----------|
+| `Network::FollowedDm`                 | `FollowMailer#followed`         | followee |
+| `Hiring::ApplicationReceivedDm`       | `JobApplicationMailer#received` | each verified company user |
+| `Hiring::ApplicationStatusChangedDm`  | `#status_changed`               | applicant (including the optional message) |
+| `Showcase::CreditInvitedDm`           | `ContributorMailer#invited`     | credited profile's user |
+| `Showcase::CreditConfirmedDm`         | `ContributorMailer#confirmed`   | project owner |
+
+Each call site that enqueues the mailer also enqueues the matching DM.
+
+Each DM has a short headline, one or two lines of context, a button (View
+application / View profile / View project), and a context block: "Turn off
+Slack DMs for <label> · Notification settings". The first link is a
+Slack-channel unsubscribe link.
+
+### Unsubscribe tokens
+
+- Tokens become `[user_id, channel, category]`.
+- `NotificationOptOut.resolve` still accepts the old two-element tokens,
+  reading them as `email`, so links in emails already sent keep working.
+- The `/unsubscribe/:token` page names the channel ("Turn off Job
+  applications on Slack" / "... emails").
+
+### Settings page
+
+- `/dashboard/settings/email` becomes `/dashboard/settings/notifications`
+  (`DashboardPortal::NotificationSettingsController`). The old path
+  redirects.
+- Slack card at the top (phase 2), then a table: one row per category, with
+  an Email checkbox and a Slack checkbox.
+- The Slack checkboxes are disabled, with the hint "Connect Slack first",
+  until Slack is connected.
+- Saving replaces the user's opt-out rows for both channels.
+- The user-menu link becomes "Notification settings".
+- Email footers link to the new settings path.
+
+### Failures
+
+- `user_not_found`, `account_inactive`, `cannot_dm_bot`: the person left
+  or was deactivated. `Rails.logger.warn { ... }` and discard. The identity
+  isn't unlinked, since they may come back.
+- Network errors and rate limits: retry, as for `#jobs`.
+
+## Testing
+
+`Slack::FakeClient` records calls and can be set up to return a given error.
+Tests set `Slack.client` to it, so there's no real HTTP and no WebMock.
+
+- `Slack::Client`: raises `Slack::Error` with the code on `ok: false`, and
+  `Slack::RateLimited` with `Retry-After`.
+- Sync job: one test per row of the sync table. Also: the repost after renew
+  or reopen keeps the old message closed, `message_not_found` recovery, a
+  config error is discarded, and nothing is enqueued when Slack isn't
+  configured.
+- Sweep: picks up expired `active` posts only.
+- Message rendering: live and closed variants, and optional fields left out
+  when blank.
+- Sign-in: wrong team rejected, unverified email rejected, signed-in connect
+  attaches the identity, a Slack account already linked to someone else is
+  blocked.
+- Connect turns email off for all categories. Disconnect turns email back on
+  for categories still on in Slack. Disconnect is blocked when Slack is the
+  only way to sign in.
+- DMs: skipped without an identity, skipped when opted out on Slack, sent
+  otherwise. Each DM class renders the expected text and links. Each call site
+  enqueues its DM.
+- Opt-outs: migration maps existing rows to `email`, old two-element tokens
+  resolve as `email`, and Slack tokens opt out of Slack only.
+- Settings page: Slack column disabled when unlinked, saving both channels,
+  and the redirect from `/settings/email`.
