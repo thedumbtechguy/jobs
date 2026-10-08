@@ -92,6 +92,7 @@ class SocialSignInTest < ActionDispatch::IntegrationTest
     identity = user.identities.sole
     assert_equal %w[slack U123], [identity.provider, identity.uid]
     assert_equal "Ama Mensah", identity.info["name"]
+    assert_not user.wants_notification?(:network, via: :email)
   end
 
   test "Slack sign-in from another workspace is refused" do
