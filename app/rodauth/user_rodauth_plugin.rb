@@ -46,6 +46,11 @@ class UserRodauthPlugin < RodauthPlugin
           set_redirect_error_flash "That #{omniauth_provider.to_s.titleize} account is connected to another DevCongress Connect account."
           redirect "/dashboard/settings/notifications"
         end
+        # One Slack account per user, so slack_identity stays unambiguous.
+        if omniauth_provider.to_s == "slack" && !omniauth_identity && !omniauth_account_identities_ds(session_value).where(omniauth_identities_provider_column => "slack").empty?
+          set_redirect_error_flash "Disconnect your current Slack account first."
+          redirect "/dashboard/settings/notifications"
+        end
         account_from_session
       end
 
@@ -85,6 +90,12 @@ class UserRodauthPlugin < RodauthPlugin
         db.after_commit { Rodauth::UserMailer.welcome(self.class.configuration_name, account_id).deliver_later }
       end
 
+      def login_notice_flash
+        @slack_connected ? "Slack connected. Notifications now come as Slack DMs. You can turn email back on in notification settings." : super
+      end
+
+      private
+
       # Signing up with or connecting Slack moves notifications to Slack DMs.
       def create_omniauth_identity
         super
@@ -93,12 +104,6 @@ class UserRodauthPlugin < RodauthPlugin
         User.find(account_id).slack_connected!
         @slack_connected = true
       end
-
-      def login_notice_flash
-        @slack_connected ? "Slack connected. Notifications now come as Slack DMs. You can turn email back on in notification settings." : super
-      end
-
-      private
 
       def omniauth_verify_account
         transaction do
