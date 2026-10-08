@@ -105,6 +105,17 @@ class SocialSignInTest < ActionDispatch::IntegrationTest
     assert_select "#pu-flash", text: /That isn't the DevCongress Slack workspace\./
   end
 
+  test "Slack sign-in without a team_id claim is refused" do
+    mock(:slack, uid: "U997", email: "someone@example.com", extra: {raw_info: {"email_verified" => true}})
+
+    assert_no_difference [-> { User.count }, -> { User::Identity.count }] do
+      sign_in_with(:slack)
+    end
+    assert_redirected_to "/users/login"
+    follow_redirect!
+    assert_select "#pu-flash", text: /That isn't the DevCongress Slack workspace\./
+  end
+
   test "an unverified Slack email is refused" do
     create_user!(email: "victim@example.com")
     mock_slack(uid: "U998", email: "victim@example.com", email_verified: false)
