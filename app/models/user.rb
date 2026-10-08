@@ -74,5 +74,28 @@ class User < ResourceRecord
     notification_opt_outs.reset
   end
 
+  def slack_identity
+    identities.find_by(provider: "slack")
+  end
+
+  # Slack DMs take over from email. People can turn email back on per category.
+  def slack_connected!
+    NotificationOptOut::CATEGORIES.each_key { opt_out!(_1, via: :email) }
+  end
+
+  # Email comes back for every category still on in Slack, so nobody stops
+  # hearing about something they wanted. Slack opt-outs stay in case they reconnect.
+  def disconnect_slack!
+    transaction do
+      slack_identity.destroy!
+      still_on = NotificationOptOut::CATEGORIES.keys.select { wants_notification?(_1, via: :slack) }
+      notification_opt_outs.where(channel: "email", category: still_on).delete_all
+    end
+  end
+
+  def can_sign_in_without_slack?
+    password_hash.present? || identities.where.not(provider: "slack").exists?
+  end
+
   # add methods above. add private methods below.
 end

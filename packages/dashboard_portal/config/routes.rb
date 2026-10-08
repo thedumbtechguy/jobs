@@ -2,6 +2,7 @@ DashboardPortal::Engine.routes.draw do
   root to: "dashboard#index"
 
   resource :email_settings, only: %i[show update], path: "settings/email"
+  resource :slack_connection, only: %i[destroy], path: "settings/slack"
 
   # register resources above.
 

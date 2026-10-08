@@ -39,6 +39,16 @@ class UserRodauthPlugin < RodauthPlugin
     # the primary *verified* address with the user:email scope. Slack sends an
     # email_verified claim, like Google.)
     before_omniauth_callback_route do
+      # Signed in: connect the identity to this account rather than looking
+      # one up by email. An identity already on another account stays put.
+      if logged_in?
+        if omniauth_identity && omniauth_identity_account_id != session_value
+          set_redirect_error_flash "That #{omniauth_provider.to_s.titleize} account is connected to another DevCongress Connect account."
+          redirect "/dashboard/settings/notifications"
+        end
+        account_from_session
+      end
+
       if omniauth_provider.to_s == "slack" && omniauth_extra.dig("raw_info", "https://slack.com/team_id") != Slack.team_id
         set_redirect_error_flash "That isn't the DevCongress Slack workspace."
         redirect login_path
@@ -73,6 +83,19 @@ class UserRodauthPlugin < RodauthPlugin
 
       def send_welcome_email
         db.after_commit { Rodauth::UserMailer.welcome(self.class.configuration_name, account_id).deliver_later }
+      end
+
+      # Signing up with or connecting Slack moves notifications to Slack DMs.
+      def create_omniauth_identity
+        super
+        return unless omniauth_provider.to_s == "slack"
+
+        User.find(account_id).slack_connected!
+        @slack_connected = true
+      end
+
+      def login_notice_flash
+        @slack_connected ? "Slack connected. Notifications now come as Slack DMs. You can turn email back on in notification settings." : super
       end
 
       private
