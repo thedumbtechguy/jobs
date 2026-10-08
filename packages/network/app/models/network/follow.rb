@@ -81,5 +81,6 @@ class Network::Follow < Network::ResourceRecord
 
     Rails.cache.write(key, true, expires_in: 1.week)
     Network::FollowMailer.with(follow: self).followed.deliver_later
+    Network::FollowedDm.new(follow: self).deliver_later
   end
 end

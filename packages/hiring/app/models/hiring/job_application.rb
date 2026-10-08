@@ -102,6 +102,15 @@ class Hiring::JobApplication < Hiring::ResourceRecord
     notes.create!(kind: :note, body:, author:)
   end
 
+  # Headline for telling the applicant about their new status (email and Slack).
+  def status_update_subject
+    case status
+    when "shortlisted" then "You're on the shortlist for #{job_post.title}"
+    when "hired" then "#{company.display_name} wants to hire you"
+    else "An update on your application to #{company.display_name}"
+    end
+  end
+
   private
 
   def log_status_change
@@ -112,11 +121,13 @@ class Hiring::JobApplication < Hiring::ResourceRecord
   def notify_company
     job_post.company.users.verified.find_each do |recipient|
       Hiring::JobApplicationMailer.with(job_application: self, recipient:).received.deliver_later
+      Hiring::ApplicationReceivedDm.new(job_application: self, recipient:).deliver_later
     end
   end
 
   def notify_applicant
     Hiring::JobApplicationMailer.with(job_application: self, message: status_message.presence).status_changed.deliver_later
+    Hiring::ApplicationStatusChangedDm.new(job_application: self, message: status_message.presence).deliver_later
   end
 
   def job_accepts_applications

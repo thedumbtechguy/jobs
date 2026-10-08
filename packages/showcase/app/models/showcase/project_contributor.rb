@@ -56,7 +56,10 @@ class Showcase::ProjectContributor < Showcase::ResourceRecord
   validate :not_the_owner
   # add validations above.
 
-  after_create_commit -> { Showcase::ContributorMailer.with(contributor: self).invited.deliver_later }
+  after_create_commit -> {
+    Showcase::ContributorMailer.with(contributor: self).invited.deliver_later
+    Showcase::CreditInvitedDm.new(contributor: self).deliver_later
+  }
   # add callbacks above.
 
   delegate :owner, to: :project
@@ -84,6 +87,7 @@ class Showcase::ProjectContributor < Showcase::ResourceRecord
 
     update!(status: :confirmed, confirmed_at: Time.current)
     Showcase::ContributorMailer.with(contributor: self).confirmed.deliver_later
+    Showcase::CreditConfirmedDm.new(contributor: self).deliver_later
   end
 
   # add methods above. add private methods below.
