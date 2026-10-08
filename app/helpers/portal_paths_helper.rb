@@ -18,8 +18,8 @@ module PortalPathsHelper
     PortalPathsHelper.routes.dashboard_portal.root_path
   end
 
-  def email_settings_dashboard_path
-    PortalPathsHelper.routes.dashboard_portal.email_settings_path
+  def notification_settings_dashboard_path
+    PortalPathsHelper.routes.dashboard_portal.notification_settings_path
   end
 
   def developer_portal_home_path(profile)

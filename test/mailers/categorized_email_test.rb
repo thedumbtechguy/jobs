@@ -18,7 +18,7 @@ class CategorizedEmailTest < ActionMailer::TestCase
     assert_match "Turn off network activity emails", email.html_part.body.to_s
     assert_match "/unsubscribe/#{token}", email.html_part.body.to_s
     assert_match "/unsubscribe/#{token}", email.text_part.body.to_s
-    assert_match "/dashboard/settings/email", email.text_part.body.to_s
+    assert_match "/dashboard/settings/notifications", email.text_part.body.to_s
   end
 
   test "follow emails respect the network setting" do

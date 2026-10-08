@@ -23,10 +23,12 @@ class SlackConnectionTest < ActionDispatch::IntegrationTest
       follow_redirect!
     end
 
+    assert_redirected_to "/dashboard/settings/notifications"
     assert_equal "U123", @user.reload.slack_identity.uid
     assert_not @user.wants_notification?(:applications, via: :email)
     follow_redirect! while response.redirect?
-    assert_match "Slack connected", response.body
+    assert_equal "/dashboard/settings/notifications", path
+    assert_select "#pu-flash", text: /Slack connected/
   end
 
   test "a Slack account linked to someone else can't be connected" do
@@ -40,8 +42,10 @@ class SlackConnectionTest < ActionDispatch::IntegrationTest
 
     assert_nil @user.reload.slack_identity
     assert_equal other.id, User::Identity.find_by!(provider: "slack", uid: "U123").user_id
-    follow_redirect! while response.redirect?
-    assert_match "connected to another DevCongress Connect account", response.body
+    assert_redirected_to "/dashboard/settings/notifications"
+    follow_redirect!
+    assert_response :success
+    assert_select "#pu-flash", text: /connected to another DevCongress Connect account/
   end
 
   test "disconnecting" do
@@ -51,8 +55,7 @@ class SlackConnectionTest < ActionDispatch::IntegrationTest
 
     delete "/dashboard/settings/slack"
 
-    # Tightened to /dashboard/settings/notifications once that page exists.
-    assert_response :redirect
+    assert_redirected_to "/dashboard/settings/notifications"
     assert_nil @user.reload.slack_identity
     assert @user.wants_notification?(:applications, via: :email)
   end
@@ -67,9 +70,11 @@ class SlackConnectionTest < ActionDispatch::IntegrationTest
 
     delete "/dashboard/settings/slack"
 
+    assert_redirected_to "/dashboard/settings/notifications"
     assert_equal "U555", user.reload.slack_identity.uid
     follow_redirect!
-    assert_match "Set a password first", response.body
+    assert_response :success
+    assert_select "#pu-flash", text: /Set a password first/
   end
 
   test "a second Slack account can't be connected" do
@@ -130,7 +135,7 @@ class SlackConnectionTest < ActionDispatch::IntegrationTest
 
     delete "/dashboard/settings/slack"
 
-    assert_response :redirect
+    assert_redirected_to "/dashboard/settings/notifications"
     assert_equal "Slack isn't connected.", flash[:notice]
   end
 

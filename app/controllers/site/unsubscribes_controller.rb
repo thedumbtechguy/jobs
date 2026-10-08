@@ -1,5 +1,5 @@
 # Unsubscribe links from categorised emails and Slack DMs. Opening the link only asks:
-# link scanners follow GETs, so turning emails off takes a POST, which is also
+# link scanners follow GETs, so turning a category off takes a POST, which is also
 # what mail clients send for one-click unsubscribe (with no CSRF token).
 module Site
   class UnsubscribesController < BaseController

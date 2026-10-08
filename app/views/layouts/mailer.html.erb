@@ -36,7 +36,7 @@
                 <% if @unsubscribe_url %>
                   <p style="margin:0 0 8px;">
                     <a href="<%= @unsubscribe_url %>" style="color:<%= EmailHelper::MUTED %>;">Turn off <%= @email_category[:label].downcase %> emails</a> ·
-                    <a href="<%= @email_settings_url %>" style="color:<%= EmailHelper::MUTED %>;">Email settings</a>
+                    <a href="<%= @notification_settings_url %>" style="color:<%= EmailHelper::MUTED %>;">Notification settings</a>
                   </p>
                 <% end %>
                 <p style="margin:0;">
