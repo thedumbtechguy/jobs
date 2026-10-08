@@ -53,9 +53,29 @@ class SlackDmTest < ActiveJob::TestCase
     assert_match "/dashboard/settings/notifications|Notification settings", footer[:elements].sole[:text]
   end
 
-  test "people who left the workspace are skipped quietly" do
+  test "people who left the workspace are skipped with a warning" do
     @user.identities.create!(provider: "slack", uid: "U1")
     @slack.fail_next(:post_message, "user_not_found")
-    assert_nothing_raised { SlackDmJob.perform_now("SlackDmTest::TestDm", user: @user) }
+    log = capture_log { assert_nothing_raised { SlackDmJob.perform_now("SlackDmTest::TestDm", user: @user) } }
+    assert_match(/WARN -- : .*not sent: user_not_found/, log)
+  end
+
+  test "config errors are discarded and logged as errors" do
+    @user.identities.create!(provider: "slack", uid: "U1")
+    @slack.fail_next(:post_message, "invalid_auth")
+    log = capture_log { assert_nothing_raised { SlackDmJob.perform_now("SlackDmTest::TestDm", user: @user) } }
+    assert_match(/ERROR -- : .*not sent: invalid_auth/, log)
+  end
+
+  private
+
+  def capture_log
+    io = StringIO.new
+    logger = Rails.logger
+    Rails.logger = Logger.new(io)
+    yield
+    io.string
+  ensure
+    Rails.logger = logger
   end
 end

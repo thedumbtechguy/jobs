@@ -309,6 +309,8 @@ Slack-channel unsubscribe link.
 - `user_not_found`, `account_inactive`, `cannot_dm_bot`: the person left
   or was deactivated. `Rails.logger.warn { ... }` and discard. The identity
   isn't unlinked, since they may come back.
+- Other Slack errors (`invalid_auth`, `missing_scope`, ...): config
+  problems. `Rails.logger.error { ... }` and discard.
 - Network errors and rate limits: retry, as for `#jobs`.
 
 ## Testing
