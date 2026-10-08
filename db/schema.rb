@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_08_150000) do
   create_table "active_shrine_attachments", force: :cascade do |t|
     t.string "record_type"
     t.bigint "record_id"
@@ -266,6 +266,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
     t.boolean "paid", default: true, null: false
     t.string "duration"
     t.date "starts_on"
+    t.string "slack_message_ts"
+    t.string "slack_message_url"
+    t.string "slack_posted_status"
     t.index ["company_id"], name: "index_hiring_job_posts_on_company_id"
     t.index ["published_at", "expires_at"], name: "index_hiring_job_posts_on_published_at_and_expires_at"
   end

@@ -22,6 +22,9 @@
 #  salary_max           :integer
 #  salary_min           :integer
 #  seniority            :integer
+#  slack_message_ts     :string
+#  slack_message_url    :string
+#  slack_posted_status  :string
 #  starts_on            :date
 #  title                :string           not null
 #  visibility           :integer          default("everyone"), not null
