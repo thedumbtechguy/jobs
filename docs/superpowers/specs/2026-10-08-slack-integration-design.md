@@ -180,6 +180,11 @@ for Google and GitHub.
   nothing.
 - A user who already has a Slack account connected can't add a second one:
   flash "Disconnect your current Slack account first."
+- The same rule holds when signed out: a new Slack account whose verified
+  email matches an account that already has a different Slack account is
+  refused with "That email's account is already connected to a different
+  Slack account." and a redirect to login. (The hook looks the account up by
+  email itself, via `account_from_omniauth`, and the callback reuses it.)
 
 ### Connecting turns email off
 
