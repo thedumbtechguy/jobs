@@ -10,7 +10,7 @@ for the domain model and roadmap.
 ## Requirements
 
 - Ruby 3.3+ (see `.ruby-version`)
-- Node 22.22.3+ or 24.15+, and Yarn 1.x
+- Node 22 (see `.node-version`), with `corepack enable` so the pinned Yarn 4 is used
 
 ## Setup
 
