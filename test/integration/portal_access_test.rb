@@ -28,6 +28,15 @@ class PortalAccessTest < ActionDispatch::IntegrationTest
     assert_select "a[href='/company/acme-labs']"
   end
 
+  test "portal page titles use the product name" do
+    login_user(@user)
+
+    ["/dashboard", "/developer/#{@profile.to_param}", "/company/#{@company.to_param}"].each do |path|
+      get path
+      assert_select "title", /DevCongress Connect\z/
+    end
+  end
+
   test "the context switcher lists the user's profile and companies only" do
     login_user(@user)
     get "/developer/#{@profile.to_param}"

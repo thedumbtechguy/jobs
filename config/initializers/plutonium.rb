@@ -1,5 +1,8 @@
 # Configure plutonium
 
+# Portal page titles; otherwise Plutonium uses the app module name (DevRegistry).
+Plutonium.application_name = "DevCongress Connect"
+
 Plutonium.configure do |config|
   config.load_defaults 1.0
 
