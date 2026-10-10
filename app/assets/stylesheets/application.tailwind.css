@@ -38,6 +38,44 @@
   --iti-path-globe-2x: url("intl-tel-input/globe@2x.webp");
 }
 
+/* EasyMDE's toolbar uses Font Awesome 4 icons, which Plutonium loads from a
+   CDN (dropped by SelfHostedAssets). Self-host the font (SIL OFL, from
+   font-awesome@4.7.0) with just the classes the toolbar uses. */
+@font-face {
+  font-family: "FontAwesome";
+  font-style: normal;
+  font-weight: normal;
+  font-display: block;
+  src: url("fontawesome-4.7.0.woff2") format("woff2");
+}
+.editor-toolbar .fa {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.editor-toolbar .fa-arrows-alt:before { content: "\f0b2"; }
+.editor-toolbar .fa-bold:before { content: "\f032"; }
+.editor-toolbar .fa-code:before { content: "\f121"; }
+.editor-toolbar .fa-columns:before { content: "\f0db"; }
+.editor-toolbar .fa-eraser:before { content: "\f12d"; }
+.editor-toolbar .fa-eye:before { content: "\f06e"; }
+.editor-toolbar .fa-header:before { content: "\f1dc"; }
+.editor-toolbar .fa-image:before { content: "\f03e"; }
+.editor-toolbar .fa-italic:before { content: "\f033"; }
+.editor-toolbar .fa-link:before { content: "\f0c1"; }
+.editor-toolbar .fa-list-ol:before { content: "\f0cb"; }
+.editor-toolbar .fa-list-ul:before { content: "\f0ca"; }
+.editor-toolbar .fa-minus:before { content: "\f068"; }
+.editor-toolbar .fa-question-circle:before { content: "\f059"; }
+.editor-toolbar .fa-quote-left:before { content: "\f10d"; }
+.editor-toolbar .fa-repeat:before { content: "\f01e"; }
+.editor-toolbar .fa-strikethrough:before { content: "\f0cc"; }
+.editor-toolbar .fa-table:before { content: "\f0ce"; }
+.editor-toolbar .fa-undo:before { content: "\f0e2"; }
+
 /* ---------------------------------------------------------------------------
    DevCongress brand (devcongress.org): cream paper, ink, hot pink, yellow.
    Fonts are self-hosted (SIL OFL) from app/assets/fonts.
