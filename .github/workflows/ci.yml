@@ -59,14 +59,18 @@ jobs:
         with:
           bundler-cache: true
 
+      # package.json pins yarn 4 via packageManager; Corepack provides it.
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version-file: .node-version
           cache: yarn
 
       - name: Install JavaScript dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Run tests
         env:
