@@ -68,7 +68,7 @@ class FormsTest < ActionDispatch::IntegrationTest
     login_user(other)
 
     post "/onboarding", params: {onboarding: {developer: "0", hiring: "1", company_name: "Kumasi Labs",
-      company_country: "Ghana", company_city: "Kumasi"}}
+                                              company_country: "Ghana", company_city: "Kumasi"}}
     assert_equal ["Ghana", "Kumasi"], Company.find_by!(name: "Kumasi Labs").slice(:country, :city).values
   end
 end
