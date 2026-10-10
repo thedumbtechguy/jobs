@@ -543,19 +543,20 @@ The field-level help keys (`:label`, `:description`, `:hint`, `:placeholder`) ar
 
 | Category | Types |
 |----------|-------|
-| Text | `:string`, `:text`, `:email`, `:url`, `:tel`, `:password` |
-| Rich Text | `:markdown` (EasyMDE) |
-| Numeric | `:number`, `:integer`, `:decimal`, `:range` |
+| Text | `:string`, `:text`, `:email`, `:url`, `:phone`, `:password` (alias `:secret`) |
+| Rich Text | `:rich_text` (Action Text editor: Trix, or Lexxy once installed; **default** for `has_rich_text`), `:markdown` (EasyMDE) |
+| Numeric | `:number`, `:integer`, `:decimal`, `:range`, `:rating` (star picker, `max:`) |
 | Boolean | `:toggle` / `:switch` (switch, **default** for boolean columns), `:boolean` (plain checkbox) |
 | Date/Time | `:date`, `:time`, `:datetime` |
-| Selection | `:select`, `:slim_select`, `:radio_buttons`, `:check_boxes` |
-| Files | `:file`, `:uppy`, `:attachment` |
+| Selection | `:select`, `:slim_select`, `:collection_radio_buttons`, `:collection_checkboxes` |
+| Lists | `:list` (chip input for array values; `suggestions:`, `addable:`, `limit:`), `:tags` (no_fly_list `has_tags` contexts, **auto-detected**) |
+| Files | `:file`, `:uppy`, `:attachment` (Active Storage), `:binary` (bytes in a `binary` column) |
 | Associations | `:association`, `:secure_association`, `:belongs_to`, `:has_many`, `:has_one` |
-| Special | `:hidden`, `:color`, `:phone` |
+| Special | `:hidden`, `:color`, `:json`, `:key_value` |
 
 ### Display Types (show / index)
 
-`:string`, `:text`, `:email`, `:url`, `:phone`, `:markdown`, `:number`, `:integer`, `:decimal`, `:boolean`, `:badge`, `:currency`, `:color`, `:date`, `:time`, `:datetime`, `:association`, `:attachment`
+`:string`, `:text`, `:email`, `:url`, `:phone`, `:markdown`, `:number`, `:integer`, `:decimal`, `:boolean`, `:badge`, `:currency`, `:color`, `:date`, `:time`, `:datetime`, `:association`, `:attachment`, `:key_value`, `:binary`, `:list`, `:tags`, `:rich_text`, `:relative_time`, `:code`, `:duration`, `:file_size`, `:progress`, `:rating`
 
 #### Auto-inferred display formatting
 
@@ -565,7 +566,10 @@ These render automatically: declare an `as:` only to override or pass options:
 |--------|-----------|-------|
 | `boolean` | Yes/No pill (`:boolean`) | green "Yes" / neutral "No". Override labels: `true_label:`, `false_label:` |
 | `enum` | colored status badge (`:badge`) | known statuses (active, pending, failed…) auto-colored; unknown values get a stable decorative color |
-| `has_cents` decimal | currency (`:currency`) | delimited, 2 decimals, **no symbol** unless you add `unit:` |
+| `binary` | size (`:binary`) | `Binary data (12 KB)`, never the bytes |
+| `has_rich_text` | HTML (`:rich_text`) | rendered and sanitized by Action Text |
+| no_fly_list `has_tags` | chips (`:tags`) | declare by context name (`:labels`), not `labels_list` |
+| `has_cents` decimal | currency (`:currency`) | delimited, 2 decimals; symbol from `unit:` (display or `has_cents`), else `config.default_currency_unit` / i18n. `unit: false` drops it |
 
 ```ruby
 display :status, as: :badge, colors: {archived: :neutral, vip: :accent}  # override per-value color
@@ -1277,6 +1281,7 @@ end
 | Date Range | `:date_range` | `from`, `to` | `from_label:`, `to_label:` |
 | Select | `:select` | `value` | `choices:`, `multiple:` |
 | Association | `:association` | `value` | `class_name:`, `multiple:` |
+| Tags | `:tags` | `value` | `match:` (`:any` default, `:all`); no_fly_list contexts, options limited to the policy scope |
 
 **Text predicates:** `:eq`, `:not_eq`, `:contains`, `:not_contains`, `:starts_with`, `:ends_with`, `:matches`, `:not_matches`
 **Date predicates:** `:eq`, `:not_eq`, `:lt`, `:lteq`, `:gt`, `:gteq`
@@ -1291,6 +1296,7 @@ filter :category,     with: :select,      choices: -> { Category.pluck(:name) }
 filter :tags,         with: :select,      choices: %w[ruby rails js], multiple: true
 filter :category,     with: :association
 filter :author,       with: :association, class_name: User
+filter :labels,       with: :tags                          # no_fly_list context
 ```
 
 **Custom filter class:**

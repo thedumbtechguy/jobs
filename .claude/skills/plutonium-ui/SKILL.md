@@ -309,7 +309,7 @@ render field(:title).wrapped(class: "col-span-full") { |f| f.input_tag }
 | Tag | Input |
 |---|---|
 | `input_tag` | text (auto-detected type) |
-| `string_tag`, `text_tag`, `number_tag`, `email_tag`, `password_tag`, `url_tag`, `tel_tag`, `hidden_tag` | standard HTML inputs |
+| `string_tag`, `text_tag`, `number_tag`, `email_tag`, `password_tag` / `secret_tag`, `url_tag`, `hidden_tag` | standard HTML inputs |
 | `checkbox_tag`, `select_tag`, `radio_button_tag` | standard |
 | `toggle_tag` / `switch_tag` | switch-styled boolean (`as: :toggle` / `:switch`), default for boolean columns; `as: :boolean` for a plain checkbox |
 
@@ -325,6 +325,13 @@ render field(:title).wrapped(class: "col-span-full") { |f| f.input_tag }
 | `secure_association_tag` | Association with policy-checked options |
 | `belongs_to_tag` / `has_many_tag` / `has_one_tag` | Association selects |
 | `key_value_store_tag` | Key/value pairs editor |
+| `currency_tag` | Money input (number field + unit prefix) |
+| `rich_text_tag` | Action Text editor (Trix, or Lexxy once the app installs it); default for `has_rich_text` |
+| `list_tag` | Chip input for array values (`suggestions:`, `limit:`, `addable: false`) |
+| `tags_tag` | Chip input for a no_fly_list `has_tags` context; default for those contexts |
+| `rating_tag` | Star picker (`max:`, default 5); a Clear option unless required |
+| `binary_tag` | Plain file input whose bytes go into a `binary` column |
+| `json_tag` | JSON editor; default for `json`/`jsonb` columns |
 
 ```ruby
 render field(:published_at).wrapped { |f| f.flatpickr_tag(min_date: Date.today, enable_time: true) }
@@ -335,11 +342,12 @@ render field(:avatar).wrapped       { |f| f.uppy_tag(allowed_file_types: %w[.jpg
 
 `password_tag` masks the stored value and **never emits the secret into the DOM**. A stored secret renders a sentinel; an untouched submit keeps it, an edit-to-new-value then failed re-render comes back blank + `required` (re-type; secrets are never echoed back), a *cleared* field comes back blank but **not** `required` (the clear may be intentional), a deliberately emptied field clears it (clear-by-blank), a typed value sets it. The sentinel is guarded by the `password-sentinel` Stimulus controller: the first edit (incl. **backspace**) wipes the whole field so a partial edit can't corrupt it.
 
-Auto-detected by name: `password`/`token`/`salt`, `encrypted_*`, `*_password`/`*_digest`/`*_hash`/`*_token`/`*_key`/`*_salt`, or any name containing `secret`. A convenience, **not** a guarantee: odd-named secrets (`recovery_phrase`, `pin`) still leak unless masked explicitly.
+Auto-detected by name: `password`/`token`/`salt`, `encrypted_*`, `*_password`/`*_digest`/`*_hash`/`*_token`/`*_key`/`*_salt`, or any name containing `secret`. The same names render `••••••••` on the show page, table, wizard summary and grid/kanban cards; `field`/`display` `as:` overrides it there too. A convenience, **not** a guarantee: odd-named secrets (`recovery_phrase`, `pin`) still leak unless masked explicitly.
 
 ```ruby
 field :api_token,   as: :string     # opt OUT: show a readable value (token to copy, checksum)
 field :recovery_phrase, as: :password   # opt IN: mask a secret the heuristic misses
+field :pin, as: :secret                 # :secret is an alias of :password
 ```
 
 ## Submit buttons
@@ -1114,7 +1122,7 @@ end
 
 ### Display theme keys
 
-`fields_wrapper`, `fields_inner`, `sections_wrapper`, `section_grid`, `label`, `description`, `string`, `text`, `link`, `email`, `phone`, `markdown`, `json`, `boolean`, `badge`, `currency`, `color`.
+`fields_wrapper`, `fields_inner`, `sections_wrapper`, `section_grid`, `label`, `description`, `string`, `text`, `link`, `email`, `phone`, `markdown`, `rich_text`, `json`, `key_value`, `list` / `list_item`, `boolean`, `badge`, `currency`, `color`, `binary`, `relative_time`, `code`, `duration`, `file_size`, `progress`, `rating`. Table cells use `Plutonium::UI::Table::DisplayTheme`, which has its own (more compact) entry for each.
 
 ⚠️ **`fields_wrapper` is the CARD, `fields_inner` is the grid.** `fields_wrapper` is merged into a `Plutonium::UI::Block` (which supplies `pu-card` itself), so putting grid classes there styles the card, not the fields. Override `fields_inner` to change the unsectioned grid, and `section_grid` to change the grid inside a `display_layout` section.
 

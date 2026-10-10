@@ -483,9 +483,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radioactive-labs/plutonium@npm:^0.66.0":
-  version: 0.66.0
-  resolution: "@radioactive-labs/plutonium@npm:0.66.0"
+"@radioactive-labs/plutonium@npm:^0.67.0":
+  version: 0.67.0
+  resolution: "@radioactive-labs/plutonium@npm:0.67.0"
   dependencies:
     "@hotwired/stimulus": "npm:^3.2.2"
     "@hotwired/turbo": "npm:^8.0.4"
@@ -499,7 +499,7 @@ __metadata:
     dompurify: "npm:^3.4.11"
     lodash.debounce: "npm:^4.0.8"
     marked: "npm:^15.0.3"
-  checksum: 10c0/45c55773d3d41ec04de79666f1a73fd64f5a7e68dde501bd7713a8069689fb99cf84ee01b2548c3331940dec9c56f2c9834090ff76b1e6b02516c54e08c1d1e0
+  checksum: 10c0/e492002ffc2107fc243103dedcecd66dbd25b98ef3d4b3a0ee4582e8f5eb214fd83d5040751139c3c6f26164bb3cd7de6abd79b839d00d2ba6ad115c5dad4e81
   languageName: node
   linkType: hard
 
@@ -947,7 +947,7 @@ __metadata:
   dependencies:
     "@hotwired/stimulus": "npm:^3.2.2"
     "@hotwired/turbo-rails": "npm:^8.0.23"
-    "@radioactive-labs/plutonium": "npm:^0.66.0"
+    "@radioactive-labs/plutonium": "npm:^0.67.0"
     "@tailwindcss/cli": "npm:^4.3.3"
     "@tailwindcss/forms": "npm:^0.5.11"
     "@tailwindcss/postcss": "npm:^4.3.3"
